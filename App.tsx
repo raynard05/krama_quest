@@ -6,8 +6,19 @@ import {
   Text, 
   SafeAreaView, 
   TouchableOpacity, 
-  ScrollView 
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
+import { 
+  useFonts, 
+  Poppins_400Regular, 
+  Poppins_500Medium, 
+  Poppins_600SemiBold, 
+  Poppins_700Bold, 
+  Poppins_800ExtraBold 
+} from '@expo-google-fonts/poppins';
+import NetInfo from '@react-native-community/netinfo';
+import { Wifi, WifiOff } from 'lucide-react-native';
 import { Player, GameStatus, GameLog, GameState, NetworkRole } from './types';
 import { TOTAL_CELLS, SNAKES, LADDERS } from './constants';
 import NetworkLobby from './components/NetworkLobby';
@@ -16,17 +27,90 @@ import Die from './components/Die';
 import GameHeader from './components/GameHeader';
 import GameLogs from './components/GameLogs';
 import { GameNetwork, NetworkEvent } from './services/GameNetwork';
+import LoginScreen from './components/LoginScreen';
+import RegisterScreen from './components/RegisterScreen';
+import type { UserAccount } from './services/AuthService';
+
+type AuthScreen = 'login' | 'register';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Poppins-Regular': Poppins_400Regular,
+    'Poppins-Medium': Poppins_500Medium,
+    'Poppins-SemiBold': Poppins_600SemiBold,
+    'Poppins-Bold': Poppins_700Bold,
+    'Poppins-ExtraBold': Poppins_800ExtraBold,
+  });
+
+  // ── Auth state ──────────────────────────────────────────────────────────
+  const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+
+  // ── Network Connectivity state ──────────────────────────────────────────
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [connectionType, setConnectionType] = useState<string | null>(null);
+  const [showStatusBanner, setShowStatusBanner] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isInitialMount = true;
+
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      const connected = state.isConnected;
+      const type = state.type;
+
+      // Translate connection type to a user-friendly Javanese/Indonesian string
+      let typeLabel = '';
+      if (type === 'wifi') typeLabel = 'Wi-Fi';
+      else if (type === 'cellular') typeLabel = 'Seluler';
+      else if (type === 'ethernet') typeLabel = 'Ethernet';
+      else typeLabel = 'Jaringan';
+
+      setConnectionType(typeLabel);
+
+      if (connected === false) {
+        setIsConnected(false);
+        setShowStatusBanner(true);
+      } else if (connected === true) {
+        if (!isInitialMount) {
+          setIsConnected(true);
+          setShowStatusBanner(true);
+          const timer = setTimeout(() => {
+            setShowStatusBanner(false);
+          }, 3000);
+          return () => clearTimeout(timer);
+        } else {
+          setIsConnected(true);
+        }
+      }
+      isInitialMount = false;
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLoginSuccess = (user: UserAccount) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+  };
+
+  const handleRegisterSuccess = (user: UserAccount) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+  };
+
+  // ── Game state ──────────────────────────────────────────────────────────
   const [status, setStatus] = useState<GameStatus>('lobby');
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
   const [dieValue, setDieValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState<boolean>(false);
+  const [isRollCooldown, setIsRollCooldown] = useState<boolean>(false);
   const [logs, setLogs] = useState<GameLog[]>([]);
   const [winner, setWinner] = useState<Player | null>(null);
+  const [isMoving, setIsMoving] = useState<boolean>(false);
 
   // Network State
   const [networkRole, setNetworkRole] = useState<NetworkRole>('local');
@@ -67,6 +151,7 @@ export default function App() {
     setLogs([]);
     setStatus('playing');
     isMovingRef.current = false;
+    setIsMoving(false);
 
     // Log the starting event
     const firstPlayer = configuredPlayers[0];
@@ -96,6 +181,7 @@ export default function App() {
     setLogs([]);
     setStatus('playing');
     isMovingRef.current = false;
+    setIsMoving(false);
   };
 
   // Reset the current game with the same players
@@ -119,6 +205,7 @@ export default function App() {
     setLogs([]);
     setStatus('playing');
     isMovingRef.current = false;
+    setIsMoving(false);
 
     const resetLog: GameLog = {
       id: 'reset-log',
@@ -148,6 +235,7 @@ export default function App() {
     setWinner(null);
     setLogs([]);
     isMovingRef.current = false;
+    setIsMoving(false);
   };
 
   // Calculate cell-by-cell path including bounce back if roll exceeds cell 50
@@ -171,18 +259,27 @@ export default function App() {
     return path;
   };
 
-  // Main roll and move controller
   const handleRollDie = async () => {
-    if (isRolling || isMovingRef.current || winner) return;
-
+    if (isRolling || isMovingRef.current || winner || isRollCooldown) return;
+ 
     if (networkRole === 'client') {
+      // Lock locally for 2 seconds to prevent button spam during network latency
+      setIsRollCooldown(true);
+      setTimeout(() => setIsRollCooldown(false), 2000);
+
       // Request Host to execute roll
+      console.log(`[Multiplayer] Client (P${localPlayerId}) requesting roll action...`);
       GameNetwork.requestAction('roll', localPlayerId);
       return;
     }
 
+    // Host also gets a temporary cooldown lock for safety
+    setIsRollCooldown(true);
+    setTimeout(() => setIsRollCooldown(false), 1500);
+
     setIsRolling(true);
     isMovingRef.current = true;
+    setIsMoving(true);
 
     // Simulate dice rolling with rapid value switching
     const activePlayer = players[currentPlayerIndex];
@@ -297,12 +394,17 @@ export default function App() {
       );
       setStatus('victory');
       isMovingRef.current = false;
+      setIsMoving(false);
       return;
     }
+
+    // Turn rotation delay to prevent spamming
+    await sleep(1500);
 
     // Turn rotation
     setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
     isMovingRef.current = false;
+    setIsMoving(false);
   };
 
   // Host: Broadcast state updates to clients
@@ -314,11 +416,12 @@ export default function App() {
         status,
         dieValue,
         isRolling,
+        isMoving,
         logs,
         winner
       });
     }
-  }, [players, currentPlayerIndex, status, dieValue, isRolling, logs, winner, networkRole]);
+  }, [players, currentPlayerIndex, status, dieValue, isRolling, isMoving, logs, winner, networkRole]);
 
   // Network event listener during active gameplay
   useEffect(() => {
@@ -327,13 +430,23 @@ export default function App() {
     GameNetwork.registerListener((event: NetworkEvent) => {
       switch (event.type) {
         case 'action_requested':
+          console.log(`[Multiplayer] Host received action request: "${event.action}" from Player ${event.playerId}`);
           if (networkRole === 'host') {
             const activePlayer = players[currentPlayerIndex];
-            if (event.action === 'roll' && event.playerId === activePlayer?.id) {
-              handleRollDie();
+            console.log(`[Multiplayer] Current turn index: ${currentPlayerIndex}, Active Player ID: ${activePlayer?.id}`);
+            
+            if (event.action === 'roll') {
+              if (event.playerId == activePlayer?.id) {
+                console.log(`[Multiplayer] Action APPROVED! Executing die roll for Player ${activePlayer.id}`);
+                handleRollDie();
+              } else {
+                console.warn(`[Multiplayer] Action REJECTED! Roll requested by Player ${event.playerId} but active player is ${activePlayer?.id}`);
+              }
             } else if (event.action === 'reset') {
+              console.log('[Multiplayer] Reset request approved.');
               handleResetGame();
             } else if (event.action === 'back') {
+              console.log('[Multiplayer] Back request approved.');
               handleBackToLobby();
             }
           }
@@ -346,6 +459,9 @@ export default function App() {
             setCurrentPlayerIndex(event.state.currentPlayerIndex);
             setDieValue(event.state.dieValue);
             setIsRolling(event.state.isRolling);
+            if (event.state.isMoving !== undefined) {
+              setIsMoving(event.state.isMoving);
+            }
             setLogs(event.state.logs);
             setWinner(event.state.winner);
             setStatus(event.state.status);
@@ -383,7 +499,9 @@ export default function App() {
       }
     });
 
-    return () => {};
+    return () => {
+      GameNetwork.registerListener(() => {});
+    };
   }, [networkRole, status, players, currentPlayerIndex]);
 
   // AI Autoplay effect (only host or local rolls for computer bots)
@@ -406,10 +524,61 @@ export default function App() {
       ? players[currentPlayerIndex]?.type === 'human'
       : (networkRole === 'host' && currentPlayerIndex === 0) || (networkRole === 'client' && players[currentPlayerIndex]?.id === localPlayerId);
 
+  // Return loader if fonts aren't loaded yet
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#07070F' }}>
+        <ActivityIndicator size="large" color="#00F2FE" />
+      </View>
+    );
+  }
+
+  // Helper to render the dynamic network status banner
+  const renderNetworkBanner = () => {
+    if (!showStatusBanner) return null;
+    return (
+      <View style={[styles.networkBanner, { backgroundColor: isConnected ? '#10B981' : '#EF4444' }]}>
+        {isConnected ? (
+          <Wifi size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+        ) : (
+          <WifiOff size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+        )}
+        <Text style={styles.networkBannerText}>
+          {isConnected 
+            ? 'Koneksi kasil kasambung malih!' 
+            : `Jaringan pedhot! Priksa sambungan internet (${connectionType})`
+          }
+        </Text>
+      </View>
+    );
+  };
+
+  // ── Auth screens ─────────────────────────────────────────────────────
+  if (!isAuthenticated) {
+    return (
+      <View style={{ flex: 1 }}>
+        {renderNetworkBanner()}
+        {authScreen === 'login' ? (
+          <LoginScreen
+            onNavigateToRegister={() => setAuthScreen('register')}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        ) : (
+          <RegisterScreen
+            onNavigateToLogin={() => setAuthScreen('login')}
+            onRegisterSuccess={handleRegisterSuccess}
+          />
+        )}
+        <StatusBar style="dark" />
+      </View>
+    );
+  }
+
   // Render Lobby screen
   if (status === 'lobby') {
     return (
       <SafeAreaView style={styles.safeArea}>
+        {renderNetworkBanner()}
         {/* Glow Aurora Blobs */}
         <View style={[styles.glowBlob, styles.glowCyan, { top: -50, left: -50 }]} />
         <View style={[styles.glowBlob, styles.glowPurple, { bottom: -100, right: -50 }]} />
@@ -423,6 +592,7 @@ export default function App() {
   // Render gameplay and victory screens
   return (
     <SafeAreaView style={styles.safeArea}>
+      {renderNetworkBanner()}
       {/* Glow Aurora Blobs */}
       <View style={[styles.glowBlob, styles.glowCyan, { top: -80, right: -50 }]} />
       <View style={[styles.glowBlob, styles.glowPurple, { bottom: -80, left: -50 }]} />
@@ -467,7 +637,7 @@ export default function App() {
               value={dieValue}
               isRolling={isRolling}
               onRoll={handleRollDie}
-              disabled={!isMyTurn || isRolling || isMovingRef.current}
+              disabled={!isMyTurn || isRolling || isMoving || isRollCooldown}
               color={players[currentPlayerIndex]?.color}
             />
           )}
@@ -544,5 +714,19 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  networkBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    width: '100%',
+  },
+  networkBannerText: {
+    fontFamily: 'Poppins-Medium',
+    color: '#FFFFFF',
+    fontSize: 12,
+    textAlign: 'center',
   },
 });

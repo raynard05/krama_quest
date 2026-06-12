@@ -29,6 +29,7 @@ export interface GameState {
   status: GameStatus;
   dieValue: number;
   isRolling: boolean;
+  isMoving?: boolean;
   logs: GameLog[];
   winner: Player | null;
 }

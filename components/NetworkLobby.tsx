@@ -44,7 +44,9 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame }: N
   // Clean socket listener on unmount
   useEffect(() => {
     return () => {
-      GameNetwork.closeAll();
+      // Do NOT close the socket connection here because we need it during gameplay.
+      // Just clear the lobby listener callback to prevent memory leaks or warnings.
+      GameNetwork.registerListener(() => {});
     };
   }, []);
 

@@ -53,6 +53,7 @@ class GameNetworkManager {
       });
 
       this.socket.on('actionRequested', ({ action, playerId }: any) => {
+        console.log(`[Socket] Host received actionRequested event from Server: "${action}" for Player ${playerId}`);
         this.onEventCallback({
           type: 'action_requested',
           action,
@@ -193,6 +194,7 @@ class GameNetworkManager {
   // CLIENT: Request action from Server
   requestAction(action: 'roll' | 'reset' | 'back', playerId: number) {
     if (this.socket && this.roomCode) {
+      console.log(`[Socket] Client emitting requestAction: "${action}" for Player ${playerId}`);
       this.socket.emit('requestAction', {
         roomCode: this.roomCode,
         action,
