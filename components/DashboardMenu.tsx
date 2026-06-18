@@ -9,8 +9,8 @@ import {
   Animated,
   Modal,
   Dimensions,
-  SafeAreaView
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LogOut, X, BookOpen, Target, Award, User, ChevronRight } from 'lucide-react-native';
 import type { UserAccount } from '../services/AuthService';
 
@@ -82,10 +82,10 @@ function MenuCard({ title, imageSource, onPress }: MenuCardProps) {
         activeOpacity={0.9}
         style={styles.menuCard}
       >
-        <Animated.Image 
-          source={imageSource} 
-          style={[styles.cardImage, { transform: [{ rotate }] }]} 
-          resizeMode="contain" 
+        <Animated.Image
+          source={imageSource}
+          style={[styles.cardImage, { transform: [{ rotate }] }]}
+          resizeMode="contain"
         />
         <Text style={styles.cardTitle}>{title}</Text>
       </TouchableOpacity>
@@ -98,6 +98,30 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
   const [materiModalVisible, setMateriModalVisible] = useState(false);
   const [cptpModalVisible, setCptpModalVisible] = useState(false);
   const [evalModalVisible, setEvalModalVisible] = useState(false);
+
+  // Avatar rotation animation values
+  const avatarRotateVal = useRef(new Animated.Value(0)).current;
+
+  const handleAvatarPress = () => {
+    Animated.timing(avatarRotateVal, {
+      toValue: 1,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(() => {
+      setProfileModalVisible(true);
+      // Reset rotation back to 0
+      Animated.timing(avatarRotateVal, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const avatarRotate = avatarRotateVal.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '30deg'],
+  });
 
   // Extract first name for greeting
   const displayName = currentUser?.nama_lengkap
@@ -119,13 +143,13 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
 
           <TouchableOpacity
             style={styles.avatarButton}
-            onPress={() => setProfileModalVisible(true)}
+            onPress={handleAvatarPress}
             activeOpacity={0.8}
           >
             <View style={styles.avatarRing}>
-              <Image
+              <Animated.Image
                 source={require('../assets/dashboard_assets/usericon2.png')}
-                style={styles.avatarImage}
+                style={[styles.avatarImage, { transform: [{ rotate: avatarRotate }] }]}
               />
             </View>
           </TouchableOpacity>
@@ -139,7 +163,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
           {/* Main Comic Card */}
           <View style={styles.bannerMain}>
             <Image
-              source={require('../assets/dashboard_assets/greeting.webp')}
+              source={require('../assets/dashboard_assets/greeting2.png')}
               style={styles.bannerImage}
               resizeMode="cover"
             />
@@ -447,7 +471,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 24,
     paddingBottom: 32,
   },
   header: {
@@ -455,12 +479,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-    marginTop: 8,
-    
+    marginTop: 16,
+
   },
   headerLeft: {
     flex: 1,
- 
+
   },
   greetingText: {
     fontSize: 20,
@@ -483,16 +507,10 @@ const styles = StyleSheet.create({
   avatarRing: {
     width: 60,
     height: 60,
-
     backgroundColor: "#ceeaedff",
     borderRadius: 20,
     borderStartStartRadius: 50,
-
     padding: 3,
-
-
-
-
   },
   avatarImage: {
     width: '100%',
@@ -548,7 +566,7 @@ const styles = StyleSheet.create({
   menuCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
-    paddingVertical: 20,
+
     paddingHorizontal: 15,
     alignItems: 'center',
     justifyContent: 'center',

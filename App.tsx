@@ -30,6 +30,7 @@ import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
 import type { UserAccount } from './services/AuthService';
 import DashboardMenu from './components/DashboardMenu';
+import DolananOptions from './components/DolananOptions';
 
 type AuthScreen = 'login' | 'register';
 
@@ -49,6 +50,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [showDashboard, setShowDashboard] = useState<boolean>(true);
+  const [showDolananOptions, setShowDolananOptions] = useState<boolean>(false);
 
   const handleLoginSuccess = (user: UserAccount) => {
     setCurrentUser(user);
@@ -66,6 +68,7 @@ export default function App() {
     setCurrentUser(null);
     setIsAuthenticated(false);
     setShowDashboard(true);
+    setShowDolananOptions(false);
     setAuthScreen('login');
   };
 
@@ -533,9 +536,29 @@ export default function App() {
             currentUser={currentUser}
             onSelectDolanan={() => {
               setShowDashboard(false);
-              setStatus('lobby');
+              setShowDolananOptions(true);
             }}
             onLogout={handleLogout}
+          />
+          <StatusBar style="dark" />
+          <NavigationBar style="dark" />
+        </>
+      );
+    }
+
+    // Render Dolanan Options screen
+    if (showDolananOptions) {
+      return (
+        <>
+          <DolananOptions
+            onBack={() => {
+              setShowDolananOptions(false);
+              setShowDashboard(true);
+            }}
+            onSelectGame={() => {
+              setShowDolananOptions(false);
+              setStatus('lobby');
+            }}
           />
           <StatusBar style="dark" />
           <NavigationBar style="dark" />
@@ -554,7 +577,9 @@ export default function App() {
           <NetworkLobby 
             onStartLocalGame={handleStartGame} 
             onStartNetworkGame={handleStartNetworkGame} 
-            onBack={() => setShowDashboard(true)}
+            onBack={() => {
+              setShowDolananOptions(true);
+            }}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />
