@@ -150,7 +150,7 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
 
         {/* Bottom Section: Hanya berisi ilustrasi kota di belakang */}
         <View style={styles.bottomSection}>
-          <Image source={require('../assets/login_assets/city_bottom.png')} style={styles.cityImg} resizeMode="cover" />
+          <Image source={require('../assets/login_assets/city_bottom.webp')} style={styles.cityImg} resizeMode="cover" />
         </View>
 
       </ScrollView>

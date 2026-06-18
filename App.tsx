@@ -4,11 +4,12 @@ import {
   StyleSheet, 
   View, 
   Text, 
-  SafeAreaView, 
   TouchableOpacity, 
   ScrollView,
   ActivityIndicator
 } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { NavigationBar } from 'expo-navigation-bar';
 import { 
   useFonts, 
   Poppins_400Regular, 
@@ -17,8 +18,6 @@ import {
   Poppins_700Bold, 
   Poppins_800ExtraBold 
 } from '@expo-google-fonts/poppins';
-import NetInfo from '@react-native-community/netinfo';
-import { Wifi, WifiOff } from 'lucide-react-native';
 import { Player, GameStatus, GameLog, GameState, NetworkRole } from './types';
 import { TOTAL_CELLS, SNAKES, LADDERS } from './constants';
 import NetworkLobby from './components/NetworkLobby';
@@ -30,6 +29,7 @@ import { GameNetwork, NetworkEvent } from './services/GameNetwork';
 import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
 import type { UserAccount } from './services/AuthService';
+import DashboardMenu from './components/DashboardMenu';
 
 type AuthScreen = 'login' | 'register';
 
@@ -48,57 +48,25 @@ export default function App() {
   const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
-
-  // ── Network Connectivity state ──────────────────────────────────────────
-  const [isConnected, setIsConnected] = useState<boolean | null>(null);
-  const [connectionType, setConnectionType] = useState<string | null>(null);
-  const [showStatusBanner, setShowStatusBanner] = useState<boolean>(false);
-
-  useEffect(() => {
-    let isInitialMount = true;
-
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      const connected = state.isConnected;
-      const type = state.type;
-
-      // Translate connection type to a user-friendly Javanese/Indonesian string
-      let typeLabel = '';
-      if (type === 'wifi') typeLabel = 'Wi-Fi';
-      else if (type === 'cellular') typeLabel = 'Seluler';
-      else if (type === 'ethernet') typeLabel = 'Ethernet';
-      else typeLabel = 'Jaringan';
-
-      setConnectionType(typeLabel);
-
-      if (connected === false) {
-        setIsConnected(false);
-        setShowStatusBanner(true);
-      } else if (connected === true) {
-        if (!isInitialMount) {
-          setIsConnected(true);
-          setShowStatusBanner(true);
-          const timer = setTimeout(() => {
-            setShowStatusBanner(false);
-          }, 3000);
-          return () => clearTimeout(timer);
-        } else {
-          setIsConnected(true);
-        }
-      }
-      isInitialMount = false;
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const [showDashboard, setShowDashboard] = useState<boolean>(true);
 
   const handleLoginSuccess = (user: UserAccount) => {
     setCurrentUser(user);
     setIsAuthenticated(true);
+    setShowDashboard(true);
   };
 
   const handleRegisterSuccess = (user: UserAccount) => {
     setCurrentUser(user);
     setIsAuthenticated(true);
+    setShowDashboard(true);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    setShowDashboard(true);
+    setAuthScreen('login');
   };
 
   // ── Game state ──────────────────────────────────────────────────────────
@@ -533,120 +501,132 @@ export default function App() {
     );
   }
 
-  // Helper to render the dynamic network status banner
-  const renderNetworkBanner = () => {
-    if (!showStatusBanner) return null;
+
+  // Helper to render content with proper safe area and navigation bar styles
+  const renderContent = () => {
+    // ── Auth screens ─────────────────────────────────────────────────────
+    if (!isAuthenticated) {
+      return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['top', 'bottom']}>
+          {authScreen === 'login' ? (
+            <LoginScreen
+              onNavigateToRegister={() => setAuthScreen('register')}
+              onLoginSuccess={handleLoginSuccess}
+            />
+          ) : (
+            <RegisterScreen
+              onNavigateToLogin={() => setAuthScreen('login')}
+              onRegisterSuccess={handleRegisterSuccess}
+            />
+          )}
+          <StatusBar style="dark" />
+          <NavigationBar style="dark" />
+        </SafeAreaView>
+      );
+    }
+
+    // Render Dashboard screen
+    if (showDashboard) {
+      return (
+        <>
+          <DashboardMenu
+            currentUser={currentUser}
+            onSelectDolanan={() => {
+              setShowDashboard(false);
+              setStatus('lobby');
+            }}
+            onLogout={handleLogout}
+          />
+          <StatusBar style="dark" />
+          <NavigationBar style="dark" />
+        </>
+      );
+    }
+
+    // Render Lobby screen
+    if (status === 'lobby') {
+      return (
+        <SafeAreaView style={styles.safeArea}>
+          {/* Glow Aurora Blobs */}
+          <View style={[styles.glowBlob, styles.glowCyan, { top: -50, left: -50 }]} />
+          <View style={[styles.glowBlob, styles.glowPurple, { bottom: -100, right: -50 }]} />
+          
+          <NetworkLobby 
+            onStartLocalGame={handleStartGame} 
+            onStartNetworkGame={handleStartNetworkGame} 
+            onBack={() => setShowDashboard(true)}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </SafeAreaView>
+      );
+    }
+
+    // Render gameplay and victory screens
     return (
-      <View style={[styles.networkBanner, { backgroundColor: isConnected ? '#10B981' : '#EF4444' }]}>
-        {isConnected ? (
-          <Wifi size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
-        ) : (
-          <WifiOff size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
-        )}
-        <Text style={styles.networkBannerText}>
-          {isConnected 
-            ? 'Koneksi kasil kasambung malih!' 
-            : `Jaringan pedhot! Priksa sambungan internet (${connectionType})`
-          }
-        </Text>
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Glow Aurora Blobs */}
+        <View style={[styles.glowBlob, styles.glowCyan, { top: -80, right: -50 }]} />
+        <View style={[styles.glowBlob, styles.glowPurple, { bottom: -80, left: -50 }]} />
+
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <GameHeader
+            players={players}
+            currentPlayerIndex={currentPlayerIndex}
+            onBackToLobby={handleBackToLobby}
+            onResetGame={handleResetGame}
+            winner={winner}
+          />
+
+          <Board players={players} />
+
+          {/* Action Panel */}
+          <View style={styles.actionPanel}>
+            {status === 'victory' && winner ? (
+              <View style={styles.victoryPanel}>
+                {networkRole !== 'client' && (
+                  <TouchableOpacity
+                    style={[styles.victoryBtn, { backgroundColor: winner.color }]}
+                    onPress={handleResetGame}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.victoryBtnText}>Main Lagi (Ulangi)</Text>
+                  </TouchableOpacity>
+                )}
+                
+                <TouchableOpacity
+                  style={styles.lobbyBtn}
+                  onPress={handleBackToLobby}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.lobbyBtnText}>
+                    {networkRole === 'client' ? 'Keluar Lobi' : 'Kembali Ke Lobby'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Die
+                value={dieValue}
+                isRolling={isRolling}
+                onRoll={handleRollDie}
+                disabled={!isMyTurn || isRolling || isMoving || isRollCooldown}
+                color={players[currentPlayerIndex]?.color}
+              />
+            )}
+          </View>
+
+          <GameLogs logs={logs} />
+        </ScrollView>
+        <StatusBar style="light" />
+        <NavigationBar style="light" />
+      </SafeAreaView>
     );
   };
 
-  // ── Auth screens ─────────────────────────────────────────────────────
-  if (!isAuthenticated) {
-    return (
-      <View style={{ flex: 1 }}>
-        {renderNetworkBanner()}
-        {authScreen === 'login' ? (
-          <LoginScreen
-            onNavigateToRegister={() => setAuthScreen('register')}
-            onLoginSuccess={handleLoginSuccess}
-          />
-        ) : (
-          <RegisterScreen
-            onNavigateToLogin={() => setAuthScreen('login')}
-            onRegisterSuccess={handleRegisterSuccess}
-          />
-        )}
-        <StatusBar style="dark" />
-      </View>
-    );
-  }
-
-  // Render Lobby screen
-  if (status === 'lobby') {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        {renderNetworkBanner()}
-        {/* Glow Aurora Blobs */}
-        <View style={[styles.glowBlob, styles.glowCyan, { top: -50, left: -50 }]} />
-        <View style={[styles.glowBlob, styles.glowPurple, { bottom: -100, right: -50 }]} />
-        
-        <NetworkLobby onStartLocalGame={handleStartGame} onStartNetworkGame={handleStartNetworkGame} />
-        <StatusBar style="light" />
-      </SafeAreaView>
-    );
-  }
-
-  // Render gameplay and victory screens
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {renderNetworkBanner()}
-      {/* Glow Aurora Blobs */}
-      <View style={[styles.glowBlob, styles.glowCyan, { top: -80, right: -50 }]} />
-      <View style={[styles.glowBlob, styles.glowPurple, { bottom: -80, left: -50 }]} />
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <GameHeader
-          players={players}
-          currentPlayerIndex={currentPlayerIndex}
-          onBackToLobby={handleBackToLobby}
-          onResetGame={handleResetGame}
-          winner={winner}
-        />
-
-        <Board players={players} />
-
-        {/* Action Panel */}
-        <View style={styles.actionPanel}>
-          {status === 'victory' && winner ? (
-            <View style={styles.victoryPanel}>
-              {networkRole !== 'client' && (
-                <TouchableOpacity
-                  style={[styles.victoryBtn, { backgroundColor: winner.color }]}
-                  onPress={handleResetGame}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.victoryBtnText}>Main Lagi (Ulangi)</Text>
-                </TouchableOpacity>
-              )}
-              
-              <TouchableOpacity
-                style={styles.lobbyBtn}
-                onPress={handleBackToLobby}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.lobbyBtnText}>
-                  {networkRole === 'client' ? 'Keluar Lobi' : 'Kembali Ke Lobby'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <Die
-              value={dieValue}
-              isRolling={isRolling}
-              onRoll={handleRollDie}
-              disabled={!isMyTurn || isRolling || isMoving || isRollCooldown}
-              color={players[currentPlayerIndex]?.color}
-            />
-          )}
-        </View>
-
-        <GameLogs logs={logs} />
-      </ScrollView>
-      <StatusBar style="light" />
-    </SafeAreaView>
+    <SafeAreaProvider>
+      {renderContent()}
+    </SafeAreaProvider>
   );
 }
 
@@ -714,19 +694,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 14,
-  },
-  networkBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    width: '100%',
-  },
-  networkBannerText: {
-    fontFamily: 'Poppins-Medium',
-    color: '#FFFFFF',
-    fontSize: 12,
-    textAlign: 'center',
   },
 });

@@ -11,15 +11,17 @@ import {
 } from 'react-native';
 import { Player, NetworkRole, NetworkStatus } from '../types';
 import { MODERN_COLORS, AVATAR_ICONS } from '../constants';
+import { ChevronLeft } from 'lucide-react-native';
 import Lobby from './Lobby';
 import { GameNetwork, NetworkEvent } from '../services/GameNetwork';
 
 interface NetworkLobbyProps {
   onStartLocalGame: (players: Player[]) => void;
   onStartNetworkGame: (players: Player[], role: NetworkRole, localPlayerId: number) => void;
+  onBack?: () => void;
 }
 
-export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame }: NetworkLobbyProps) {
+export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onBack }: NetworkLobbyProps) {
   const [lobbyMode, setLobbyMode] = useState<'local' | 'network'>('local');
   const [networkRole, setNetworkRole] = useState<'host' | 'client'>('host');
   
@@ -287,8 +289,15 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame }: N
   if (lobbyMode === 'local') {
     return (
       <View style={styles.flexContainer}>
+        {onBack && (
+          <TouchableOpacity onPress={onBack} style={[styles.backBtn, { paddingHorizontal: 20 }]} activeOpacity={0.7}>
+            <ChevronLeft color="#00F2FE" size={24} />
+            <Text style={styles.backBtnText}>Kembali ke Menu</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Modern Tab Selector at top */}
-        <View style={styles.topTabBar}>
+        <View style={[styles.topTabBar, onBack ? { marginTop: 10 } : { marginTop: 25 }]}>
           <TouchableOpacity 
             style={[styles.tabSelector, styles.tabActive]}
             onPress={() => setLobbyMode('local')}
@@ -311,8 +320,15 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame }: N
   // Else, render Host/Client multiplayer networking setup
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      {onBack && (
+        <TouchableOpacity onPress={onBack} style={[styles.backBtn, { marginBottom: 15 }]} activeOpacity={0.7}>
+          <ChevronLeft color="#00F2FE" size={24} />
+          <Text style={styles.backBtnText}>Kembali ke Menu</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Tab Selector */}
-      <View style={styles.topTabBar}>
+      <View style={[styles.topTabBar, onBack && { marginTop: 10 }]}>
         <TouchableOpacity 
           style={styles.tabSelector}
           onPress={() => {
@@ -855,5 +871,17 @@ const styles = StyleSheet.create({
     color: '#FF3366',
     fontWeight: 'bold',
     fontSize: 12,
+  },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    marginTop: Platform.OS === 'ios' ? 10 : 25,
+  },
+  backBtnText: {
+    color: '#00F2FE',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginLeft: 6,
   },
 });

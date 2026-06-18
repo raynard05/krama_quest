@@ -10,7 +10,12 @@ import bcrypt from 'bcryptjs';
 const SUPABASE_URL = 'https://jkszjoviywizcvdhwejz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_On_v0Dk0iH8532lOdoF2MQ_pe4BK9RO';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: false,
+    detectSessionInUrl: false,
+  },
+});
 
 export interface UserAccount {
   id: number;
@@ -69,10 +74,10 @@ export async function loginUser(username: string, kata_sandi: string): Promise<A
       user: safeUser,
     };
   } catch (err: any) {
-    console.error('[AuthService] Login error:', err.message);
+    console.error('[AuthService] Login error:', err);
     return {
       success: false,
-      message: 'Wonten kesalahan server. Priksa koneksi internet panjenengan.',
+      message: `Login error: ${err.message || JSON.stringify(err)}`,
     };
   }
 }
@@ -130,10 +135,10 @@ export async function registerUser(payload: {
       user: newUser,
     };
   } catch (err: any) {
-    console.error('[AuthService] Register error:', err.message);
+    console.error('[AuthService] Register error:', err);
     return {
       success: false,
-      message: 'Wonten kesalahan server. Priksa koneksi internet panjenengan.',
+      message: `Register error: ${err.message || JSON.stringify(err)}`,
     };
   }
 }

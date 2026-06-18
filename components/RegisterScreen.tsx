@@ -31,20 +31,20 @@ interface RegisterScreenProps {
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }: RegisterScreenProps) {
   // State
-  const [fullName, setFullName]               = useState('');
-  const [username, setUsername]               = useState('');
-  const [kelas, setKelas]                     = useState('');
-  const [noAbsen, setNoAbsen]                 = useState('');
-  const [password, setPassword]               = useState('');
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [kelas, setKelas] = useState('');
+  const [noAbsen, setNoAbsen] = useState('');
+  const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [loading, setLoading]                 = useState(false);
-  const [error, setError]                     = useState('');
-  const [focusedField, setFocusedField]       = useState<'fullName' | 'username' | 'kelas' | 'noAbsen' | 'password' | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [focusedField, setFocusedField] = useState<'fullName' | 'username' | 'kelas' | 'noAbsen' | 'password' | null>(null);
 
   // Refs untuk pindah field via keyboard
   const usernameRef = useRef<TextInput>(null);
-  const kelasRef    = useRef<TextInput>(null);
-  const absenRef    = useRef<TextInput>(null);
+  const kelasRef = useRef<TextInput>(null);
+  const absenRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
 
   // Button press animation
@@ -68,10 +68,10 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
     try {
       const result = await registerUser({
         nama_lengkap: fullName.trim(),
-        username:     username.trim(),
-        kelas:        kelas.trim(),
-        nomor_absen:  noAbsen.trim(),
-        kata_sandi:   password,
+        username: username.trim(),
+        kelas: kelas.trim(),
+        nomor_absen: noAbsen.trim(),
+        kata_sandi: password,
       });
       if (result.success && result.user) {
         onRegisterSuccess(result.user);
@@ -195,7 +195,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
             <TouchableOpacity onPress={() => setPasswordVisible(v => !v)} style={styles.eyeBtn} activeOpacity={0.7}>
               {passwordVisible
                 ? <EyeOff size={EYE_SIZE} color="#888899" strokeWidth={1.8} />
-                : <Eye    size={EYE_SIZE} color="#888899" strokeWidth={1.8} />}
+                : <Eye size={EYE_SIZE} color="#888899" strokeWidth={1.8} />}
             </TouchableOpacity>
           </View>
 
@@ -225,7 +225,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
 
         {/* Bottom Section: Hanya berisi ilustrasi kota di belakang */}
         <View style={styles.bottomSection}>
-          <Image source={require('../assets/login_assets/city_bottom.png')} style={styles.cityImg} resizeMode="cover" />
+          <Image source={require('../assets/login_assets/city_bottom.webp')} style={styles.cityImg} resizeMode="cover" />
         </View>
 
       </ScrollView>
