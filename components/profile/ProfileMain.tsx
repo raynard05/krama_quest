@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { UserAccount } from '../../services/AuthService';
 import ProfileScreen from './ProfileScreen';
 import HistoryScreen from './HistoryScreen';
@@ -21,7 +22,7 @@ export default function ProfileMain({
   const [activeSubScreen, setActiveSubScreen] = useState<SubScreen>('main');
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {activeSubScreen === 'main' && (
         <ProfileScreen
           currentUser={currentUser}
@@ -47,12 +48,13 @@ export default function ProfileMain({
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0A0A12', // Ensure solid background color matches the theme
   },
 });

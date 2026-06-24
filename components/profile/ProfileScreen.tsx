@@ -8,7 +8,7 @@ import {
   ImageBackground,
   Alert
 } from 'react-native';
-import { ArrowLeft, ChevronRight, Edit2 } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Edit2, History, Settings, Info } from 'lucide-react-native';
 import type { UserAccount } from '../../services/AuthService';
 import { ProfileStyles as styles } from '../../styles/profile/ProfileStyles';
 import { getAvatarSource } from './ProfileAvatars';
@@ -71,99 +71,95 @@ export default function ProfileScreen({
             <Text style={styles.userSubtitleText}>{schoolClass}</Text>
           </View>
 
-          {/* Stats Cards Row */}
-          <View style={styles.statsRow}>
+          {/* Stats Card Unified */}
+          <View style={styles.statsCardUnified}>
             {/* Stat 1: Materi */}
-            <View style={styles.statCard}>
+            <View style={styles.statCol}>
               <Image
                 source={require('../../assets/dashboard_assets/materi.png')}
                 style={styles.statIcon}
                 resizeMode="contain"
               />
               <Text style={styles.statValue}>5</Text>
-              <Text style={styles.statLabel}>Materi{"\n"}Rampung</Text>
+              <Text style={styles.statLabel}>Materi Rampung</Text>
             </View>
 
+            <View style={styles.statDivider} />
+
             {/* Stat 2: Latihan */}
-            <View style={styles.statCard}>
+            <View style={styles.statCol}>
               <Image
-                source={require('../../assets/profile/clipboard-list-svgrepo-com 1.png')}
+                source={require('../../assets/profile/clipboard_list.png')}
                 style={styles.statIcon}
                 resizeMode="contain"
               />
               <Text style={styles.statValue}>5</Text>
-              <Text style={styles.statLabel}>Latihan{"\n"}Rampung</Text>
+              <Text style={styles.statLabel}>Latihan Rampung</Text>
             </View>
 
+            <View style={styles.statDivider} />
+
             {/* Stat 3: Skor Rata-rata */}
-            <View style={styles.statCard}>
+            <View style={styles.statCol}>
               <Image
-                source={require('../../assets/profile/star-svgrepo-com 1.png')}
+                source={require('../../assets/profile/star.png')}
                 style={styles.statIcon}
                 resizeMode="contain"
               />
               <Text style={styles.statValue}>98%</Text>
-              <Text style={styles.statLabel}>Skor{"\n"}Rata-rata</Text>
+              <Text style={styles.statLabel}>Skor Rata-rata</Text>
             </View>
           </View>
 
-          {/* List Options */}
-          <View style={styles.listContainer}>
+          {/* Options Card Unified */}
+          <View style={styles.optionsCard}>
             {/* Option 1: Riwayat Sinau */}
             <TouchableOpacity
-              style={styles.listItem}
+              style={styles.optionRow}
               onPress={onNavigateToHistory}
               activeOpacity={0.7}
             >
-              <View style={styles.listItemLeft}>
+              <View style={styles.optionRowLeft}>
                 <View style={styles.listIconWrapper}>
-                  <Image
-                    source={require('../../assets/profile/history-svgrepo-com 1.png')}
-                    style={styles.listIcon}
-                    resizeMode="contain"
-                  />
+                  <History color="#00F2FE" size={18} />
                 </View>
-                <Text style={styles.listItemText}>Riwayat Sinau</Text>
+                <Text style={styles.optionRowText}>Riwayat Sinau</Text>
               </View>
-              <ChevronRight color="#FFFFFF" size={20} />
+              <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
             </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
 
             {/* Option 2: Pengaturan */}
             <TouchableOpacity
-              style={styles.listItem}
+              style={styles.optionRow}
               onPress={() => handleInfoPress('Pengaturan', 'Fitur pengaturan badhe dipunbuka enggal!')}
               activeOpacity={0.7}
             >
-              <View style={styles.listItemLeft}>
+              <View style={styles.optionRowLeft}>
                 <View style={styles.listIconWrapper}>
-                  <Image
-                    source={require('../../assets/profile/history-svgrepo-com 1.png')}
-                    style={styles.listIcon}
-                    resizeMode="contain"
-                  />
+                  <Settings color="#00F2FE" size={18} />
                 </View>
-                <Text style={styles.listItemText}>Pengaturan</Text>
+                <Text style={styles.optionRowText}>Pengaturan</Text>
               </View>
-              <ChevronRight color="#FFFFFF" size={20} />
+              <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
             </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
 
             {/* Option 3: Bab Aplikasi */}
             <TouchableOpacity
-              style={styles.listItem}
+              style={styles.optionRow}
               onPress={() => handleInfoPress('Bab Aplikasi', 'Krama Quest v1.0.0\n\nAplikasi pasinaon Basa Jawi Krama kangge tingkat SD/MI.')}
               activeOpacity={0.7}
             >
-              <View style={styles.listItemLeft}>
+              <View style={styles.optionRowLeft}>
                 <View style={styles.listIconWrapper}>
-                  <Image
-                    source={require('../../assets/profile/history-svgrepo-com 1.png')}
-                    style={styles.listIcon}
-                    resizeMode="contain"
-                  />
+                  <Info color="#00F2FE" size={18} />
                 </View>
-                <Text style={styles.listItemText}>Bab Aplikasi</Text>
+                <Text style={styles.optionRowText}>Bab Aplikasi</Text>
               </View>
-              <ChevronRight color="#FFFFFF" size={20} />
+              <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
             </TouchableOpacity>
           </View>
         </ScrollView>

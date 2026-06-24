@@ -8,7 +8,7 @@ import { StyleSheet, Platform } from 'react-native';
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 
 // ─── Design Tokens (Responsive per Page) ────────────────────────────────────
-export const AVATAR_SIZE = rs(55, 60, 65);
+export const AVATAR_SIZE = rs(75, 80, 85);
 export const BANNER_H = rs(180, 200, 220);
 
 export const GREETING_SIZE = scaleFont(rs(18, 20, 22));
@@ -68,7 +68,7 @@ const DashboardStyles = StyleSheet.create({
   avatarRing: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2,
+    borderRadius: 999,
     backgroundColor: '#FFFFFF',
     padding: 3,
     // Soft shadow for avatar
@@ -88,7 +88,7 @@ const DashboardStyles = StyleSheet.create({
   avatarImage: {
     width: '100%',
     height: '100%',
-    borderRadius: (AVATAR_SIZE - 10) / 2,
+    borderRadius: 999,
   },
 
   // ─── Mascot Banner ───────────────────────────────────────────────────────

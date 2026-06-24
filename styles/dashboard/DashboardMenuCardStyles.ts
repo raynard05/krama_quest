@@ -24,7 +24,7 @@ const DashboardMenuCardStyles = StyleSheet.create({
         shadowRadius: 8,
       },
       android: {
-        elevation: 3,
+        // Removed harsh black shadow elevation
       },
       default: {},
     }),
@@ -36,50 +36,54 @@ const DashboardMenuCardStyles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: CARD_TITLE_SIZE,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Bold',
+    color: '#FFFFFF',
     textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.35)',
+    textShadowOffset: { width: 0, height: 1.5 },
+    textShadowRadius: 3,
   },
 
-  // Glassmorphic Themes
+  // Glassmorphic Themes - Premium tinted frosted glass panels
   materiCardTheme: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(255, 255, 255, 0.54)',
+    backgroundColor: 'rgba(254, 243, 199, 0.25)', // Frosted gold-cream glass
+    borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
-      ios: { shadowColor: '#ffffff', shadowOpacity: 0.1 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#B45309', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
+      android: {},
     }),
   },
   materiTextTheme: {
     color: '#FFFFFF',
   },
   dolananCardTheme: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(255, 255, 255, 0.54)',
+    backgroundColor: 'rgba(204, 251, 241, 0.22)', // Frosted teal glass
+    borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
-      ios: { shadowColor: '#ffffff', shadowOpacity: 0.1 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#0F766E', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
+      android: {},
     }),
   },
   dolananTextTheme: {
     color: '#FFFFFF',
   },
   cptpCardTheme: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(255, 255, 255, 0.54)',
+    backgroundColor: 'rgba(254, 226, 226, 0.22)', // Frosted red glass
+    borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
-      ios: { shadowColor: '#ffffff', shadowOpacity: 0.1 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#B91C1C', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
+      android: {},
     }),
   },
   cptpTextTheme: {
     color: '#FFFFFF',
   },
   evaluasiCardTheme: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    borderColor: 'rgba(255, 255, 255, 0.54)',
+    backgroundColor: 'rgba(243, 232, 255, 0.22)', // Frosted lavender purple glass
+    borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
-      ios: { shadowColor: '#ffffff', shadowOpacity: 0.1 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#6D28D9', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
+      android: {},
     }),
   },
   evaluasiTextTheme: {

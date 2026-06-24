@@ -54,15 +54,14 @@ export const AvatarPickerStyles = StyleSheet.create({
     height: rs(100, 110, 120),
     borderRadius: rs(50, 55, 60),
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    // No overflow:'hidden' - conflicts with elevation on Android
   },
   avatarImage: {
-    width: rs(90, 100, 110),
-    height: rs(90, 100, 110),
-    borderRadius: rs(45, 50, 55),
+    width: '100%',
+    height: '100%',
+    borderRadius: rs(50, 55, 60),
   },
   editBadge: {
     position: 'absolute',

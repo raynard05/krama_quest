@@ -58,10 +58,10 @@ export const ProfileStyles = StyleSheet.create({
     height: rs(110, 120, 130),
     borderRadius: rs(55, 60, 65),
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    // NOTE: No overflow:'hidden' here — on Android it conflicts with elevation
+    // and causes child images to not render at all.
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
@@ -76,9 +76,9 @@ export const ProfileStyles = StyleSheet.create({
     }),
   },
   avatarImage: {
-    width: rs(100, 110, 120),
-    height: rs(100, 110, 120),
-    borderRadius: rs(50, 55, 60),
+    width: '100%',
+    height: '100%',
+    borderRadius: rs(55, 60, 65), // Clip the image directly, safe on Android
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
   editBadge: {
@@ -122,40 +122,33 @@ export const ProfileStyles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 2,
   },
-  statsRow: {
+  // ─── Stats Card Unified ──────────────────────────────────────────────────
+  statsCardUnified: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginVertical: vh(2),
-  },
-  statCard: {
-    flex: 1,
-    marginHorizontal: vw(1.2),
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderWidth: 1.2,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
-    borderRadius: rs(16, 18, 20),
-    paddingVertical: vh(2),
-    paddingHorizontal: vw(2),
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+    borderRadius: rs(20, 22, 24),
+    paddingVertical: vh(2.2),
+    marginVertical: vh(2),
+    width: '100%',
+  },
+  statCol: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 3,
-      },
-      default: {},
-    }),
+    paddingHorizontal: vw(1),
+  },
+  statDivider: {
+    width: 1.2,
+    height: '60%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   statIcon: {
-    width: rs(34, 38, 42),
-    height: rs(34, 38, 42),
-    marginBottom: vh(0.8),
+    width: rs(32, 36, 40),
+    height: rs(32, 36, 40),
+    marginBottom: vh(0.6),
   },
   statValue: {
     color: '#FFFFFF',
@@ -165,59 +158,54 @@ export const ProfileStyles = StyleSheet.create({
   },
   statLabel: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: scaleFont(rs(10, 11, 12)),
+    fontSize: scaleFont(rs(9, 10, 11)),
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: 1,
   },
-  listContainer: {
+
+  // ─── Options Card Unified ────────────────────────────────────────────────
+  optionsCard: {
     width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1.2,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+    borderRadius: rs(20, 22, 24),
+    paddingVertical: vh(1),
     marginTop: vh(1),
   },
-  listItem: {
+  optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderWidth: 1.2,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
-    borderRadius: rs(14, 16, 18),
     paddingVertical: vh(1.8),
-    paddingHorizontal: vw(4),
-    marginBottom: vh(1.5),
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-      default: {},
-    }),
+    paddingHorizontal: vw(5),
   },
-  listItemLeft: {
+  optionRowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   listIconWrapper: {
-    width: rs(32, 36, 40),
-    height: rs(32, 36, 40),
-    borderRadius: rs(16, 18, 20),
+    width: 36,
+    height: 36,
+    minWidth: 36,
+    maxWidth: 36,
+    minHeight: 36,
+    maxHeight: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(0, 242, 254, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: vw(3.5),
+    marginRight: vw(4),
   },
-  listIcon: {
-    width: rs(18, 20, 22),
-    height: rs(18, 20, 22),
-  },
-  listItemText: {
+  optionRowText: {
     color: '#FFFFFF',
     fontSize: scaleFont(rs(14, 15, 16)),
     fontFamily: 'Poppins-SemiBold',
+  },
+  optionDivider: {
+    height: 1.2,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    marginHorizontal: vw(5),
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { ArrowLeft, Edit2 } from 'lucide-react-native';
 import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerStyles';
-import { PROFILE_AVATARS, getAvatarSource } from './ProfileAvatars';
+import { PROFILE_AVATARS, getAvatarSource, AvatarItem } from './ProfileAvatars';
 
 interface AvatarPickerScreenProps {
   initialAvatarId: string | undefined;
@@ -17,12 +17,48 @@ interface AvatarPickerScreenProps {
   onSave: (avatarId: string) => void;
 }
 
+// Optimized Grid Item component to prevent unnecessary re-renders of all 21 items
+const AvatarGridItem = React.memo(({ 
+  item, 
+  isSelected, 
+  onPress 
+}: { 
+  item: AvatarItem; 
+  isSelected: boolean; 
+  onPress: (id: string) => void; 
+}) => {
+  return (
+    <TouchableOpacity
+      style={styles.gridItemWrapper}
+      onPress={() => onPress(item.id)}
+      activeOpacity={0.7}
+    >
+      <View style={[
+        styles.gridItemCircle,
+        isSelected && styles.gridItemCircleSelected
+      ]}>
+        <Image
+          source={item.source}
+          style={styles.gridImage}
+          resizeMode="contain"
+          fadeDuration={0}
+          resizeMethod="resize"
+        />
+      </View>
+    </TouchableOpacity>
+  );
+});
+
 export default function AvatarPickerScreen({
   initialAvatarId,
   onBack,
   onSave
 }: AvatarPickerScreenProps) {
   const [selectedId, setSelectedId] = useState<string>(initialAvatarId || '1');
+
+  const handleSelect = useCallback((id: string) => {
+    setSelectedId(id);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -49,6 +85,7 @@ export default function AvatarPickerScreen({
                 source={getAvatarSource(selectedId)}
                 style={styles.avatarImage}
                 resizeMode="contain"
+                fadeDuration={0}
               />
             </View>
             <View style={styles.editBadge}>
@@ -58,28 +95,14 @@ export default function AvatarPickerScreen({
 
           {/* Grid Selector */}
           <View style={styles.gridContainer}>
-            {PROFILE_AVATARS.map((avatar) => {
-              const isSelected = selectedId === avatar.id;
-              return (
-                <TouchableOpacity
-                  key={avatar.id}
-                  style={styles.gridItemWrapper}
-                  onPress={() => setSelectedId(avatar.id)}
-                  activeOpacity={0.7}
-                >
-                  <View style={[
-                    styles.gridItemCircle,
-                    isSelected && styles.gridItemCircleSelected
-                  ]}>
-                    <Image
-                      source={avatar.source}
-                      style={styles.gridImage}
-                      resizeMode="contain"
-                    />
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+            {PROFILE_AVATARS.map((avatar) => (
+              <AvatarGridItem
+                key={avatar.id}
+                item={avatar}
+                isSelected={selectedId === avatar.id}
+                onPress={handleSelect}
+              />
+            ))}
           </View>
         </ScrollView>
 
@@ -97,3 +120,4 @@ export default function AvatarPickerScreen({
     </View>
   );
 }
+
