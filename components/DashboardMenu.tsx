@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import {
-  StyleSheet,
   View,
   Text,
   Image,
@@ -8,13 +7,12 @@ import {
   ScrollView,
   Animated,
   Modal,
-  Dimensions,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LogOut, X, BookOpen, Target, Award, User, ChevronRight } from 'lucide-react-native';
+import { LogOut, X, BookOpen, Target, Award } from 'lucide-react-native';
 import type { UserAccount } from '../services/AuthService';
-
-const { width } = Dimensions.get('window');
+import styles from '../styles/DashboardStyles';
 
 interface DashboardMenuProps {
   currentUser: UserAccount | null;
@@ -26,9 +24,10 @@ interface MenuCardProps {
   title: string;
   imageSource: any;
   onPress: () => void;
+  type: 'materi' | 'dolanan' | 'cptp' | 'evaluasi';
 }
 
-function MenuCard({ title, imageSource, onPress }: MenuCardProps) {
+function MenuCard({ title, imageSource, onPress, type }: MenuCardProps) {
   const scale = useRef(new Animated.Value(1)).current;
   const rotateVal = useRef(new Animated.Value(0)).current;
 
@@ -75,21 +74,38 @@ function MenuCard({ title, imageSource, onPress }: MenuCardProps) {
     outputRange: ['0deg', '30deg'],
   });
 
+  const cardStyle = [
+    styles.menuCard,
+    type === 'materi' && styles.materiCardTheme,
+    type === 'dolanan' && styles.dolananCardTheme,
+    type === 'cptp' && styles.cptpCardTheme,
+    type === 'evaluasi' && styles.evaluasiCardTheme,
+  ];
+
+  const titleStyle = [
+    styles.cardTitle,
+    type === 'materi' && styles.materiTextTheme,
+    type === 'dolanan' && styles.dolananTextTheme,
+    type === 'cptp' && styles.cptpTextTheme,
+    type === 'evaluasi' && styles.evaluasiTextTheme,
+  ];
+
   return (
     <Animated.View style={[styles.cardWrapper, { transform: [{ scale }] }]}>
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.9}
-        style={styles.menuCard}
+        style={cardStyle}
       >
         <Animated.Image
           source={imageSource}
           style={[styles.cardImage, { transform: [{ rotate }] }]}
           resizeMode="contain"
         />
-        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={titleStyle}>{title}</Text>
       </TouchableOpacity>
     </Animated.View>
+     
   );
 }
 
@@ -128,11 +144,14 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
     ? currentUser.nama_lengkap.split(' ')[0]
     : (currentUser?.username || 'User');
 
-  // Animated cards helper removed and replaced with standalone MenuCard component
-
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ImageBackground
+        source={require('../assets/splash_screen/bg_splashs.webp')}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Header Row */}
         <View style={styles.header}>
@@ -155,12 +174,8 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
           </TouchableOpacity>
         </View>
 
-        {/* Mascot Banner (Stacked Comic Card Effect) */}
+        {/* Mascot Banner */}
         <View style={styles.bannerContainer}>
-          {/* Shadow Layers */}
-
-
-          {/* Main Comic Card */}
           <View style={styles.bannerMain}>
             <Image
               source={require('../assets/dashboard_assets/greeting2.png')}
@@ -172,13 +187,14 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
 
         {/* Grid of Menu Cards */}
         <View style={styles.gridContainer}>
-          <MenuCard title="Materi" imageSource={require('../assets/dashboard_assets/materi.png')} onPress={() => setMateriModalVisible(true)} />
-          <MenuCard title="Dolanan" imageSource={require('../assets/dashboard_assets/dolanan.webp')} onPress={onSelectDolanan} />
-          <MenuCard title="CP & TP" imageSource={require('../assets/dashboard_assets/cp.png')} onPress={() => setCptpModalVisible(true)} />
-          <MenuCard title="Evaluasi" imageSource={require('../assets/dashboard_assets/evaluasi.png')} onPress={() => setEvalModalVisible(true)} />
+          <MenuCard type="materi" title="Materi" imageSource={require('../assets/dashboard_assets/materi.png')} onPress={() => setMateriModalVisible(true)} />
+          <MenuCard type="dolanan" title="Dolanan" imageSource={require('../assets/dashboard_assets/dolanan.webp')} onPress={onSelectDolanan} />
+          <MenuCard type="cptp" title="CP & TP" imageSource={require('../assets/dashboard_assets/cp.png')} onPress={() => setCptpModalVisible(true)} />
+          <MenuCard type="evaluasi" title="Evaluasi" imageSource={require('../assets/dashboard_assets/evaluasi.png')} onPress={() => setEvalModalVisible(true)} />
         </View>
 
       </ScrollView>
+      </ImageBackground>
 
       {/* ── PROFILE MODAL ──────────────────────────────────────────────────────── */}
       <Modal
@@ -463,429 +479,3 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout }
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E5ECF4', // Light blue-grey background matching screenshot
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 32,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 16,
-
-  },
-  headerLeft: {
-    flex: 1,
-
-  },
-  greetingText: {
-    fontSize: 20,
-    color: '#333333',
-    fontFamily: 'Poppins-Medium',
-  },
-  userNameText: {
-    fontSize: 28,
-    color: '#000000',
-    fontFamily: 'Poppins-Bold',
-    marginTop: -2,
-  },
-  avatarButton: {
-    marginLeft: 15,
-    borderColor: "#2dc9d7ff",
-    borderWidth: 20,
-    borderRadius: 30,
-    borderStartStartRadius: 60,
-  },
-  avatarRing: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#ceeaedff",
-    borderRadius: 20,
-    borderStartStartRadius: 50,
-    padding: 3,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-
-
-  },
-  bannerContainer: {
-    width: '100%',
-    height: 210,
-    position: 'relative',
-    marginBottom: 24,
-  },
-  bannerShadow: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  bannerShadowBlack: {
-
-    top: 8,
-    left: 8,
-  },
-  bannerShadowBlue: {
-
-    top: 8,
-    left: -8,
-  },
-  bannerMain: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-
-
-    overflow: 'hidden',
-  },
-  bannerImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 2,
-  },
-  cardWrapper: {
-    width: '47%',
-    marginBottom: 16,
-  },
-  menuCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-
-    paddingHorizontal: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#1C1C1E',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-    aspectRatio: 1.0,
-  },
-  cardImage: {
-    width: 85,
-    height: 85,
-    marginBottom: 10,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
-    color: '#1C1C1E',
-    textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    width: '90%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 28,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
-    alignItems: 'stretch',
-  },
-  largeModalContent: {
-    width: '95%',
-    maxHeight: '85%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
-    paddingBottom: 12,
-  },
-  modalHeaderText: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-    color: '#1C1C1E',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  profileDetailsCard: {
-    alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
-  },
-  largeAvatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 12,
-    backgroundColor: '#FFF',
-    borderWidth: 3,
-    borderColor: '#45B6E8',
-  },
-  profileName: {
-    fontSize: 22,
-    fontFamily: 'Poppins-Bold',
-    color: '#1C1C1E',
-  },
-  profileUsername: {
-    fontSize: 14,
-    color: '#8E8E93',
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 16,
-  },
-  divider: {
-    width: '100%',
-    height: 1,
-    backgroundColor: '#E5E5EA',
-    marginVertical: 12,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingVertical: 8,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#8E8E93',
-    fontFamily: 'Poppins-Medium',
-  },
-  infoValue: {
-    fontSize: 15,
-    color: '#1C1C1E',
-    fontFamily: 'Poppins-SemiBold',
-  },
-  logoutButton: {
-    backgroundColor: '#FF3B30',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 14,
-    paddingVertical: 14,
-  },
-  logoutText: {
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    fontSize: 15,
-  },
-  modalScroll: {
-    paddingBottom: 16,
-  },
-  materiIntro: {
-    fontSize: 14,
-    color: '#48484A',
-    fontFamily: 'Poppins-Medium',
-    lineHeight: 20,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  materiCard: {
-    backgroundColor: '#F8F9FA',
-    borderLeftWidth: 5,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  materiTitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Bold',
-    color: '#1C1C1E',
-    marginBottom: 6,
-  },
-  materiDesc: {
-    fontSize: 13,
-    fontFamily: 'Poppins-Regular',
-    color: '#48484A',
-    lineHeight: 18,
-    marginBottom: 10,
-  },
-  exampleBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-  },
-  exampleLabel: {
-    fontSize: 11,
-    fontFamily: 'Poppins-Bold',
-    color: '#8E8E93',
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
-  exampleText: {
-    fontSize: 13,
-    fontFamily: 'Poppins-SemiBold',
-    color: '#1C1C1E',
-    fontStyle: 'italic',
-  },
-  cptpSection: {
-    marginBottom: 20,
-  },
-  cptpHeader: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Bold',
-    color: '#1C1C1E',
-    marginBottom: 12,
-  },
-  cptpCard: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#E5E5EA',
-  },
-  cptpText: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Medium',
-    color: '#3A3A3C',
-    lineHeight: 22,
-  },
-  tpRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-  },
-  tpNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FF3366',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    marginTop: 2,
-  },
-  tpNumText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontFamily: 'Poppins-Bold',
-  },
-  tpText: {
-    flex: 1,
-    fontSize: 13,
-    fontFamily: 'Poppins-Medium',
-    color: '#1C1C1E',
-    lineHeight: 18,
-  },
-  statsPanel: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 16,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-  },
-  statNum: {
-    fontSize: 22,
-    fontFamily: 'Poppins-Bold',
-    color: '#007AFF',
-  },
-  statLabel: {
-    fontSize: 11,
-    fontFamily: 'Poppins-Medium',
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  quizList: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 20,
-    padding: 10,
-  },
-  quizItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-  },
-  quizInfo: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  quizTitle: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Bold',
-    color: '#1C1C1E',
-  },
-  quizDate: {
-    fontSize: 11,
-    fontFamily: 'Poppins-Regular',
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  scoreBadge: {
-    width: 44,
-    height: 30,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scoreGreen: {
-    backgroundColor: '#E3FCEF',
-  },
-  scoreYellow: {
-    backgroundColor: '#FFF9DB',
-  },
-  scoreText: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Bold',
-    color: '#1C1C1E',
-  },
-  quizStartBtn: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  quizStartBtnText: {
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    fontSize: 12,
-  }
-});

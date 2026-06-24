@@ -41,7 +41,7 @@ const RegisterStyles = StyleSheet.create({
   // ─── Root & Scroll ─────────────────────────────────────────────────────────
   root: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E6F4FE',
   },
   scroll: {
     flexGrow: 1,
@@ -59,19 +59,28 @@ const RegisterStyles = StyleSheet.create({
 
   // ─── Logo ───────────────────────────────────────────────────────────────────
   logoRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: SPACING_MD,
+    gap: 12,
   },
-  logo: {
-    width: LOGO_W,
-    height: LOGO_H,
+  logoIcon: {
+    width: rs(45, 50, 55),
+    height: rs(45, 50, 55),
+  },
+  logoText: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: scaleFont(rs(24, 26, 28)),
+    color: '#2b72b8',
+    letterSpacing: 0.5,
   },
 
   // ─── Heading & Sub-heading ──────────────────────────────────────────────────
   heading: {
     fontFamily: 'Poppins-ExtraBold',
     fontSize: HEADING_SIZE,
-    color: '#111111',
+    color: '#FFFFFF',
     textAlign: 'center',
     letterSpacing: 0.2,
     marginBottom: SPACING_SM,
@@ -79,7 +88,7 @@ const RegisterStyles = StyleSheet.create({
   subheading: {
     fontFamily: 'Poppins-Regular',
     fontSize: SUBHEADING_SIZE,
-    color: '#666680',
+    color: '#E2E8F0',
     textAlign: 'center',
     lineHeight: SUBHEADING_SIZE * 1.55,
     marginBottom: SPACING_MD,
@@ -102,7 +111,7 @@ const RegisterStyles = StyleSheet.create({
   label: {
     fontFamily: 'Poppins-Medium',
     fontSize: LABEL_SIZE,
-    color: '#71717A', // Shadcn slate-500
+    color: '#FFFFFF',
     marginBottom: SPACING_SM,
     // Lebih rapat di layar kecil supaya 5 field muat
     marginTop: rs(vh(0.2), vh(0.3), vh(0.4)),
@@ -112,17 +121,17 @@ const RegisterStyles = StyleSheet.create({
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E4E4E7', // Shadcn border-input (slate-200)
-    borderRadius: rs(6, 6, 8), // Shadcn rounded-md
-    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: rs(8, 8, 10),
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     // Jarak antar field lebih rapat di layar kecil
     marginBottom: rs(vh(1.0), vh(1.4), vh(1.6)),
     paddingHorizontal: vw(3.5),
     height: INPUT_H,
   },
   inputWrapFocused: {
-    borderColor: '#09090B', // Shadcn focused ring/border (slate-950)
+    borderColor: '#2b72b8',
   },
   input: {
     fontFamily: 'Poppins-Regular',
@@ -145,8 +154,8 @@ const RegisterStyles = StyleSheet.create({
 
   // ─── Primary button ─────────────────────────────────────────────────────────
   primaryBtn: {
-    backgroundColor: '#09090B', // Shadcn primary button (slate-950)
-    borderRadius: rs(6, 6, 8), // Shadcn rounded-md
+    backgroundColor: '#1E1B1B',
+    borderRadius: rs(20, 20, 24),
     height: BTN_H,
     alignItems: 'center',
     justifyContent: 'center',
@@ -179,12 +188,12 @@ const RegisterStyles = StyleSheet.create({
   linkText: {
     fontFamily: 'Poppins-Regular',
     fontSize: LINK_FONT,
-    color: '#555566',
+    color: '#FFFFFF',
   },
   linkAccent: {
     fontFamily: 'Poppins-Bold',
     fontSize: LINK_FONT,
-    color: '#111111',
+    color: '#2b72b8',
     textDecorationLine: 'underline',
   },
   // City illustration — rendered behind link text
@@ -194,6 +203,11 @@ const RegisterStyles = StyleSheet.create({
     left: CITY_LEFT_BLEED,
     width: CITY_IMG_W,
     height: CITY_IMG_H,
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
 });
 

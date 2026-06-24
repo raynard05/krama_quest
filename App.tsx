@@ -31,6 +31,8 @@ import RegisterScreen from './components/RegisterScreen';
 import type { UserAccount } from './services/AuthService';
 import DashboardMenu from './components/DashboardMenu';
 import DolananOptions from './components/DolananOptions';
+import CustomSplashScreen from './components/CustomSplashScreen';
+import CustomLoadingScreen from './components/CustomLoadingScreen';
 
 type AuthScreen = 'login' | 'register';
 
@@ -51,17 +53,21 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [showDashboard, setShowDashboard] = useState<boolean>(true);
   const [showDolananOptions, setShowDolananOptions] = useState<boolean>(false);
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
 
   const handleLoginSuccess = (user: UserAccount) => {
     setCurrentUser(user);
     setIsAuthenticated(true);
-    setShowDashboard(true);
+    setIsLoadingScreen(true);
+    setShowDashboard(false);
   };
 
   const handleRegisterSuccess = (user: UserAccount) => {
     setCurrentUser(user);
     setIsAuthenticated(true);
-    setShowDashboard(true);
+    setIsLoadingScreen(true);
+    setShowDashboard(false);
   };
 
   const handleLogout = () => {
@@ -70,6 +76,7 @@ export default function App() {
     setShowDashboard(true);
     setShowDolananOptions(false);
     setAuthScreen('login');
+    setIsLoadingScreen(false);
   };
 
   // ── Game state ──────────────────────────────────────────────────────────
@@ -495,8 +502,8 @@ export default function App() {
       ? players[currentPlayerIndex]?.type === 'human'
       : (networkRole === 'host' && currentPlayerIndex === 0) || (networkRole === 'client' && players[currentPlayerIndex]?.id === localPlayerId);
 
-  // Return loader if fonts aren't loaded yet
-  if (!fontsLoaded) {
+  // Return loader if fonts aren't loaded yet and splash screen is gone
+  if (!fontsLoaded && !showSplash) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#07070F' }}>
         <ActivityIndicator size="large" color="#00F2FE" />
@@ -507,6 +514,17 @@ export default function App() {
 
   // Helper to render content with proper safe area and navigation bar styles
   const renderContent = () => {
+    if (isLoadingScreen) {
+      return (
+        <CustomLoadingScreen
+          onFinish={() => {
+            setIsLoadingScreen(false);
+            setShowDashboard(true);
+          }}
+        />
+      );
+    }
+
     // ── Auth screens ─────────────────────────────────────────────────────
     if (!isAuthenticated) {
       return (
@@ -650,7 +668,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {renderContent()}
+      {showSplash ? (
+        <CustomSplashScreen
+          fontsLoaded={fontsLoaded}
+          onFinish={() => setShowSplash(false)}
+        />
+      ) : (
+        renderContent()
+      )}
     </SafeAreaProvider>
   );
 }
