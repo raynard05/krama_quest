@@ -34,6 +34,7 @@ import DolananOptions from './components/game/DolananOptions';
 import CustomSplashScreen from './components/splash/CustomSplashScreen';
 import CustomLoadingScreen from './components/splash/CustomLoadingScreen';
 import ProfileMain from './components/profile/ProfileMain';
+import { ProfileService } from './services/ProfileService';
 
 type AuthScreen = 'login' | 'register';
 
@@ -58,22 +59,43 @@ export default function App() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
 
-  const handleUpdateAvatar = (avatarId: string) => {
-    setCurrentUser(prev => prev ? { ...prev, avatarId } : null);
+  const handleUpdateAvatar = async (avatarId: string) => {
+    if (currentUser) {
+      setCurrentUser(prev => prev ? { ...prev, avatarId } : null);
+      await ProfileService.updateUserAvatar(currentUser.id, avatarId);
+    }
   };
 
   const handleLoginSuccess = (user: UserAccount) => {
-    setCurrentUser(user);
+    // Transition screen state immediately to prevent lockups
     setIsAuthenticated(true);
     setIsLoadingScreen(true);
     setShowDashboard(false);
+
+    // Fetch avatar asynchronously in the background
+    ProfileService.fetchUserAvatar(user.id)
+      .then((avatarId) => {
+        setCurrentUser({ ...user, avatarId });
+      })
+      .catch(() => {
+        setCurrentUser(user);
+      });
   };
 
   const handleRegisterSuccess = (user: UserAccount) => {
-    setCurrentUser(user);
+    // Transition screen state immediately to prevent lockups
     setIsAuthenticated(true);
     setIsLoadingScreen(true);
     setShowDashboard(false);
+
+    // Fetch avatar asynchronously in the background
+    ProfileService.fetchUserAvatar(user.id)
+      .then((avatarId) => {
+        setCurrentUser({ ...user, avatarId });
+      })
+      .catch(() => {
+        setCurrentUser(user);
+      });
   };
 
   const handleLogout = () => {
