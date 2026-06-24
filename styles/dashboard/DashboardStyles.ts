@@ -5,24 +5,20 @@
  */
 
 import { StyleSheet, Platform } from 'react-native';
-import { vw, vh, rs, scaleFont } from '../utils/responsive';
+import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 
 // ─── Design Tokens (Responsive per Page) ────────────────────────────────────
 export const AVATAR_SIZE = rs(55, 60, 65);
-export const CARD_IMG_SIZE = rs(75, 80, 85);
 export const BANNER_H = rs(180, 200, 220);
 
 export const GREETING_SIZE = scaleFont(rs(18, 20, 22));
 export const USERNAME_SIZE = scaleFont(rs(24, 26, 28));
-export const CARD_TITLE_SIZE = scaleFont(rs(14, 15, 16));
 
 export const MODAL_HEADER_SIZE = scaleFont(rs(16, 17, 18));
-export const PROFILE_NAME_SIZE = scaleFont(rs(20, 21, 22));
-export const PROFILE_USER_SIZE = scaleFont(rs(13, 14, 15));
 
 export const SPACING_SM = rs(6, 8, 10);
-export const SPACING_MD = rs(12, 16, 20);
-export const SPACING_LG = rs(20, 24, 28);
+export const SPACING_MD = rs(12, 30, 40);
+export const SPACING_LG = rs(20, 30, 40);
 
 const DashboardStyles = StyleSheet.create({
   // ─── Container & Scroll ──────────────────────────────────────────────────
@@ -34,6 +30,9 @@ const DashboardStyles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  backgroundImageStyle: {
+    transform: [{ scale: 2.13 }],
   },
   scrollContent: {
     paddingHorizontal: vw(5),
@@ -54,12 +53,12 @@ const DashboardStyles = StyleSheet.create({
   },
   greetingText: {
     fontSize: GREETING_SIZE,
-    color: '#4B5563', // Slate-600
+    color: '#ffffff',
     fontFamily: 'Poppins-Medium',
   },
   userNameText: {
     fontSize: USERNAME_SIZE,
-    color: '#0F172A', // Slate-900
+    color: '#ffffff',
     fontFamily: 'Poppins-Bold',
     marginTop: -2,
   },
@@ -71,13 +70,11 @@ const DashboardStyles = StyleSheet.create({
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
     backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: '#45B6E8',
     padding: 3,
     // Soft shadow for avatar
     ...Platform.select({
       ios: {
-        shadowColor: '#45B6E8',
+        shadowColor: '#ffffff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
@@ -100,10 +97,7 @@ const DashboardStyles = StyleSheet.create({
     height: BANNER_H,
     position: 'relative',
     marginBottom: SPACING_LG,
-    borderRadius: 24,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#45B6E8',
     // Premium shadow for banner
     ...Platform.select({
       ios: {
@@ -128,95 +122,12 @@ const DashboardStyles = StyleSheet.create({
     height: '100%',
   },
 
-  // ─── Grid Menu Cards ─────────────────────────────────────────────────────
+  // ─── Grid Menu Cards Container ───────────────────────────────────────────
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 2,
-  },
-  cardWrapper: {
-    width: '47%',
-    marginBottom: SPACING_MD,
-  },
-  menuCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    paddingHorizontal: vw(4),
-    alignItems: 'center',
-    justifyContent: 'center',
-    aspectRatio: 1.0,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    // Shadow template
-    ...Platform.select({
-      ios: {
-        shadowColor: '#1E293B',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 3,
-      },
-      default: {},
-    }),
-  },
-  cardImage: {
-    width: CARD_IMG_SIZE,
-    height: CARD_IMG_SIZE,
-    marginBottom: 8,
-  },
-  cardTitle: {
-    fontSize: CARD_TITLE_SIZE,
-    fontFamily: 'Poppins-Bold',
-    textAlign: 'center',
-  },
-
-  // ─── Theme Colors for Cards (Overhauled Premium Aesthetics) ──────────────
-  materiCardTheme: {
-    backgroundColor: '#EDF7FF',
-    borderColor: '#BEE3FF',
-    ...Platform.select({
-      ios: { shadowColor: '#2b72b8', shadowOpacity: 0.15 },
-      android: { elevation: 4 },
-    }),
-  },
-  materiTextTheme: {
-    color: '#104E8B',
-  },
-  dolananCardTheme: {
-    backgroundColor: '#F0FFF4',
-    borderColor: '#C2F0C2',
-    ...Platform.select({
-      ios: { shadowColor: '#4CAF50', shadowOpacity: 0.15 },
-      android: { elevation: 4 },
-    }),
-  },
-  dolananTextTheme: {
-    color: '#1E5A22',
-  },
-  cptpCardTheme: {
-    backgroundColor: '#FFF0F3',
-    borderColor: '#FFC2D1',
-    ...Platform.select({
-      ios: { shadowColor: '#FF3366', shadowOpacity: 0.15 },
-      android: { elevation: 4 },
-    }),
-  },
-  cptpTextTheme: {
-    color: '#8B002A',
-  },
-  evaluasiCardTheme: {
-    backgroundColor: '#FFFDF0',
-    borderColor: '#FFEAA7',
-    ...Platform.select({
-      ios: { shadowColor: '#FFB300', shadowOpacity: 0.15 },
-      android: { elevation: 4 },
-    }),
-  },
-  evaluasiTextTheme: {
-    color: '#B8860B',
   },
 
   // ─── Modals ──────────────────────────────────────────────────────────────
@@ -266,73 +177,6 @@ const DashboardStyles = StyleSheet.create({
   },
   closeButton: {
     padding: 4,
-  },
-
-  // ─── Profile Modal Elements ──────────────────────────────────────────────
-  profileDetailsCard: {
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC', // Slate-50
-    borderRadius: 20,
-    padding: SPACING_MD,
-    marginBottom: SPACING_MD,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-  },
-  largeAvatar: {
-    width: rs(80, 85, 90),
-    height: rs(80, 85, 90),
-    borderRadius: rs(40, 42.5, 45),
-    marginBottom: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 3,
-    borderColor: '#45B6E8',
-  },
-  profileName: {
-    fontSize: PROFILE_NAME_SIZE,
-    fontFamily: 'Poppins-Bold',
-    color: '#0F172A',
-  },
-  profileUsername: {
-    fontSize: PROFILE_USER_SIZE,
-    color: '#64748B', // Slate-500
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 12,
-  },
-  divider: {
-    width: '100%',
-    height: 1.5,
-    backgroundColor: '#E2E8F0',
-    marginVertical: 12,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingVertical: 8,
-  },
-  infoLabel: {
-    fontSize: scaleFont(rs(13, 14, 15)),
-    color: '#64748B',
-    fontFamily: 'Poppins-Medium',
-  },
-  infoValue: {
-    fontSize: scaleFont(rs(14, 15, 16)),
-    color: '#0F172A',
-    fontFamily: 'Poppins-SemiBold',
-  },
-  logoutButton: {
-    backgroundColor: '#EF4444', // Sleek red
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: rs(20, 20, 24), // Capsule pill shape
-    paddingVertical: 14,
-    marginTop: 8,
-  },
-  logoutText: {
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    fontSize: scaleFont(rs(14, 15, 16)),
   },
 
   // ─── Scrollable Modal Content ───────────────────────────────────────────

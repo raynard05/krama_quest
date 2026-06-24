@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
-import { GameLog } from '../types';
+import { GameLog } from '../../types';
 
 interface GameLogsProps {
   logs: GameLog[];

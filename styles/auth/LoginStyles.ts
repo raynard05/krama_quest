@@ -1,27 +1,27 @@
 /**
- * RegisterStyles.ts
- * Semua definisi style untuk halaman RegisterScreen.
- * Edit file ini untuk mengubah tampilan halaman register.
+ * LoginStyles.ts
+ * Semua definisi style untuk halaman LoginScreen.
+ * Edit file ini untuk mengubah tampilan halaman login.
  */
 
 import { StyleSheet, Platform } from 'react-native';
-import { vw, vh, rs, scaleFont } from '../utils/responsive';
+import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 
 // ─── Design Tokens (Responsive per Page) ────────────────────────────────────
-export const LOGO_W = rs(40, 250, 260);
-export const LOGO_H = rs(85, 85, 60);
+export const LOGO_W = rs(200, 200, 230);
+export const LOGO_H = rs(80, 85, 85);
 
-export const HEADING_SIZE = scaleFont(rs(21, 23, 25));
-export const SUBHEADING_SIZE = scaleFont(rs(12, 13, 14));
+export const HEADING_SIZE = scaleFont(rs(30, 30, 30));
+export const SUBHEADING_SIZE = scaleFont(rs(13, 14, 15));
 
-export const LABEL_SIZE = scaleFont(rs(12, 13, 14));
-export const INPUT_H = rs(38, 44, 48);
-export const INPUT_FONT = scaleFont(rs(12, 13, 14));
-export const EYE_SIZE = rs(16, 18, 20);
+export const LABEL_SIZE = scaleFont(rs(13, 14, 15));
+export const INPUT_H = rs(48, 52, 56);
+export const INPUT_FONT = scaleFont(rs(13, 14, 15));
+export const EYE_SIZE = rs(18, 20, 22);
 
-export const BTN_H = rs(38, 44, 48);
-export const BTN_FONT = scaleFont(rs(13, 14, 15));
-export const LINK_FONT = scaleFont(rs(12, 13, 14));
+export const BTN_H = rs(48, 52, 56);
+export const BTN_FONT = scaleFont(rs(14, 15, 16));
+export const LINK_FONT = scaleFont(rs(13, 14, 15));
 
 // City background & dimensions
 export const CITY_IMG_W = vw(120);
@@ -31,13 +31,14 @@ export const BOTTOM_H = CITY_IMG_H;
 
 // Screen structure & paddings
 export const CARD_H_PAD = vw(6);
-export const SCROLL_PT = rs(vh(1), vh(2), vh(3));
-export const CARD_PT = rs(vh(1), vh(1.5), vh(2));
+export const SCROLL_PT = rs(-vh(2), -vh(10), vh(4));
+export const CARD_PT = rs(vh(1.5), vh(2.5), vh(3));
 
-export const SPACING_SM = rs(4, 6, 8);
-export const SPACING_MD = rs(8, 12, 16);
+export const SPACING_SM = rs(6, 8, 10);
+export const SPACING_MD = rs(12, 16, 20);
+export const SPACING_LG = rs(20, 24, 28);
 
-const RegisterStyles = StyleSheet.create({
+const LoginStyles = StyleSheet.create({
   // ─── Root & Scroll ─────────────────────────────────────────────────────────
   root: {
     flex: 1,
@@ -62,7 +63,7 @@ const RegisterStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING_MD,
+    marginBottom: SPACING_LG,
     gap: 12,
   },
   logoIcon: {
@@ -78,7 +79,7 @@ const RegisterStyles = StyleSheet.create({
 
   // ─── Heading & Sub-heading ──────────────────────────────────────────────────
   heading: {
-    fontFamily: 'Poppins-ExtraBold',
+    fontFamily: 'Poppins-Bold',
     fontSize: HEADING_SIZE,
     color: '#FFFFFF',
     textAlign: 'center',
@@ -91,7 +92,7 @@ const RegisterStyles = StyleSheet.create({
     color: '#E2E8F0',
     textAlign: 'center',
     lineHeight: SUBHEADING_SIZE * 1.55,
-    marginBottom: SPACING_MD,
+    marginBottom: SPACING_LG,
   },
 
   // ─── Error message ──────────────────────────────────────────────────────────
@@ -113,8 +114,7 @@ const RegisterStyles = StyleSheet.create({
     fontSize: LABEL_SIZE,
     color: '#FFFFFF',
     marginBottom: SPACING_SM,
-    // Lebih rapat di layar kecil supaya 5 field muat
-    marginTop: rs(vh(0.2), vh(0.3), vh(0.4)),
+    marginTop: SPACING_SM,
   },
 
   // ─── Input field ────────────────────────────────────────────────────────────
@@ -125,8 +125,7 @@ const RegisterStyles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.7)',
     borderRadius: rs(8, 8, 10),
     backgroundColor: 'rgba(255, 255, 255, 0.45)',
-    // Jarak antar field lebih rapat di layar kecil
-    marginBottom: rs(vh(1.0), vh(1.4), vh(1.6)),
+    marginBottom: SPACING_MD,
     paddingHorizontal: vw(3.5),
     height: INPUT_H,
   },
@@ -171,7 +170,7 @@ const RegisterStyles = StyleSheet.create({
   // ─── Bottom section: link text + city illustration ──────────────────────────
   bottomSection: {
     width: '100%',
-    marginTop: rs(-vh(6), -vh(4), -vh(5)),
+    marginTop: rs(-vh(7), -vh(7), -vh(9)),
     height: BOTTOM_H,
     position: 'relative',
     overflow: 'hidden',
@@ -183,7 +182,7 @@ const RegisterStyles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING_MD,
     paddingHorizontal: vw(4),
-    zIndex: 2,
+    zIndex: 4,
   },
   linkText: {
     fontFamily: 'Poppins-Regular',
@@ -211,4 +210,4 @@ const RegisterStyles = StyleSheet.create({
   },
 });
 
-export default RegisterStyles;
+export default LoginStyles;

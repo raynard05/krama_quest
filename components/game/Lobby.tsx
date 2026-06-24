@@ -9,8 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import { Player, PlayerType } from '../types';
-import { MODERN_COLORS, AVATAR_ICONS } from '../constants';
+import { Player, PlayerType } from '../../types';
+import { MODERN_COLORS, AVATAR_ICONS } from '../../constants';
 
 interface LobbyProps {
   onStartGame: (players: Player[]) => void;

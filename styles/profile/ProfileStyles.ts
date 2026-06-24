@@ -1,0 +1,223 @@
+import { StyleSheet, Platform } from 'react-native';
+import { vw, vh, rs, scaleFont } from '../../utils/responsive';
+
+export const ProfileStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0A0A12',
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  backgroundImageStyle: {
+    transform: [{ scale: 1.15 }],
+  },
+  scrollContent: {
+    paddingHorizontal: vw(5),
+    paddingBottom: vh(5),
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: vh(2),
+    width: '100%',
+    marginBottom: vh(1),
+  },
+  backButton: {
+    padding: rs(8, 10, 12),
+    borderRadius: rs(10, 12, 14),
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: scaleFont(rs(18, 20, 22)),
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'center',
+  },
+  headerPlaceholder: {
+    width: rs(36, 40, 44),
+    height: rs(36, 40, 44),
+  },
+  profileInfoSection: {
+    alignItems: 'center',
+    marginVertical: vh(2),
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: vh(2),
+  },
+  avatarRing: {
+    width: rs(110, 120, 130),
+    height: rs(110, 120, 130),
+    borderRadius: rs(55, 60, 65),
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 6,
+      },
+      default: {},
+    }),
+  },
+  avatarImage: {
+    width: rs(100, 110, 120),
+    height: rs(100, 110, 120),
+    borderRadius: rs(50, 55, 60),
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: rs(32, 34, 36),
+    height: rs(32, 34, 36),
+    borderRadius: rs(16, 17, 18),
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+      default: {},
+    }),
+  },
+  userNameText: {
+    color: '#FFFFFF',
+    fontSize: scaleFont(rs(20, 22, 24)),
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  userSubtitleText: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: scaleFont(rs(13, 14, 15)),
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginVertical: vh(2),
+  },
+  statCard: {
+    flex: 1,
+    marginHorizontal: vw(1.2),
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1.2,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderRadius: rs(16, 18, 20),
+    paddingVertical: vh(2),
+    paddingHorizontal: vw(2),
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 3,
+      },
+      default: {},
+    }),
+  },
+  statIcon: {
+    width: rs(34, 38, 42),
+    height: rs(34, 38, 42),
+    marginBottom: vh(0.8),
+  },
+  statValue: {
+    color: '#FFFFFF',
+    fontSize: scaleFont(rs(15, 17, 19)),
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'center',
+  },
+  statLabel: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: scaleFont(rs(10, 11, 12)),
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  listContainer: {
+    width: '100%',
+    marginTop: vh(1),
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1.2,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderRadius: rs(14, 16, 18),
+    paddingVertical: vh(1.8),
+    paddingHorizontal: vw(4),
+    marginBottom: vh(1.5),
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+      default: {},
+    }),
+  },
+  listItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  listIconWrapper: {
+    width: rs(32, 36, 40),
+    height: rs(32, 36, 40),
+    borderRadius: rs(16, 18, 20),
+    backgroundColor: 'rgba(0, 242, 254, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: vw(3.5),
+  },
+  listIcon: {
+    width: rs(18, 20, 22),
+    height: rs(18, 20, 22),
+  },
+  listItemText: {
+    color: '#FFFFFF',
+    fontSize: scaleFont(rs(14, 15, 16)),
+    fontFamily: 'Poppins-SemiBold',
+  },
+});

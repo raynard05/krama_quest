@@ -62,14 +62,14 @@ export default function CustomLoadingScreen({ onFinish }: CustomLoadingScreenPro
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../assets/splash_screen/bg_splashs.webp')}
+        source={require('../../assets/splash_screen/bg_splashs.webp')}
         style={styles.background}
         resizeMode="cover"
       >
         <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
           {/* Rotating Snake Logo */}
           <Animated.Image
-            source={require('../assets/loading_screen/loading.png')}
+            source={require('../../assets/loading_screen/loading.png')}
             style={[
               styles.loaderImage,
               {

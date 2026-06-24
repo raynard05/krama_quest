@@ -18,10 +18,10 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
-import { loginUser } from '../services/AuthService';
-import type { UserAccount } from '../services/AuthService';
+import { loginUser } from '../../services/AuthService';
+import type { UserAccount } from '../../services/AuthService';
 import { Eye, EyeOff } from 'lucide-react-native';
-import styles, { EYE_SIZE } from '../styles/LoginStyles';
+import styles, { EYE_SIZE } from '../../styles/auth/LoginStyles';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 interface LoginScreenProps {
@@ -71,7 +71,7 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ImageBackground
-        source={require('../assets/splash_screen/bg_splashs.webp')}
+        source={require('../../assets/splash_screen/bg_splashs.webp')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
@@ -82,7 +82,7 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
 
             {/* Logo */}
             <View style={styles.logoRow}>
-              <Image source={require('../assets/splash_screen/icon.webp')} style={styles.logoIcon} resizeMode="contain" />
+              <Image source={require('../../assets/splash_screen/icon.webp')} style={styles.logoIcon} resizeMode="contain" />
               <Text style={styles.logoText}>Krama Quest</Text>
             </View>
 
@@ -157,7 +157,7 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
 
           {/* Bottom Section: Hanya berisi ilustrasi kota di belakang */}
           <View style={styles.bottomSection}>
-            <Image source={require('../assets/login_assets/city_bottom2.webp')} style={styles.cityImg} resizeMode="cover" />
+            <Image source={require('../../assets/login_assets/city_bottom2.webp')} style={styles.cityImg} resizeMode="cover" />
           </View>
 
         </ScrollView>

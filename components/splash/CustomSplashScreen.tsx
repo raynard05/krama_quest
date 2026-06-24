@@ -87,14 +87,14 @@ export default function CustomSplashScreen({ onFinish, fontsLoaded }: CustomSpla
   return (
     <Animated.View style={[styles.container, { opacity: containerOpacity }]}>
       <ImageBackground
-        source={require('../assets/splash_screen/bg_splashs.webp')}
+        source={require('../../assets/splash_screen/bg_splashs.webp')}
         style={styles.background}
         resizeMode="cover"
       >
         <View style={styles.content}>
           {/* Animated Logo Icon */}
           <Animated.Image
-            source={require('../assets/splash_screen/icon.webp')}
+            source={require('../../assets/splash_screen/icon.webp')}
             style={[
               styles.icon,
               {

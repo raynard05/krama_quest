@@ -9,11 +9,11 @@ import {
   ActivityIndicator, 
   Platform 
 } from 'react-native';
-import { Player, NetworkRole, NetworkStatus } from '../types';
-import { MODERN_COLORS, AVATAR_ICONS } from '../constants';
+import { Player, NetworkRole, NetworkStatus } from '../../types';
+import { MODERN_COLORS, AVATAR_ICONS } from '../../constants';
 import { ChevronLeft } from 'lucide-react-native';
 import Lobby from './Lobby';
-import { GameNetwork, NetworkEvent } from '../services/GameNetwork';
+import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
 
 interface NetworkLobbyProps {
   onStartLocalGame: (players: Player[]) => void;

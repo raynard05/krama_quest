@@ -18,10 +18,10 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
-import { registerUser } from '../services/AuthService';
-import type { UserAccount } from '../services/AuthService';
+import { registerUser } from '../../services/AuthService';
+import type { UserAccount } from '../../services/AuthService';
 import { Eye, EyeOff } from 'lucide-react-native';
-import styles, { EYE_SIZE } from '../styles/RegisterStyles';
+import styles, { EYE_SIZE } from '../../styles/auth/RegisterStyles';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 interface RegisterScreenProps {
@@ -90,7 +90,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ImageBackground
-        source={require('../assets/splash_screen/bg_splashs.webp')}
+        source={require('../../assets/splash_screen/bg_splashs.webp')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
@@ -101,7 +101,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
 
             {/* Logo */}
             <View style={styles.logoRow}>
-              <Image source={require('../assets/splash_screen/icon.webp')} style={styles.logoIcon} resizeMode="contain" />
+              <Image source={require('../../assets/splash_screen/icon.webp')} style={styles.logoIcon} resizeMode="contain" />
               <Text style={styles.logoText}>Krama Quest</Text>
             </View>
 
@@ -232,7 +232,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
 
           {/* Bottom Section: Hanya berisi ilustrasi kota di belakang */}
           <View style={styles.bottomSection}>
-            <Image source={require('../assets/login_assets/city_bottom2.webp')} style={styles.cityImg} resizeMode="cover" />
+            <Image source={require('../../assets/login_assets/city_bottom2.webp')} style={styles.cityImg} resizeMode="cover" />
           </View>
 
         </ScrollView>

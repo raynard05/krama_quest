@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { ArrowLeft, RotateCcw } from 'lucide-react-native';
-import { Player } from '../types';
+import { Player } from '../../types';
 
 interface GameHeaderProps {
   players: Player[];

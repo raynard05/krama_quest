@@ -10,8 +10,8 @@ import {
   getGridPosition, 
   getPercentPosition,
   PercentPosition
-} from '../constants';
-import { Player } from '../types';
+} from '../../constants';
+import { Player } from '../../types';
 
 interface BoardProps {
   players: Player[];

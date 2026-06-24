@@ -20,19 +20,20 @@ import {
 } from '@expo-google-fonts/poppins';
 import { Player, GameStatus, GameLog, GameState, NetworkRole } from './types';
 import { TOTAL_CELLS, SNAKES, LADDERS } from './constants';
-import NetworkLobby from './components/NetworkLobby';
-import Board from './components/Board';
-import Die from './components/Die';
-import GameHeader from './components/GameHeader';
-import GameLogs from './components/GameLogs';
+import NetworkLobby from './components/game/NetworkLobby';
+import Board from './components/game/Board';
+import Die from './components/game/Die';
+import GameHeader from './components/game/GameHeader';
+import GameLogs from './components/game/GameLogs';
 import { GameNetwork, NetworkEvent } from './services/GameNetwork';
-import LoginScreen from './components/LoginScreen';
-import RegisterScreen from './components/RegisterScreen';
+import LoginScreen from './components/auth/LoginScreen';
+import RegisterScreen from './components/auth/RegisterScreen';
 import type { UserAccount } from './services/AuthService';
-import DashboardMenu from './components/DashboardMenu';
-import DolananOptions from './components/DolananOptions';
-import CustomSplashScreen from './components/CustomSplashScreen';
-import CustomLoadingScreen from './components/CustomLoadingScreen';
+import DashboardMenu from './components/dashboard/DashboardMenu';
+import DolananOptions from './components/game/DolananOptions';
+import CustomSplashScreen from './components/splash/CustomSplashScreen';
+import CustomLoadingScreen from './components/splash/CustomLoadingScreen';
+import ProfileMain from './components/profile/ProfileMain';
 
 type AuthScreen = 'login' | 'register';
 
@@ -50,11 +51,16 @@ export default function App() {
   // ── Auth state ──────────────────────────────────────────────────────────
   const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [currentUser, setCurrentUser] = useState<(UserAccount & { avatarId?: string }) | null>(null);
   const [showDashboard, setShowDashboard] = useState<boolean>(true);
   const [showDolananOptions, setShowDolananOptions] = useState<boolean>(false);
+  const [showProfile, setShowProfile] = useState<boolean>(false);
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
+
+  const handleUpdateAvatar = (avatarId: string) => {
+    setCurrentUser(prev => prev ? { ...prev, avatarId } : null);
+  };
 
   const handleLoginSuccess = (user: UserAccount) => {
     setCurrentUser(user);
@@ -75,6 +81,7 @@ export default function App() {
     setIsAuthenticated(false);
     setShowDashboard(true);
     setShowDolananOptions(false);
+    setShowProfile(false);
     setAuthScreen('login');
     setIsLoadingScreen(false);
   };
@@ -546,6 +553,24 @@ export default function App() {
       );
     }
 
+    // Render Profile screen
+    if (showProfile) {
+      return (
+        <>
+          <ProfileMain
+            currentUser={currentUser}
+            onBack={() => {
+              setShowProfile(false);
+              setShowDashboard(true);
+            }}
+            onUpdateAvatar={handleUpdateAvatar}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
     // Render Dashboard screen
     if (showDashboard) {
       return (
@@ -557,6 +582,10 @@ export default function App() {
               setShowDolananOptions(true);
             }}
             onLogout={handleLogout}
+            onOpenProfile={() => {
+              setShowDashboard(false);
+              setShowProfile(true);
+            }}
           />
           <StatusBar style="dark" />
           <NavigationBar style="dark" />
