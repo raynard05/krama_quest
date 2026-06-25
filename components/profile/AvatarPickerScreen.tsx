@@ -1,13 +1,16 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
   ScrollView,
-  ImageBackground
+  ImageBackground,
+  Animated,
+  StyleSheet
 } from 'react-native';
 import { ArrowLeft, Edit2 } from 'lucide-react-native';
+import Svg, { Circle, LinearGradient, Stop, Defs } from 'react-native-svg';
 import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerStyles';
 import { PROFILE_AVATARS, getAvatarSource, AvatarItem } from './ProfileAvatars';
 
@@ -17,16 +20,64 @@ interface AvatarPickerScreenProps {
   onSave: (avatarId: string) => void;
 }
 
-// Optimized Grid Item component to prevent unnecessary re-renders of all 21 items
-const AvatarGridItem = React.memo(({ 
-  item, 
-  isSelected, 
-  onPress 
-}: { 
-  item: AvatarItem; 
-  isSelected: boolean; 
-  onPress: (id: string) => void; 
+// Optimized & Animated Grid Item component
+const AvatarGridItem = React.memo(({
+  item,
+  isSelected,
+  onPress
+}: {
+  item: AvatarItem;
+  isSelected: boolean;
+  onPress: (id: string) => void;
 }) => {
+  // Animation values inside the selectable item
+  const scaleAnim = useRef(new Animated.Value(isSelected ? 1.0 : 0.9)).current;
+  const spinAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    let animationLoop: Animated.CompositeAnimation | null = null;
+
+    if (isSelected) {
+      // Loop slow rotation for the colorful ring
+      animationLoop = Animated.loop(
+        Animated.timing(spinAnim, {
+          toValue: 1,
+          duration: 3500,
+          useNativeDriver: true,
+        })
+      );
+      animationLoop.start();
+
+      // Trigger spring scale-up pop
+      scaleAnim.setValue(0.7);
+      Animated.spring(scaleAnim, {
+        toValue: 1.0,
+        friction: 4,
+        tension: 50,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // Return to smaller idle state
+      Animated.timing(scaleAnim, {
+        toValue: 0.9,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+      spinAnim.setValue(0);
+    }
+
+    return () => {
+      if (animationLoop) {
+        animationLoop.stop();
+      }
+    };
+  }, [isSelected]);
+
+  const spin = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
     <TouchableOpacity
       style={styles.gridItemWrapper}
@@ -35,11 +86,45 @@ const AvatarGridItem = React.memo(({
     >
       <View style={[
         styles.gridItemCircle,
-        isSelected && styles.gridItemCircleSelected
+        isSelected && styles.gridItemCircleSelected,
+        // Override border when selected so Svg ring serves as border
+        isSelected && { borderWidth: 0 }
       ]}>
-        <Image
+
+        {/* Rotating Rainbow SVG Ring when selected */}
+        {isSelected && (
+          <Animated.View style={[
+            StyleSheet.absoluteFill,
+            { transform: [{ rotate: spin }] }
+          ]}>
+            <Svg width="100%" height="100%" viewBox="0 0 100 100">
+              <Defs>
+                <LinearGradient id="rainbowGrid" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop offset="0%" stopColor="#00F2FE" />
+                  <Stop offset="25%" stopColor="#4FACFE" />
+                  <Stop offset="50%" stopColor="#F355DA" />
+                  <Stop offset="75%" stopColor="#FF0844" />
+                  <Stop offset="100%" stopColor="#00F2FE" />
+                </LinearGradient>
+              </Defs>
+              <Circle
+                cx="50"
+                cy="50"
+                r="46.5"
+                fill="transparent"
+                stroke="url(#rainbowGrid)"
+                strokeWidth="6"
+              />
+            </Svg>
+          </Animated.View>
+        )}
+
+        <Animated.Image
           source={item.source}
-          style={styles.gridImage}
+          style={[
+            styles.gridImage,
+            { transform: [{ scale: scaleAnim }] }
+          ]}
           resizeMode="contain"
           fadeDuration={0}
           resizeMethod="resize"
@@ -74,11 +159,11 @@ export default function AvatarPickerScreen({
             <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
               <ArrowLeft color="#FFFFFF" size={22} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerTitle}>Pilih Avatar</Text>
             <View style={styles.headerPlaceholder} />
           </View>
 
-          {/* Large Preview Circle */}
+          {/* Large Preview Circle - Clean Static Preview */}
           <View style={styles.previewSection}>
             <View style={styles.avatarRing}>
               <Image

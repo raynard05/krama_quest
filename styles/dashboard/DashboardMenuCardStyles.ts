@@ -46,7 +46,7 @@ const DashboardMenuCardStyles = StyleSheet.create({
 
   // Glassmorphic Themes - Premium tinted frosted glass panels
   materiCardTheme: {
-    backgroundColor: 'rgba(254, 243, 199, 0.25)', // Frosted gold-cream glass
+    backgroundColor: 'rgba(204, 251, 241, 0.22)', // Frosted teal glass
     borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
       ios: { shadowColor: '#B45309', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
@@ -68,7 +68,7 @@ const DashboardMenuCardStyles = StyleSheet.create({
     color: '#FFFFFF',
   },
   cptpCardTheme: {
-    backgroundColor: 'rgba(254, 226, 226, 0.22)', // Frosted red glass
+    backgroundColor: 'rgba(204, 251, 241, 0.22)', // Frosted teal glass
     borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
       ios: { shadowColor: '#B91C1C', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
@@ -79,7 +79,7 @@ const DashboardMenuCardStyles = StyleSheet.create({
     color: '#FFFFFF',
   },
   evaluasiCardTheme: {
-    backgroundColor: 'rgba(243, 232, 255, 0.22)', // Frosted lavender purple glass
+    backgroundColor: 'rgba(204, 251, 241, 0.22)', // Frosted teal glass
     borderColor: 'rgba(255, 255, 255, 0.5)', // Specular white glass border
     ...Platform.select({
       ios: { shadowColor: '#6D28D9', shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 }, shadowRadius: 6 },
