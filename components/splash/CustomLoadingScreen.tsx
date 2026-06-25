@@ -56,7 +56,7 @@ export default function CustomLoadingScreen({ onFinish }: CustomLoadingScreenPro
   // Interpolate rotation angle
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ['0deg', '720deg'],
   });
 
   return (

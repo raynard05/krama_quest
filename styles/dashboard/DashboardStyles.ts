@@ -8,7 +8,7 @@ import { StyleSheet, Platform } from 'react-native';
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 
 // ─── Design Tokens (Responsive per Page) ────────────────────────────────────
-export const AVATAR_SIZE = rs(75, 80, 85);
+export const AVATAR_SIZE = rs(95, 105, 115);
 export const BANNER_H = rs(180, 200, 220);
 
 export const GREETING_SIZE = scaleFont(rs(18, 20, 22));
@@ -57,10 +57,30 @@ const DashboardStyles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
   },
   userNameText: {
+    alignSelf: 'flex-start', // Wraps container tightly around text
+    backgroundColor: '#f8ec00',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
     fontSize: USERNAME_SIZE,
-    color: '#ffffff',
+    color: '#0F172A', // Slate-900 for premium readability
     fontFamily: 'Poppins-Bold',
-    marginTop: -2,
+    marginTop: 6,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF', // Clean white border to frame the badge
+    // Soft shadow for premium floating tag feel
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+      default: {},
+    }),
   },
   avatarButton: {
     marginLeft: 15,

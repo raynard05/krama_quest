@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   ScrollView,
   Animated,
   ImageBackground,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardStyles';
 import DashboardMenuCard from './DashboardMenuCard';
@@ -20,11 +22,27 @@ interface DashboardMenuProps {
   onSelectDolanan: () => void;
   onLogout: () => void;
   onOpenProfile: () => void;
+  onSelectMateri: () => void;
 }
 
-export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile }: DashboardMenuProps) {
-  // Avatar rotation animation value
+export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri }: DashboardMenuProps) {
+  // Avatar rotation animation value (interactive hover/press)
   const avatarRotateVal = useRef(new Animated.Value(0)).current;
+
+  // Spin animation value for the colorful ring (auto animation)
+  const spinAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animationLoop = Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 3500,
+        useNativeDriver: true,
+      })
+    );
+    animationLoop.start();
+    return () => animationLoop.stop();
+  }, [spinAnim]);
 
   const handleAvatarPress = () => {
     onOpenProfile();
@@ -35,10 +53,14 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
     outputRange: ['0deg', '30deg'],
   });
 
-  // Extract first name for greeting
-  const displayName = currentUser?.nama_lengkap
-    ? currentUser.nama_lengkap.split(' ')[0]
-    : (currentUser?.username || 'User');
+  const spin = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  // Use username for greeting and limit to 12 characters
+  const rawDisplayName = currentUser?.username || 'User';
+  const displayName = rawDisplayName.substring(0, 12);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,12 +84,53 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
               onPress={handleAvatarPress}
               activeOpacity={0.8}
             >
-              <View style={styles.avatarRing}>
-                <Animated.Image
-                  source={getAvatarSource(currentUser?.avatarId)}
-                  style={[styles.avatarImage, { transform: [{ rotate: avatarRotate }] }]}
-                  resizeMode="contain"
-                />
+              <View style={[styles.avatarRing, { backgroundColor: 'transparent', padding: 0 }]}>
+                {/* Rotating Rainbow SVG Ring */}
+                <Animated.View style={[
+                  StyleSheet.absoluteFill,
+                  { transform: [{ rotate: spin }] }
+                ]}>
+                  <Svg width="100%" height="100%" viewBox="0 0 100 100">
+                    <Defs>
+                      <LinearGradient id="rainbowDashboard" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <Stop offset="0%" stopColor="#00F2FE" />
+                        <Stop offset="25%" stopColor="#4FACFE" />
+                        <Stop offset="50%" stopColor="#F355DA" />
+                        <Stop offset="75%" stopColor="#FF0844" />
+                        <Stop offset="100%" stopColor="#00F2FE" />
+                      </LinearGradient>
+                    </Defs>
+                    <Circle
+                      cx="50"
+                      cy="50"
+                      r="46.5"
+                      fill="transparent"
+                      stroke="url(#rainbowDashboard)"
+                      strokeWidth="5"
+                    />
+                  </Svg>
+                </Animated.View>
+
+                {/* Inner White Base & Image */}
+                <View style={{
+                  position: 'absolute',
+                  top: 5,
+                  left: 5,
+                  right: 5,
+                  bottom: 5,
+                  borderRadius: 999,
+                  backgroundColor: '#FFFFFF',
+                  padding: 3,
+                  overflow: 'hidden',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                  <Animated.Image
+                    source={getAvatarSource(currentUser?.avatarId)}
+                    style={[styles.avatarImage, { transform: [{ rotate: avatarRotate }] }]}
+                    resizeMode="contain"
+                  />
+                </View>
               </View>
             </TouchableOpacity>
           </View>
@@ -89,14 +152,12 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
               type="materi"
               title="Materi"
               imageSource={require('../../assets/dashboard_assets/materi.png')}
-              onPress={() => {
-                // Temporarily disabled navigation
-              }}
+              onPress={onSelectMateri}
             />
             <DashboardMenuCard
               type="dolanan"
               title="Dolanan"
-              imageSource={require('../../assets/dashboard_assets/dolanan.webp')}
+              imageSource={require('../../assets/splash_screen/icon.webp')}
               onPress={() => {
                 // Temporarily disabled navigation
               }}
@@ -125,9 +186,9 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
       {/* Profile Modal: Kept in tree but not visible since visibility is set to false */}
       <DashboardProfileModal
         visible={false}
-        onClose={() => {}}
+        onClose={() => { }}
         currentUser={currentUser}
-        onLogout={() => {}}
+        onLogout={() => { }}
       />
 
     </SafeAreaView>

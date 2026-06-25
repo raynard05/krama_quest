@@ -35,6 +35,7 @@ import CustomSplashScreen from './components/splash/CustomSplashScreen';
 import CustomLoadingScreen from './components/splash/CustomLoadingScreen';
 import ProfileMain from './components/profile/ProfileMain';
 import { ProfileService } from './services/ProfileService';
+import MateriScreen from './components/materi/MateriScreen';
 
 type AuthScreen = 'login' | 'register';
 
@@ -56,6 +57,7 @@ export default function App() {
   const [showDashboard, setShowDashboard] = useState<boolean>(true);
   const [showDolananOptions, setShowDolananOptions] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
+  const [showMateri, setShowMateri] = useState<boolean>(false);
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
 
@@ -104,6 +106,7 @@ export default function App() {
     setShowDashboard(true);
     setShowDolananOptions(false);
     setShowProfile(false);
+    setShowMateri(false);
     setAuthScreen('login');
     setIsLoadingScreen(false);
   };
@@ -593,6 +596,22 @@ export default function App() {
       );
     }
 
+    // Render Materi screen
+    if (showMateri) {
+      return (
+        <>
+          <MateriScreen
+            onBack={() => {
+              setShowMateri(false);
+              setShowDashboard(true);
+            }}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
     // Render Dashboard screen
     if (showDashboard) {
       return (
@@ -607,6 +626,10 @@ export default function App() {
             onOpenProfile={() => {
               setShowDashboard(false);
               setShowProfile(true);
+            }}
+            onSelectMateri={() => {
+              setShowDashboard(false);
+              setShowMateri(true);
             }}
           />
           <StatusBar style="dark" />

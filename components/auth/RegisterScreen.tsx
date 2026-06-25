@@ -139,6 +139,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
                 placeholderTextColor="#A0A0B0"
                 value={username}
                 onChangeText={setUsername}
+                maxLength={12}
                 autoCapitalize="none"
                 returnKeyType="next"
                 onSubmitEditing={() => kelasRef.current?.focus()}

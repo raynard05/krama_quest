@@ -102,6 +102,7 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
                 placeholderTextColor="#A0A0B0"
                 value={username}
                 onChangeText={setUsername}
+                maxLength={12}
                 autoCapitalize="none"
                 returnKeyType="next"
                 onFocus={() => setFocusedField('username')}

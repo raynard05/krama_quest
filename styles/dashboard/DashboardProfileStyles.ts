@@ -63,8 +63,8 @@ const DashboardProfileStyles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   largeAvatar: {
-    width: rs(180, 120, 120),
-    height: rs(80, 120, 120),
+    width: rs(180, 120, 150),
+    height: rs(180, 10, 150),
     borderRadius: rs(40, 42.5, 45),
     marginBottom: 12,
     backgroundColor: '#FFFFFF',
