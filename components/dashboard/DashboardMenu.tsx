@@ -23,9 +23,10 @@ interface DashboardMenuProps {
   onLogout: () => void;
   onOpenProfile: () => void;
   onSelectMateri: () => void;
+  onSelectCpTp: () => void;
 }
 
-export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri }: DashboardMenuProps) {
+export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri, onSelectCpTp }: DashboardMenuProps) {
   // Avatar rotation animation value (interactive hover/press)
   const avatarRotateVal = useRef(new Animated.Value(0)).current;
 
@@ -139,7 +140,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
           <View style={styles.bannerContainer}>
             <View style={styles.bannerMain}>
               <Image
-                source={require('../../assets/dashboard_assets/greeting2.png')}
+                source={require('../../assets/dashboard_assets/greeting3.png')}
                 style={styles.bannerImage}
                 resizeMode="cover"
               />
@@ -166,9 +167,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
               type="cptp"
               title="CP & TP"
               imageSource={require('../../assets/dashboard_assets/cp.png')}
-              onPress={() => {
-                // Temporarily disabled navigation
-              }}
+              onPress={onSelectCpTp}
             />
             <DashboardMenuCard
               type="evaluasi"

@@ -36,6 +36,7 @@ import CustomLoadingScreen from './components/splash/CustomLoadingScreen';
 import ProfileMain from './components/profile/ProfileMain';
 import { ProfileService } from './services/ProfileService';
 import MateriScreen from './components/materi/MateriScreen';
+import CpTpScreen from './components/cptp/CpTpScreen';
 
 type AuthScreen = 'login' | 'register';
 
@@ -58,6 +59,7 @@ export default function App() {
   const [showDolananOptions, setShowDolananOptions] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [showMateri, setShowMateri] = useState<boolean>(false);
+  const [showCpTp, setShowCpTp] = useState<boolean>(false);
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
 
@@ -107,6 +109,7 @@ export default function App() {
     setShowDolananOptions(false);
     setShowProfile(false);
     setShowMateri(false);
+    setShowCpTp(false);
     setAuthScreen('login');
     setIsLoadingScreen(false);
   };
@@ -612,6 +615,22 @@ export default function App() {
       );
     }
 
+    // Render CP & TP screen
+    if (showCpTp) {
+      return (
+        <>
+          <CpTpScreen
+            onBack={() => {
+              setShowCpTp(false);
+              setShowDashboard(true);
+            }}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
     // Render Dashboard screen
     if (showDashboard) {
       return (
@@ -630,6 +649,10 @@ export default function App() {
             onSelectMateri={() => {
               setShowDashboard(false);
               setShowMateri(true);
+            }}
+            onSelectCpTp={() => {
+              setShowDashboard(false);
+              setShowCpTp(true);
             }}
           />
           <StatusBar style="dark" />
