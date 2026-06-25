@@ -18,19 +18,20 @@ const MateriStyles = StyleSheet.create({
     height: '100%',
   },
   backgroundImageStyle: {
-    transform: [{ scale: 1.15 }],
+    transform: [{ scale: 1 }],
   },
   scrollContent: {
-    paddingHorizontal: vw(5),
-    paddingBottom: vh(2),
     flexGrow: 1,
     justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    paddingBottom: 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: vh(2),
+    paddingVertical: vh(4),
+    paddingHorizontal: vw(5),
     width: '100%',
     marginBottom: vh(1),
   },
@@ -55,6 +56,7 @@ const MateriStyles = StyleSheet.create({
   },
   contentBody: {
     flex: 1,
+    paddingHorizontal: vw(5),
     paddingTop: vh(2),
     minHeight: vh(40), // Ensures space for future components
   },
@@ -63,7 +65,6 @@ const MateriStyles = StyleSheet.create({
     height: BOTTOM_H,
     position: 'relative',
     overflow: 'hidden',
-    marginTop: vh(4),
   },
   cityImg: {
     position: 'absolute',
