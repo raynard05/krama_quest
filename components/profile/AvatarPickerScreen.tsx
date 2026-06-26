@@ -7,11 +7,13 @@ import {
   ScrollView,
   ImageBackground,
   Animated,
-  StyleSheet
+  StyleSheet,
+  Platform
 } from 'react-native';
 import { ArrowLeft, Edit2 } from 'lucide-react-native';
 import Svg, { Circle, LinearGradient, Stop, Defs } from 'react-native-svg';
 import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerStyles';
+import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 import { PROFILE_AVATARS, getAvatarSource, AvatarItem, PROFILE_BATIKS, getBatikSource } from './ProfileAvatars';
 
 interface AvatarPickerScreenProps {
@@ -173,24 +175,72 @@ export default function AvatarPickerScreen({
             <View style={styles.headerPlaceholder} />
           </View>
 
-          {/* Large Preview Circle - Clean Static Preview */}
-          <View style={styles.previewSection}>
-            <View style={[styles.avatarRing, { overflow: 'hidden' }]}>
-              {/* Selected Batik Background Preview */}
+          {/* Large Preview Section - Horizontal Row with Character and Background Preview */}
+          <View style={[styles.previewSection, { flexDirection: 'row', justifyContent: 'center', gap: 30, paddingHorizontal: vw(5) }]}>
+            {/* Left: Avatar Character Frame Container */}
+            <View style={{ position: 'relative' }}>
+              <View style={styles.avatarRing}>
+                <Image
+                  source={getAvatarSource(selectedId)}
+                  style={styles.avatarImage}
+                  resizeMode="contain"
+                  fadeDuration={0}
+                />
+              </View>
+              <View style={styles.editBadge}>
+                <Edit2 color="#1E6FE3" size={12} />
+              </View>
+            </View>
+
+            {/* Right: Selected Background Frame (Frame Radius Khusus) */}
+            <View style={{
+              width: rs(100, 110, 120),
+              height: rs(100, 110, 120),
+              borderRadius: 24, // Frame radius khusus
+              borderWidth: 3,
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              overflow: 'hidden',
+              justifyContent: 'center',
+              alignItems: 'center',
+              ...Platform.select({
+                ios: {
+                  shadowColor: '#00F2FE',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 6,
+                },
+                android: {
+                  elevation: 4,
+                },
+                default: {},
+              }),
+            }}>
               <Image
                 source={getBatikSource(selectedBgId)}
-                style={[StyleSheet.absoluteFill, { opacity: 0.85 }]}
+                style={StyleSheet.absoluteFill}
                 resizeMode="cover"
               />
-              <Image
-                source={getAvatarSource(selectedId)}
-                style={styles.avatarImage}
-                resizeMode="contain"
-                fadeDuration={0}
-              />
-            </View>
-            <View style={styles.editBadge}>
-              <Edit2 color="#1E6FE3" size={12} />
+              {/* Overlay label */}
+              <View style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                paddingVertical: 3,
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  color: '#00F2FE',
+                  fontSize: scaleFont(rs(8, 9, 10)),
+                  fontFamily: 'Poppins-Bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}>
+                  Background
+                </Text>
+              </View>
             </View>
           </View>
 
