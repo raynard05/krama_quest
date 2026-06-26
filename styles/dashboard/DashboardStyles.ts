@@ -35,8 +35,8 @@ const DashboardStyles = StyleSheet.create({
     transform: [{ scale: 2.13 }],
   },
   scrollContent: {
-    paddingHorizontal: vw(5),
-    paddingTop: SPACING_MD,
+    paddingHorizontal: 0,
+    paddingTop: 0,
     paddingBottom: vh(4),
   },
 
@@ -45,8 +45,38 @@ const DashboardStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING_MD,
-    marginTop: rs(8, 12, 16),
+    width: '100%',
+    backgroundColor: 'rgba(91, 91, 91, 0.58)', // Premium translucent header panel
+    borderBottomWidth: 5,
+    borderBottomColor: 'rgba(255, 255, 255, 1)', // Bottom divider line to separate header
+    paddingHorizontal: vw(5),
+    paddingVertical: vh(2.2),
+
+    marginBottom: SPACING_LG,
+    overflow: 'hidden', // Contain absolute positioned elements
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+      default: {},
+    }),
+  },
+  headerBatik: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.6, // Subtle Javanese batik texture overlay
+    transform: [{ scale: 2.8 }],
   },
   headerLeft: {
     flex: 1,
@@ -55,11 +85,13 @@ const DashboardStyles = StyleSheet.create({
     fontSize: GREETING_SIZE,
     color: '#ffffff',
     fontFamily: 'Poppins-Medium',
+    borderBlockColor: "#0000",
+    borderColor: "#0000",
   },
   userNameText: {
     alignSelf: 'flex-start', // Wraps container tightly around text
     backgroundColor: '#f8ec00',
-    borderRadius: 12,
+
     paddingHorizontal: 14,
     paddingVertical: 4,
     fontSize: USERNAME_SIZE,
@@ -113,11 +145,13 @@ const DashboardStyles = StyleSheet.create({
 
   // ─── Mascot Banner ───────────────────────────────────────────────────────
   bannerContainer: {
-    width: '100%',
+    width: vw(90),
+    alignSelf: 'center',
     height: BANNER_H,
     position: 'relative',
     marginBottom: SPACING_LG,
     overflow: 'hidden',
+    borderRadius: 20, // Clean rounded card frame matching layout
     // Premium shadow for banner
     ...Platform.select({
       ios: {
@@ -147,7 +181,7 @@ const DashboardStyles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 2,
+    paddingHorizontal: vw(5),
   },
 
   // ─── Modals ──────────────────────────────────────────────────────────────

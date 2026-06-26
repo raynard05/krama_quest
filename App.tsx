@@ -37,6 +37,7 @@ import ProfileMain from './components/profile/ProfileMain';
 import { ProfileService } from './services/ProfileService';
 import MateriScreen from './components/materi/MateriScreen';
 import CpTpScreen from './components/cptp/CpTpScreen';
+import DolananScreen from './components/dolanan/DolananScreen';
 
 type AuthScreen = 'login' | 'register';
 
@@ -60,6 +61,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [showMateri, setShowMateri] = useState<boolean>(false);
   const [showCpTp, setShowCpTp] = useState<boolean>(false);
+  const [showDolanan, setShowDolanan] = useState<boolean>(false);
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
 
@@ -110,6 +112,7 @@ export default function App() {
     setShowProfile(false);
     setShowMateri(false);
     setShowCpTp(false);
+    setShowDolanan(false);
     setAuthScreen('login');
     setIsLoadingScreen(false);
   };
@@ -615,6 +618,22 @@ export default function App() {
       );
     }
 
+    // Render Dolanan screen
+    if (showDolanan) {
+      return (
+        <>
+          <DolananScreen
+            onBack={() => {
+              setShowDolanan(false);
+              setShowDashboard(true);
+            }}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
     // Render CP & TP screen
     if (showCpTp) {
       return (
@@ -639,7 +658,7 @@ export default function App() {
             currentUser={currentUser}
             onSelectDolanan={() => {
               setShowDashboard(false);
-              setShowDolananOptions(true);
+              setShowDolanan(true);
             }}
             onLogout={handleLogout}
             onOpenProfile={() => {

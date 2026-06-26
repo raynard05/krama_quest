@@ -1,13 +1,13 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 
 // City background & dimensions
 export const CITY_IMG_W = vw(120);
 export const CITY_LEFT_BLEED = vw(-10);
-export const CITY_IMG_H = CITY_IMG_W * 0.74757; // 4:3 Aspect Ratio (412x308) to prevent distortion
+export const CITY_IMG_H = CITY_IMG_W * 0.74757; // 4:3 Aspect Ratio to prevent distortion
 export const BOTTOM_H = CITY_IMG_H;
 
-const MateriStyles = StyleSheet.create({
+const DolananStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0A12', // Dark background matching profile screen
@@ -30,10 +30,10 @@ const MateriStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: vh(4.5),
+    paddingVertical: vh(4),
     paddingHorizontal: vw(5),
     width: '100%',
-    marginBottom: vh(-4),
+    marginBottom: vh(1),
   },
   backButton: {
     padding: rs(8, 10, 12),
@@ -75,4 +75,4 @@ const MateriStyles = StyleSheet.create({
   },
 });
 
-export default MateriStyles;
+export default DolananStyles;

@@ -180,13 +180,7 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
           </View>
 
           {/* Bottom Section: Lapindo Monument Illustration */}
-          <View style={styles.bottomSection}>
-            <Image
-              source={require('../../assets/materi_assets/lapindo.webp')}
-              style={styles.cityImg}
-              resizeMode="cover"
-            />
-          </View>
+         
 
         </ScrollView>
       </ImageBackground>

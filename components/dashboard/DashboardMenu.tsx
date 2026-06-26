@@ -75,6 +75,12 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
 
           {/* Header Row */}
           <View style={styles.header}>
+            {/* Batik Pattern Overlay */}
+            <Image
+              source={require('../../assets/dashboard_assets/batik_pattern.png')}
+              style={styles.headerBatik}
+              resizeMode="repeat"
+            />
             <View style={styles.headerLeft}>
               <Text style={styles.greetingText}>Sugeng Rawuh,</Text>
               <Text style={styles.userNameText}>{displayName}!</Text>
@@ -159,9 +165,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
               type="dolanan"
               title="Dolanan"
               imageSource={require('../../assets/splash_screen/icon.webp')}
-              onPress={() => {
-                // Temporarily disabled navigation
-              }}
+              onPress={onSelectDolanan}
             />
             <DashboardMenuCard
               type="cptp"
