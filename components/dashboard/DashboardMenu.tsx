@@ -110,71 +110,71 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
             <View style={styles.header}>
               {/* Custom Gaming Split Background */}
               <View style={[StyleSheet.absoluteFill, { overflow: 'hidden', borderBottomLeftRadius: 0, borderBottomRightRadius: 90, borderTopEndRadius: 90 }]}>
-                <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <Svg width="100%" height="100%" viewBox="0 0 400 170" preserveAspectRatio="none">
                   <Defs>
                     <ClipPath id="leftClip">
-                      <Path d="M 0,0 L 90,0 L 52,150 L 0,120 Z" />
+                      <Path d="M 0,0 L 360,0 L 208,255 L 0,204 Z" />
                     </ClipPath>
                     <ClipPath id="rightClip">
-                      <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" />
+                      <Path d="M 272,0 L 400,0 L 400,170 L 208,238 Z" />
                     </ClipPath>
-                    <Pattern id="headerBatikPattern" width="30" height="30" patternUnits="userSpaceOnUse">
-                      <SvgImage
-                        href={getBatikSource(currentUser?.avatarBgId || '1')}
-                        width="30"
-                        height="30"
-                      />
-                    </Pattern>
+
                   </Defs>
 
                   {/* Left Background Area */}
-                  <Path d="M 0,0 L 90,0 L 52,170 L 0,120 Z" fill="#0E101D" />
+                  <Path d="M 0,0 L 360,0 L 208,289 L 0,204 Z" fill="#0E101D" />
 
                   {/* Left Side White Abstract Tech Abstractions */}
                   <G clipPath="url(#leftClip)">
                     {/* Subtle Diagonal Lines parallel to neon separator line */}
-                    <Line x1="15" y1="0" x2="2" y2="100" stroke="#FFFFFF" strokeWidth="1" opacity="0.09" />
-                    <Line x1="30" y1="0" x2="17" y2="100" stroke="#FFFFFF" strokeWidth="1" opacity="0.09" />
-                    <Line x1="45" y1="0" x2="32" y2="100" stroke="#FFFFFF" strokeWidth="1" opacity="0.09" />
-                    <Line x1="60" y1="0" x2="47" y2="100" stroke="#FFFFFF" strokeWidth="1" opacity="0.09" />
-                    <Line x1="75" y1="0" x2="62" y2="100" stroke="#FFFFFF" strokeWidth="1" opacity="0.09" />
+                    <Line x1="60" y1="0" x2="8" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
+                    <Line x1="120" y1="0" x2="68" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
+                    <Line x1="180" y1="0" x2="128" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
+                    <Line x1="240" y1="0" x2="188" y2="170" stroke="#c0bcbcff" strokeWidth="1.5" opacity="0.8" />
+                    <Line x1="300" y1="0" x2="248" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
 
                     {/* Horizontal grid lines */}
-                    <Line x1="0" y1="20" x2="100" y2="20" stroke="#FFFFFF" strokeWidth="0.6" opacity="0.09" />
-                    <Line x1="0" y1="40" x2="100" y2="40" stroke="#FFFFFF" strokeWidth="0.6" opacity="0.1" />
-                    <Line x1="0" y1="60" x2="100" y2="60" stroke="#FFFFFF" strokeWidth="0.6" opacity="0.1" />
-                    <Line x1="0" y1="80" x2="100" y2="80" stroke="#FFFFFF" strokeWidth="0.6" opacity="0.1" />
+                    <Line x1="0" y1="34" x2="400" y2="34" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
+                    <Line x1="0" y1="68" x2="400" y2="68" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
+                    <Line x1="0" y1="102" x2="400" y2="102" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
+                    <Line x1="0" y1="136" x2="400" y2="136" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
 
                     {/* Concentric tech circle accents on the far left */}
-                    <Circle cx="-5" cy="50" r="20" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.06" />
-                    <Circle cx="-5" cy="50" r="35" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.06" />
-                    <Circle cx="-5" cy="50" r="50" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.04" strokeDasharray="3 3" />
-                    <Circle cx="-5" cy="50" r="65" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.04" />
+                    <Circle cx="-20" cy="85" r="34" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.06" />
+                    <Circle cx="-20" cy="85" r="59" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.06" />
+                    <Circle cx="-20" cy="85" r="85" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.04" strokeDasharray="5 5" />
+                    <Circle cx="-20" cy="85" r="110" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.04" />
 
                     {/* Futuristic digital grid dots/nodes */}
-                    <Circle cx="15" cy="30" r="0.8" fill="#FFFFFF" opacity="0.15" />
-                    <Circle cx="35" cy="30" r="0.8" fill="#FFFFFF" opacity="0.15" />
-                    <Circle cx="25" cy="50" r="0.8" fill="#FFFFFF" opacity="0.15" />
-                    <Circle cx="45" cy="50" r="0.8" fill="#FFFFFF" opacity="0.15" />
-                    <Circle cx="15" cy="70" r="0.8" fill="#FFFFFF" opacity="0.15" />
-                    <Circle cx="35" cy="70" r="0.8" fill="#FFFFFF" opacity="0.15" />
+                    <Circle cx="60" cy="51" r="1.4" fill="#aeaeaeff" opacity="0.8" />
+                    <Circle cx="140" cy="51" r="1.4" fill="#aeaeaeff" opacity="0.8" />
+                    <Circle cx="100" cy="85" r="1.4" fill="#aeaeaeff" opacity="0.8" />
+                    <Circle cx="180" cy="85" r="1.4" fill="#aeaeaeff" opacity="0.8" />
+                    <Circle cx="60" cy="119" r="1.4" fill="#aeaeaeff" opacity="0.8" />
+                    <Circle cx="140" cy="119" r="1.4" fill="#aeaeaeff" opacity="0.8" />
 
                     {/* Sleek circuit tech paths */}
-                    <Path d="M 5,25 L 20,25 L 27,32 L 40,32" stroke="#FFFFFF" strokeWidth="0.6" fill="none" opacity="0.08" />
-                    <Circle cx="40" cy="32" r="1.2" fill="#FFFFFF" opacity="0.15" />
+                    <Path d="M 20,42 L 80,42 L 108,54 L 160,54" stroke="#aeaeaeff" strokeWidth="0.8" fill="none" opacity="0.08" />
+                    <Circle cx="160" cy="54" r="2" fill="#aeaeaeff" opacity="0.8" />
 
-                    <Path d="M 10,75 L 25,75 L 32,68 L 48,68" stroke="#FFFFFF" strokeWidth="0.6" fill="none" opacity="0.08" />
-                    <Circle cx="48" cy="68" r="1.2" fill="#FFFFFF" opacity="0.15" />
+                    <Path d="M 40,127 L 100,127 L 128,115 L 192,115" stroke="#aeaeaeff" strokeWidth="0.8" fill="none" opacity="0.08" />
+                    <Circle cx="192" cy="115" r="2" fill="#aeaeaeff" opacity="0.8" />
                   </G>
 
-                  {/* Right Background Area */}
-                  <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#b4b2b2ff" />
-
-                  {/* Right Side Soft Cartoon Batik Texture Overlay */}
-                  <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="url(#headerBatikPattern)" opacity={0.35} />
+                  {/* Right Side Batik — full image clipped to right shape, no tiling */}
+                  <G clipPath="url(#rightClip)">
+                    <SvgImage
+                      href={getBatikSource(currentUser?.avatarBgId || '1')}
+                      x="208"
+                      y="0"
+                      width="250"
+                      height="180"
+                      preserveAspectRatio="xMidYMid slice"
+                    />
+                  </G>
 
                   {/* Slanted Neon Separator Line */}
-                  <Line x1="68" y1="0" x2="56" y2="100" stroke="#FF0844" strokeWidth="0.9" />
+                  <Line x1="272" y1="0" x2="224" y2="170" stroke="#FF0844" strokeWidth="1.5" />
                 </Svg>
               </View>
               <View style={styles.headerLeft}>
@@ -222,7 +222,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                     right: 5,
                     bottom: 5,
                     borderRadius: 999,
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: '#aeaeaeff',
                     padding: 3,
                     overflow: 'hidden',
                     justifyContent: 'center',

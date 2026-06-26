@@ -218,11 +218,11 @@ export default function AvatarPickerScreen({
             }}>
               <Svg width="100%" height="100%">
                 <Defs>
-                  <Pattern id="previewBatik" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <Pattern id="previewBatik" width="130" height="130" patternUnits="userSpaceOnUse">
                     <SvgImage
                       href={getBatikSource(selectedBgId)}
-                      width="30"
-                      height="30"
+                      width="130"
+                      height="130"
                     />
                   </Pattern>
                 </Defs>

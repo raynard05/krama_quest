@@ -36,8 +36,9 @@ const DashboardStyles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 0,
-    paddingTop: 0,
-    paddingBottom: vh(1),
+    paddingTop: vh(5),
+    paddingBottom: vh(5),
+
   },
 
   // ─── Header ──────────────────────────────────────────────────────────────
@@ -46,7 +47,6 @@ const DashboardStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    
     backgroundColor: 'transparent', // Transparent to show SVG split-color background
 
     paddingHorizontal: vw(5),
