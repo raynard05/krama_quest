@@ -46,9 +46,9 @@ const DashboardStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: 'rgba(91, 91, 91, 0.58)', // Premium translucent header panel
-    borderBottomWidth: 5,
-    borderBottomColor: 'rgba(255, 255, 255, 1)', // Bottom divider line to separate header
+    backgroundColor: 'rgba(0, 0, 0, 0.58)', // Premium translucent header panel
+    borderBottomWidth: 4,
+    borderBottomColor: 'rgba(255, 255, 255, 0.59)', // Bottom divider line to separate header
     paddingHorizontal: vw(5),
     paddingVertical: vh(2.2),
 
@@ -76,7 +76,7 @@ const DashboardStyles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.6, // Subtle Javanese batik texture overlay
-    transform: [{ scale: 2.8 }],
+    transform: [{ scale: 2 }],
   },
   headerLeft: {
     flex: 1,
