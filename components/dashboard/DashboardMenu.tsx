@@ -28,6 +28,27 @@ interface DashboardMenuProps {
 
 const ICONS = ['🦐', '🏆', '🐍', '📝', '🥇', '📖'];
 
+const KAWUNG_CENTERS = [
+  { x: 40, y: -20 }, { x: 60, y: -20 }, { x: 80, y: -20 }, { x: 100, y: -20 }, { x: 120, y: -20 },
+  { x: 30, y: 0 }, { x: 50, y: 0 }, { x: 70, y: 0 }, { x: 90, y: 0 }, { x: 110, y: 0 },
+  { x: 40, y: 20 }, { x: 60, y: 20 }, { x: 80, y: 20 }, { x: 100, y: 20 }, { x: 120, y: 20 },
+  { x: 30, y: 40 }, { x: 50, y: 40 }, { x: 70, y: 40 }, { x: 90, y: 40 }, { x: 110, y: 40 },
+  { x: 40, y: 60 }, { x: 60, y: 60 }, { x: 80, y: 60 }, { x: 100, y: 60 }, { x: 120, y: 60 },
+  { x: 30, y: 80 }, { x: 50, y: 80 }, { x: 70, y: 80 }, { x: 90, y: 80 }, { x: 110, y: 80 },
+  { x: 40, y: 100 }, { x: 60, y: 100 }, { x: 80, y: 100 }, { x: 100, y: 100 }, { x: 120, y: 100 },
+  { x: 30, y: 120 }, { x: 50, y: 120 }, { x: 70, y: 120 }, { x: 90, y: 120 }, { x: 110, y: 120 },
+];
+
+const KAWUNG_INTERSECTIONS = [
+  { x: 50, y: -10 }, { x: 70, y: -10 }, { x: 90, y: -10 }, { x: 110, y: -10 },
+  { x: 40, y: 10 }, { x: 60, y: 10 }, { x: 80, y: 10 }, { x: 100, y: 10 }, { x: 120, y: 10 },
+  { x: 50, y: 30 }, { x: 70, y: 30 }, { x: 90, y: 30 }, { x: 110, y: 30 },
+  { x: 40, y: 50 }, { x: 60, y: 50 }, { x: 80, y: 50 }, { x: 100, y: 50 }, { x: 120, y: 50 },
+  { x: 50, y: 70 }, { x: 70, y: 70 }, { x: 90, y: 70 }, { x: 110, y: 70 },
+  { x: 40, y: 90 }, { x: 60, y: 90 }, { x: 80, y: 90 }, { x: 100, y: 90 }, { x: 120, y: 90 },
+  { x: 50, y: 110 }, { x: 70, y: 110 }, { x: 90, y: 110 }, { x: 110, y: 110 },
+];
+
 export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri, onSelectCpTp }: DashboardMenuProps) {
   const insets = useSafeAreaInsets();
   const [iconIndex, setIconIndex] = useState(0);
@@ -115,6 +136,9 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                     <ClipPath id="leftClip">
                       <Path d="M 0,0 L 90,0 L 52,150 L 0,120 Z" />
                     </ClipPath>
+                    <ClipPath id="rightClip">
+                      <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" />
+                    </ClipPath>
                   </Defs>
 
                   {/* Left Background Area */}
@@ -159,6 +183,24 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
 
                   {/* Right Background Area */}
                   <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#1C1F38" />
+
+                  {/* Right Side Javanese Batik Kawung Pattern */}
+                  <G clipPath="url(#rightClip)">
+                    {KAWUNG_CENTERS.map((c, i) => (
+                      <G key={`c-${i}`}>
+                        <Circle cx={c.x} cy={c.y} r={14} stroke="#FFFFFF" strokeWidth={0.35} fill="none" opacity={0.07} />
+                        <Circle cx={c.x} cy={c.y} r={9} stroke="#FFFFFF" strokeWidth={0.2} fill="none" opacity={0.05} />
+                        <Circle cx={c.x} cy={c.y} r={1.5} fill="#FFFFFF" opacity={0.09} />
+                      </G>
+                    ))}
+                    {KAWUNG_INTERSECTIONS.map((c, i) => (
+                      <G key={`int-${i}`}>
+                        <Line x1={c.x - 2} y1={c.y - 2} x2={c.x + 2} y2={c.y + 2} stroke="#FFFFFF" strokeWidth={0.3} opacity={0.06} />
+                        <Line x1={c.x + 2} y1={c.y - 2} x2={c.x - 2} y2={c.y + 2} stroke="#FFFFFF" strokeWidth={0.3} opacity={0.06} />
+                        <Circle cx={c.x} cy={c.y} r={0.8} fill="#FFFFFF" opacity={0.12} />
+                      </G>
+                    ))}
+                  </G>
 
                   {/* Slanted Neon Separator Line */}
                   <Line x1="69" y1="0" x2="56" y2="100" stroke="#FF0844" strokeWidth="0.9" />
