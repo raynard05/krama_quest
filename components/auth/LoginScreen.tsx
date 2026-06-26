@@ -21,7 +21,7 @@ import {
 import { loginUser } from '../../services/AuthService';
 import type { UserAccount } from '../../services/AuthService';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles, { EYE_SIZE } from '../../styles/auth/LoginStyles';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -32,6 +32,7 @@ interface LoginScreenProps {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: LoginScreenProps) {
+  const insets = useSafeAreaInsets();
   // State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -76,8 +77,13 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
+          <ScrollView 
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scroll} 
+            keyboardShouldPersistTaps="handled" 
+            showsVerticalScrollIndicator={false}
+          >
 
           {/* Card */}
           <View style={styles.card}>
@@ -163,9 +169,9 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
             <Image source={require('../../assets/login_assets/city_bottom2.webp')} style={styles.cityImg} resizeMode="cover" />
           </View>
 
-        </ScrollView>
-      </SafeAreaView>
-    </ImageBackground>
+          </ScrollView>
+        </View>
+      </ImageBackground>
   </KeyboardAvoidingView>
   );
 }

@@ -21,7 +21,7 @@ import {
 import { registerUser } from '../../services/AuthService';
 import type { UserAccount } from '../../services/AuthService';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles, { EYE_SIZE } from '../../styles/auth/RegisterStyles';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -32,6 +32,7 @@ interface RegisterScreenProps {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }: RegisterScreenProps) {
+  const insets = useSafeAreaInsets();
   // State
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
@@ -95,8 +96,13 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
+          <ScrollView 
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scroll} 
+            keyboardShouldPersistTaps="handled" 
+            showsVerticalScrollIndicator={false}
+          >
 
           {/* Card */}
           <View style={styles.card}>
@@ -238,9 +244,9 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
             <Image source={require('../../assets/login_assets/city_bottom2.webp')} style={styles.cityImg} resizeMode="cover" />
           </View>
 
-        </ScrollView>
-      </SafeAreaView>
-    </ImageBackground>
+          </ScrollView>
+        </View>
+      </ImageBackground>
   </KeyboardAvoidingView>
   );
 }
