@@ -91,14 +91,15 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
   const displayName = rawDisplayName.substring(0, 12);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: '#0E101D' }}>
       <ImageBackground
         source={require('../../assets/splash_screen/bg_splashs.webp')}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
         resizeMode="cover"
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
           {/* Header Row */}
           <View style={styles.header}>
@@ -269,7 +270,8 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
           </View>
 
         </ScrollView>
-      </ImageBackground>
+      </SafeAreaView>
+    </ImageBackground>
 
       {/* Profile Modal: Kept in tree but not visible since visibility is set to false */}
       <DashboardProfileModal
@@ -279,6 +281,6 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
         onLogout={() => { }}
       />
 
-    </SafeAreaView>
+    </View>
   );
 }

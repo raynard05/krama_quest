@@ -46,6 +46,7 @@ const DashboardStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
+    
     backgroundColor: 'transparent', // Transparent to show SVG split-color background
 
     paddingHorizontal: vw(5),

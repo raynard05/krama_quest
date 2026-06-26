@@ -42,6 +42,7 @@ const RegisterStyles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#E6F4FE',
+    
   },
   scroll: {
     flexGrow: 1,

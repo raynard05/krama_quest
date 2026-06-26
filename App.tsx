@@ -566,7 +566,7 @@ export default function App() {
     // ── Auth screens ─────────────────────────────────────────────────────
     if (!isAuthenticated) {
       return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} edges={['top', 'bottom']}>
+        <View style={{ flex: 1, backgroundColor: '#E6F4FE' }}>
           {authScreen === 'login' ? (
             <LoginScreen
               onNavigateToRegister={() => setAuthScreen('register')}
@@ -580,7 +580,7 @@ export default function App() {
           )}
           <StatusBar style="dark" />
           <NavigationBar style="dark" />
-        </SafeAreaView>
+        </View>
       );
     }
 

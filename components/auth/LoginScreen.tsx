@@ -21,6 +21,7 @@ import {
 import { loginUser } from '../../services/AuthService';
 import type { UserAccount } from '../../services/AuthService';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import styles, { EYE_SIZE } from '../../styles/auth/LoginStyles';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -75,7 +76,8 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
           {/* Card */}
           <View style={styles.card}>
@@ -162,7 +164,8 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
           </View>
 
         </ScrollView>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ImageBackground>
+  </KeyboardAvoidingView>
   );
 }
