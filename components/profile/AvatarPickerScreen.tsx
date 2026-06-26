@@ -11,7 +11,7 @@ import {
   Platform
 } from 'react-native';
 import { ArrowLeft, Edit2 } from 'lucide-react-native';
-import Svg, { Circle, LinearGradient, Stop, Defs } from 'react-native-svg';
+import Svg, { Circle, LinearGradient, Stop, Defs, Pattern, Rect, Image as SvgImage } from 'react-native-svg';
 import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerStyles';
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 import { PROFILE_AVATARS, getAvatarSource, AvatarItem, PROFILE_BATIKS, getBatikSource } from './ProfileAvatars';
@@ -216,11 +216,18 @@ export default function AvatarPickerScreen({
                 default: {},
               }),
             }}>
-              <Image
-                source={getBatikSource(selectedBgId)}
-                style={StyleSheet.absoluteFill}
-                resizeMode="cover"
-              />
+              <Svg width="100%" height="100%">
+                <Defs>
+                  <Pattern id="previewBatik" width="30" height="30" patternUnits="userSpaceOnUse">
+                    <SvgImage
+                      href={getBatikSource(selectedBgId)}
+                      width="30"
+                      height="30"
+                    />
+                  </Pattern>
+                </Defs>
+                <Rect width="100%" height="100%" fill="url(#previewBatik)" />
+              </Svg>
               {/* Overlay label */}
               <View style={{
                 position: 'absolute',

@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line, ClipPath, G, Image as SvgImage } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line, ClipPath, G, Image as SvgImage, Pattern } from 'react-native-svg';
 import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardStyles';
 import DashboardMenuCard from './DashboardMenuCard';
@@ -100,9 +100,9 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
         resizeMode="cover"
       >
         <View style={[styles.container, { paddingTop: insets.top }]}>
-          <ScrollView 
+          <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={styles.scrollContent} 
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
 
@@ -118,10 +118,17 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                     <ClipPath id="rightClip">
                       <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" />
                     </ClipPath>
+                    <Pattern id="headerBatikPattern" width="30" height="30" patternUnits="userSpaceOnUse">
+                      <SvgImage
+                        href={getBatikSource(currentUser?.avatarBgId || '1')}
+                        width="30"
+                        height="30"
+                      />
+                    </Pattern>
                   </Defs>
 
                   {/* Left Background Area */}
-                  <Path d="M 0,0 L 90,0 L 52,150 L 0,120 Z" fill="#0E101D" />
+                  <Path d="M 0,0 L 90,0 L 52,170 L 0,120 Z" fill="#0E101D" />
 
                   {/* Left Side White Abstract Tech Abstractions */}
                   <G clipPath="url(#leftClip)">
@@ -161,23 +168,13 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                   </G>
 
                   {/* Right Background Area */}
-                  <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#1C1F38" />
+                  <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#b4b2b2ff" />
 
                   {/* Right Side Soft Cartoon Batik Texture Overlay */}
-                  <G clipPath="url(#rightClip)">
-                    <SvgImage
-                      href={getBatikSource(currentUser?.avatarBgId || '1')}
-                      x="40"
-                      y="-10"
-                      width="70"
-                      height="120"
-                      opacity={0.35}
-                      preserveAspectRatio="xMidYMid slice"
-                    />
-                  </G>
+                  <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="url(#headerBatikPattern)" opacity={0.35} />
 
                   {/* Slanted Neon Separator Line */}
-                  <Line x1="69" y1="0" x2="56" y2="100" stroke="#FF0844" strokeWidth="0.9" />
+                  <Line x1="68" y1="0" x2="56" y2="100" stroke="#FF0844" strokeWidth="0.9" />
                 </Svg>
               </View>
               <View style={styles.headerLeft}>
