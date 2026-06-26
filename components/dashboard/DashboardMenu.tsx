@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line, ClipPath, G } from 'react-native-svg';
 import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardStyles';
 import DashboardMenuCard from './DashboardMenuCard';
@@ -105,10 +105,55 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
             {/* Custom Gaming Split Background */}
             <View style={[StyleSheet.absoluteFill, { overflow: 'hidden', borderBottomLeftRadius: 0, borderBottomRightRadius: 90, borderTopEndRadius: 90 }]}>
               <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <Defs>
+                  <ClipPath id="leftClip">
+                    <Path d="M 0,0 L 90,0 L 52,150 L 0,120 Z" />
+                  </ClipPath>
+                </Defs>
+
                 {/* Left Background Area */}
                 <Path d="M 0,0 L 90,0 L 52,150 L 0,120 Z" fill="#0E101D" />
+
+                {/* Left Side White Abstract Tech Abstractions */}
+                <G clipPath="url(#leftClip)">
+                  {/* Subtle Diagonal Lines parallel to neon separator line */}
+                  <Line x1="15" y1="0" x2="2" y2="100" stroke="#FFFFFF" strokeWidth="0.4" opacity="0.05" />
+                  <Line x1="30" y1="0" x2="17" y2="100" stroke="#FFFFFF" strokeWidth="0.4" opacity="0.05" />
+                  <Line x1="45" y1="0" x2="32" y2="100" stroke="#FFFFFF" strokeWidth="0.4" opacity="0.05" />
+                  <Line x1="60" y1="0" x2="47" y2="100" stroke="#FFFFFF" strokeWidth="0.4" opacity="0.05" />
+                  <Line x1="75" y1="0" x2="62" y2="100" stroke="#FFFFFF" strokeWidth="0.4" opacity="0.05" />
+
+                  {/* Horizontal grid lines */}
+                  <Line x1="0" y1="20" x2="100" y2="20" stroke="#FFFFFF" strokeWidth="0.3" opacity="0.04" />
+                  <Line x1="0" y1="40" x2="100" y2="40" stroke="#FFFFFF" strokeWidth="0.3" opacity="0.04" />
+                  <Line x1="0" y1="60" x2="100" y2="60" stroke="#FFFFFF" strokeWidth="0.3" opacity="0.04" />
+                  <Line x1="0" y1="80" x2="100" y2="80" stroke="#FFFFFF" strokeWidth="0.3" opacity="0.04" />
+
+                  {/* Concentric tech circle accents on the far left */}
+                  <Circle cx="-5" cy="50" r="20" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.06" />
+                  <Circle cx="-5" cy="50" r="35" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.06" />
+                  <Circle cx="-5" cy="50" r="50" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.04" strokeDasharray="3 3" />
+                  <Circle cx="-5" cy="50" r="65" stroke="#FFFFFF" strokeWidth="0.4" fill="none" opacity="0.04" />
+
+                  {/* Futuristic digital grid dots/nodes */}
+                  <Circle cx="15" cy="30" r="0.8" fill="#FFFFFF" opacity="0.15" />
+                  <Circle cx="35" cy="30" r="0.8" fill="#FFFFFF" opacity="0.15" />
+                  <Circle cx="25" cy="50" r="0.8" fill="#FFFFFF" opacity="0.15" />
+                  <Circle cx="45" cy="50" r="0.8" fill="#FFFFFF" opacity="0.15" />
+                  <Circle cx="15" cy="70" r="0.8" fill="#FFFFFF" opacity="0.15" />
+                  <Circle cx="35" cy="70" r="0.8" fill="#FFFFFF" opacity="0.15" />
+
+                  {/* Sleek circuit tech paths */}
+                  <Path d="M 5,25 L 20,25 L 27,32 L 40,32" stroke="#FFFFFF" strokeWidth="0.6" fill="none" opacity="0.08" />
+                  <Circle cx="40" cy="32" r="1.2" fill="#FFFFFF" opacity="0.15" />
+
+                  <Path d="M 10,75 L 25,75 L 32,68 L 48,68" stroke="#FFFFFF" strokeWidth="0.6" fill="none" opacity="0.08" />
+                  <Circle cx="48" cy="68" r="1.2" fill="#FFFFFF" opacity="0.15" />
+                </G>
+
                 {/* Right Background Area */}
                 <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#1C1F38" />
+
                 {/* Slanted Neon Separator Line */}
                 <Line x1="69" y1="0" x2="56" y2="100" stroke="#FF0844" strokeWidth="0.9" />
               </Svg>
