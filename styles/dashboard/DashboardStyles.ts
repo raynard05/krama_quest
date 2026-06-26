@@ -8,11 +8,11 @@ import { StyleSheet, Platform } from 'react-native';
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 
 // ─── Design Tokens (Responsive per Page) ────────────────────────────────────
-export const AVATAR_SIZE = rs(95, 105, 115);
+export const AVATAR_SIZE = rs(80, 90, 100);
 export const BANNER_H = rs(180, 200, 220);
 
-export const GREETING_SIZE = scaleFont(rs(18, 20, 22));
-export const USERNAME_SIZE = scaleFont(rs(24, 26, 28));
+export const GREETING_SIZE = scaleFont(rs(16, 18, 20));
+export const USERNAME_SIZE = scaleFont(rs(20, 22, 24));
 
 export const MODAL_HEADER_SIZE = scaleFont(rs(16, 17, 18));
 
@@ -32,12 +32,12 @@ const DashboardStyles = StyleSheet.create({
     height: '100%',
   },
   backgroundImageStyle: {
-    transform: [{ scale: 2.13 }],
+    transform: [{ scale: 1 }],
   },
   scrollContent: {
     paddingHorizontal: 0,
     paddingTop: 0,
-    paddingBottom: vh(4),
+    paddingBottom: vh(1),
   },
 
   // ─── Header ──────────────────────────────────────────────────────────────
@@ -46,37 +46,23 @@ const DashboardStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.58)', // Premium translucent header panel
-    borderBottomWidth: 4,
-    borderBottomColor: 'rgba(255, 255, 255, 0.59)', // Bottom divider line to separate header
+    backgroundColor: 'transparent', // Transparent to show SVG split-color background
+
     paddingHorizontal: vw(5),
     paddingVertical: vh(2.2),
-
     marginBottom: SPACING_LG,
-    overflow: 'hidden', // Contain absolute positioned elements
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
+        shadowColor: '#00F2FE',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.12,
-        shadowRadius: 6,
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 3,
+        elevation: 5,
       },
       default: {},
     }),
-  },
-  headerBatik: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0.6, // Subtle Javanese batik texture overlay
-    transform: [{ scale: 2 }],
   },
   headerLeft: {
     flex: 1,
@@ -85,28 +71,32 @@ const DashboardStyles = StyleSheet.create({
     fontSize: GREETING_SIZE,
     color: '#ffffff',
     fontFamily: 'Poppins-Medium',
-    borderBlockColor: "#0000",
-    borderColor: "#0000",
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    opacity: 0.8,
   },
   userNameText: {
     alignSelf: 'flex-start', // Wraps container tightly around text
-    backgroundColor: '#f8ec00',
-
+    backgroundColor: 'rgba(15, 23, 42, 0.8)', // Translucent dark card base
     paddingHorizontal: 14,
     paddingVertical: 4,
     fontSize: USERNAME_SIZE,
-    color: '#0F172A', // Slate-900 for premium readability
+    color: '#00F2FE', // Neon cyan text color
     fontFamily: 'Poppins-Bold',
     marginTop: 6,
     borderWidth: 1.5,
-    borderColor: '#FFFFFF', // Clean white border to frame the badge
+    borderRadius: 10,
+    borderColor: '#00F2FE', // Neon cyan border frame
+    textShadowColor: 'rgba(0, 242, 254, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6, // Neon glowing text effect
     // Soft shadow for premium floating tag feel
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
+        shadowColor: '#00F2FE',
         shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
       },
       android: {
         elevation: 4,
@@ -432,6 +422,36 @@ const DashboardStyles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
     fontSize: scaleFont(rs(11, 12, 12)),
+  },
+  badgeContainer: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: rs(30, 34, 38),
+    height: rs(30, 34, 38),
+    borderRadius: 999,
+    backgroundColor: '#0F172A', // Deep dark slate background
+    borderWidth: 2,
+    borderColor: '#00F2FE', // Neon cyan border
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#00F2FE',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.4,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 6,
+      },
+      default: {},
+    }),
+  },
+  badgeText: {
+    fontSize: scaleFont(rs(15, 17, 19)),
+    textAlign: 'center',
+    lineHeight: scaleFont(rs(16, 18, 20)),
   },
 });
 

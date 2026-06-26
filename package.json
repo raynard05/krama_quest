@@ -33,7 +33,9 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
+    "android": "node run-android-dual.js",
+    "android:pixel10": "node run-android-dual.js pxl10",
+    "android:pixel5": "node run-android-dual.js pxl5",
     "ios": "expo start --ios",
     "web": "expo start --web"
   },

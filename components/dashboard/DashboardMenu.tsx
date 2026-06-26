@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line } from 'react-native-svg';
 import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardStyles';
 import DashboardMenuCard from './DashboardMenuCard';
@@ -26,7 +26,12 @@ interface DashboardMenuProps {
   onSelectCpTp: () => void;
 }
 
+const ICONS = ['🦐', '🏆', '🐍', '📝', '🥇', '📖'];
+
 export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri, onSelectCpTp }: DashboardMenuProps) {
+  const [iconIndex, setIconIndex] = useState(0);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
   // Avatar rotation animation value (interactive hover/press)
   const avatarRotateVal = useRef(new Animated.Value(0)).current;
 
@@ -44,6 +49,28 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
     animationLoop.start();
     return () => animationLoop.stop();
   }, [spinAnim]);
+
+  // Icon swap animation loop (scale down, swap, spring up)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      Animated.timing(scaleAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setIconIndex((prev) => (prev + 1) % ICONS.length);
+        
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 4,
+          tension: 40,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [scaleAnim]);
 
   const handleAvatarPress = () => {
     onOpenProfile();
@@ -75,12 +102,17 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
 
           {/* Header Row */}
           <View style={styles.header}>
-            {/* Batik Pattern Overlay */}
-            <Image
-              source={require('../../assets/dashboard_assets/batik_pattern.png')}
-              style={styles.headerBatik}
-              resizeMode="repeat"
-            />
+            {/* Custom Gaming Split Background */}
+            <View style={[StyleSheet.absoluteFill, { overflow: 'hidden', borderBottomLeftRadius: 0, borderBottomRightRadius: 90, borderTopEndRadius: 90 }]}>
+              <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                {/* Left Background Area */}
+                <Path d="M 0,0 L 90,0 L 52,150 L 0,120 Z" fill="#0E101D" />
+                {/* Right Background Area */}
+                <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#1C1F38" />
+                {/* Slanted Neon Separator Line */}
+                <Line x1="69" y1="0" x2="56" y2="100" stroke="#FF0844" strokeWidth="0.9" />
+              </Svg>
+            </View>
             <View style={styles.headerLeft}>
               <Text style={styles.greetingText}>Sugeng Rawuh,</Text>
               <Text style={styles.userNameText}>{displayName}!</Text>
@@ -138,6 +170,14 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                     resizeMode="contain"
                   />
                 </View>
+
+                {/* Animated Achievement Badge! */}
+                <Animated.View style={[
+                  styles.badgeContainer,
+                  { transform: [{ scale: scaleAnim }] }
+                ]}>
+                  <Text style={styles.badgeText}>{ICONS[iconIndex]}</Text>
+                </Animated.View>
               </View>
             </TouchableOpacity>
           </View>
