@@ -12,12 +12,14 @@ import {
 import { ArrowLeft, Edit2 } from 'lucide-react-native';
 import Svg, { Circle, LinearGradient, Stop, Defs } from 'react-native-svg';
 import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerStyles';
-import { PROFILE_AVATARS, getAvatarSource, AvatarItem } from './ProfileAvatars';
+import { PROFILE_AVATARS, getAvatarSource, AvatarItem, PROFILE_BATIKS, getBatikSource } from './ProfileAvatars';
 
 interface AvatarPickerScreenProps {
   initialAvatarId: string | undefined;
+  initialAvatarBgId: string | undefined;
   onBack: () => void;
   onSave: (avatarId: string) => void;
+  onSaveBg: (avatarBgId: string) => void;
 }
 
 // Optimized & Animated Grid Item component
@@ -136,13 +138,21 @@ const AvatarGridItem = React.memo(({
 
 export default function AvatarPickerScreen({
   initialAvatarId,
+  initialAvatarBgId,
   onBack,
-  onSave
+  onSave,
+  onSaveBg
 }: AvatarPickerScreenProps) {
   const [selectedId, setSelectedId] = useState<string>(initialAvatarId || '1');
+  const [selectedBgId, setSelectedBgId] = useState<string>(initialAvatarBgId || '1');
+  const [activeTab, setActiveTab] = useState<'avatar' | 'background'>('avatar');
 
   const handleSelect = useCallback((id: string) => {
     setSelectedId(id);
+  }, []);
+
+  const handleSelectBg = useCallback((id: string) => {
+    setSelectedBgId(id);
   }, []);
 
   return (
@@ -159,13 +169,19 @@ export default function AvatarPickerScreen({
             <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
               <ArrowLeft color="#FFFFFF" size={22} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Pilih Avatar</Text>
+            <Text style={styles.headerTitle}>Kustomisasi</Text>
             <View style={styles.headerPlaceholder} />
           </View>
 
           {/* Large Preview Circle - Clean Static Preview */}
           <View style={styles.previewSection}>
-            <View style={styles.avatarRing}>
+            <View style={[styles.avatarRing, { overflow: 'hidden' }]}>
+              {/* Selected Batik Background Preview */}
+              <Image
+                source={getBatikSource(selectedBgId)}
+                style={[StyleSheet.absoluteFill, { opacity: 0.85 }]}
+                resizeMode="cover"
+              />
               <Image
                 source={getAvatarSource(selectedId)}
                 style={styles.avatarImage}
@@ -178,16 +194,45 @@ export default function AvatarPickerScreen({
             </View>
           </View>
 
+          {/* Segmented Control Tabs */}
+          <View style={styles.tabsContainer}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'avatar' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('avatar')}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.tabText, activeTab === 'avatar' && styles.tabTextActive]}>Karakter</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'background' && styles.tabButtonActive]}
+              onPress={() => setActiveTab('background')}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.tabText, activeTab === 'background' && styles.tabTextActive]}>Background</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Grid Selector */}
           <View style={styles.gridContainer}>
-            {PROFILE_AVATARS.map((avatar) => (
-              <AvatarGridItem
-                key={avatar.id}
-                item={avatar}
-                isSelected={selectedId === avatar.id}
-                onPress={handleSelect}
-              />
-            ))}
+            {activeTab === 'avatar' ? (
+              PROFILE_AVATARS.map((avatar) => (
+                <AvatarGridItem
+                  key={avatar.id}
+                  item={avatar}
+                  isSelected={selectedId === avatar.id}
+                  onPress={handleSelect}
+                />
+              ))
+            ) : (
+              PROFILE_BATIKS.map((batik) => (
+                <AvatarGridItem
+                  key={batik.id}
+                  item={batik}
+                  isSelected={selectedBgId === batik.id}
+                  onPress={handleSelectBg}
+                />
+              ))
+            )}
           </View>
         </ScrollView>
 
@@ -195,7 +240,10 @@ export default function AvatarPickerScreen({
         <View style={styles.bottomButtonContainer}>
           <TouchableOpacity
             style={styles.selesaiButton}
-            onPress={() => onSave(selectedId)}
+            onPress={() => {
+              onSave(selectedId);
+              onSaveBg(selectedBgId);
+            }}
             activeOpacity={0.8}
           >
             <Text style={styles.selesaiButtonText}>Selesai</Text>

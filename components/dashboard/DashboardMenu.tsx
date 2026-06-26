@@ -10,15 +10,15 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line, ClipPath, G } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line, ClipPath, G, Image as SvgImage } from 'react-native-svg';
 import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardStyles';
 import DashboardMenuCard from './DashboardMenuCard';
 import DashboardProfileModal from './DashboardProfileModal';
-import { getAvatarSource } from '../profile/ProfileAvatars';
+import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
 
 interface DashboardMenuProps {
-  currentUser: (UserAccount & { avatarId?: string }) | null;
+  currentUser: (UserAccount & { avatarId?: string; avatarBgId?: string }) | null;
   onSelectDolanan: () => void;
   onLogout: () => void;
   onOpenProfile: () => void;
@@ -27,27 +27,6 @@ interface DashboardMenuProps {
 }
 
 const ICONS = ['🦐', '🏆', '🐍', '📝', '🥇', '📖'];
-
-const KAWUNG_CENTERS = [
-  { x: 40, y: -20 }, { x: 60, y: -20 }, { x: 80, y: -20 }, { x: 100, y: -20 }, { x: 120, y: -20 },
-  { x: 30, y: 0 }, { x: 50, y: 0 }, { x: 70, y: 0 }, { x: 90, y: 0 }, { x: 110, y: 0 },
-  { x: 40, y: 20 }, { x: 60, y: 20 }, { x: 80, y: 20 }, { x: 100, y: 20 }, { x: 120, y: 20 },
-  { x: 30, y: 40 }, { x: 50, y: 40 }, { x: 70, y: 40 }, { x: 90, y: 40 }, { x: 110, y: 40 },
-  { x: 40, y: 60 }, { x: 60, y: 60 }, { x: 80, y: 60 }, { x: 100, y: 60 }, { x: 120, y: 60 },
-  { x: 30, y: 80 }, { x: 50, y: 80 }, { x: 70, y: 80 }, { x: 90, y: 80 }, { x: 110, y: 80 },
-  { x: 40, y: 100 }, { x: 60, y: 100 }, { x: 80, y: 100 }, { x: 100, y: 100 }, { x: 120, y: 100 },
-  { x: 30, y: 120 }, { x: 50, y: 120 }, { x: 70, y: 120 }, { x: 90, y: 120 }, { x: 110, y: 120 },
-];
-
-const KAWUNG_INTERSECTIONS = [
-  { x: 50, y: -10 }, { x: 70, y: -10 }, { x: 90, y: -10 }, { x: 110, y: -10 },
-  { x: 40, y: 10 }, { x: 60, y: 10 }, { x: 80, y: 10 }, { x: 100, y: 10 }, { x: 120, y: 10 },
-  { x: 50, y: 30 }, { x: 70, y: 30 }, { x: 90, y: 30 }, { x: 110, y: 30 },
-  { x: 40, y: 50 }, { x: 60, y: 50 }, { x: 80, y: 50 }, { x: 100, y: 50 }, { x: 120, y: 50 },
-  { x: 50, y: 70 }, { x: 70, y: 70 }, { x: 90, y: 70 }, { x: 110, y: 70 },
-  { x: 40, y: 90 }, { x: 60, y: 90 }, { x: 80, y: 90 }, { x: 100, y: 90 }, { x: 120, y: 90 },
-  { x: 50, y: 110 }, { x: 70, y: 110 }, { x: 90, y: 110 }, { x: 110, y: 110 },
-];
 
 export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri, onSelectCpTp }: DashboardMenuProps) {
   const insets = useSafeAreaInsets();
@@ -184,22 +163,17 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                   {/* Right Background Area */}
                   <Path d="M 68,0 L 100,0 L 100,100 L 52,140 Z" fill="#1C1F38" />
 
-                  {/* Right Side Javanese Batik Kawung Pattern */}
+                  {/* Right Side Soft Cartoon Batik Texture Overlay */}
                   <G clipPath="url(#rightClip)">
-                    {KAWUNG_CENTERS.map((c, i) => (
-                      <G key={`c-${i}`}>
-                        <Circle cx={c.x} cy={c.y} r={14} stroke="#FFFFFF" strokeWidth={0.35} fill="none" opacity={0.07} />
-                        <Circle cx={c.x} cy={c.y} r={9} stroke="#FFFFFF" strokeWidth={0.2} fill="none" opacity={0.05} />
-                        <Circle cx={c.x} cy={c.y} r={1.5} fill="#FFFFFF" opacity={0.09} />
-                      </G>
-                    ))}
-                    {KAWUNG_INTERSECTIONS.map((c, i) => (
-                      <G key={`int-${i}`}>
-                        <Line x1={c.x - 2} y1={c.y - 2} x2={c.x + 2} y2={c.y + 2} stroke="#FFFFFF" strokeWidth={0.3} opacity={0.06} />
-                        <Line x1={c.x + 2} y1={c.y - 2} x2={c.x - 2} y2={c.y + 2} stroke="#FFFFFF" strokeWidth={0.3} opacity={0.06} />
-                        <Circle cx={c.x} cy={c.y} r={0.8} fill="#FFFFFF" opacity={0.12} />
-                      </G>
-                    ))}
+                    <SvgImage
+                      href={getBatikSource(currentUser?.avatarBgId || '1')}
+                      x="40"
+                      y="-10"
+                      width="70"
+                      height="120"
+                      opacity={0.35}
+                      preserveAspectRatio="xMidYMid slice"
+                    />
                   </G>
 
                   {/* Slanted Neon Separator Line */}

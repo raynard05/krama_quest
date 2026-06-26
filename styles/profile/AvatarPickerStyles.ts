@@ -162,4 +162,34 @@ export const AvatarPickerStyles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     letterSpacing: 1.2,
   },
+  tabsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: rs(25, 25, 28),
+    padding: 4,
+    marginVertical: vh(1.5),
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    width: '100%',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: vh(1.2),
+    borderRadius: rs(20, 20, 24),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tabButtonActive: {
+    backgroundColor: '#00F2FE',
+  },
+  tabText: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: scaleFont(rs(12, 13, 14)),
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  tabTextActive: {
+    color: '#0E101D',
+  },
 });

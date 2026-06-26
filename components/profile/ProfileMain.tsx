@@ -7,9 +7,10 @@ import HistoryScreen from './HistoryScreen';
 import AvatarPickerScreen from './AvatarPickerScreen';
 
 interface ProfileMainProps {
-  currentUser: (UserAccount & { avatarId?: string }) | null;
+  currentUser: (UserAccount & { avatarId?: string; avatarBgId?: string }) | null;
   onBack: () => void;
   onUpdateAvatar: (avatarId: string) => void;
+  onUpdateAvatarBg: (avatarBgId: string) => void;
 }
 
 type SubScreen = 'main' | 'history' | 'avatar_picker';
@@ -17,7 +18,8 @@ type SubScreen = 'main' | 'history' | 'avatar_picker';
 export default function ProfileMain({
   currentUser,
   onBack,
-  onUpdateAvatar
+  onUpdateAvatar,
+  onUpdateAvatarBg
 }: ProfileMainProps) {
   const [activeSubScreen, setActiveSubScreen] = useState<SubScreen>('main');
 
@@ -41,9 +43,13 @@ export default function ProfileMain({
       {activeSubScreen === 'avatar_picker' && (
         <AvatarPickerScreen
           initialAvatarId={currentUser?.avatarId}
+          initialAvatarBgId={currentUser?.avatarBgId}
           onBack={() => setActiveSubScreen('main')}
           onSave={(avatarId) => {
             onUpdateAvatar(avatarId);
+          }}
+          onSaveBg={(avatarBgId) => {
+            onUpdateAvatarBg(avatarBgId);
             setActiveSubScreen('main');
           }}
         />

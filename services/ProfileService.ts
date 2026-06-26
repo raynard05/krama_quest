@@ -2,6 +2,7 @@ import { supabase } from './AuthService';
 
 // Client-side in-memory cache to reduce direct database queries
 const avatarCache: Record<number, string> = {};
+const avatarBgCache: Record<number, string> = {};
 
 /**
  * ProfileService.ts
@@ -64,5 +65,17 @@ export const ProfileService = {
       console.warn('[ProfileService] Direct Supabase upsert failed:', err);
       return false;
     }
+  },
+
+  async fetchUserAvatarBg(userId: number): Promise<string> {
+    if (avatarBgCache[userId]) {
+      return avatarBgCache[userId];
+    }
+    return '1';
+  },
+
+  async updateUserAvatarBg(userId: number, avatarBgId: string): Promise<boolean> {
+    avatarBgCache[userId] = avatarBgId;
+    return true;
   },
 };

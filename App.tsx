@@ -55,7 +55,7 @@ export default function App() {
   // ── Auth state ──────────────────────────────────────────────────────────
   const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<(UserAccount & { avatarId?: string }) | null>(null);
+  const [currentUser, setCurrentUser] = useState<(UserAccount & { avatarId?: string; avatarBgId?: string }) | null>(null);
   const [showDashboard, setShowDashboard] = useState<boolean>(true);
   const [showDolananOptions, setShowDolananOptions] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
@@ -72,16 +72,26 @@ export default function App() {
     }
   };
 
+  const handleUpdateAvatarBg = async (avatarBgId: string) => {
+    if (currentUser) {
+      setCurrentUser(prev => prev ? { ...prev, avatarBgId } : null);
+      await ProfileService.updateUserAvatarBg(currentUser.id, avatarBgId);
+    }
+  };
+
   const handleLoginSuccess = (user: UserAccount) => {
     // Transition screen state immediately to prevent lockups
     setIsAuthenticated(true);
     setIsLoadingScreen(true);
     setShowDashboard(false);
 
-    // Fetch avatar asynchronously in the background
-    ProfileService.fetchUserAvatar(user.id)
-      .then((avatarId) => {
-        setCurrentUser({ ...user, avatarId });
+    // Fetch avatar and background asynchronously in the background
+    Promise.all([
+      ProfileService.fetchUserAvatar(user.id),
+      ProfileService.fetchUserAvatarBg(user.id)
+    ])
+      .then(([avatarId, avatarBgId]) => {
+        setCurrentUser({ ...user, avatarId, avatarBgId });
       })
       .catch(() => {
         setCurrentUser(user);
@@ -94,10 +104,13 @@ export default function App() {
     setIsLoadingScreen(true);
     setShowDashboard(false);
 
-    // Fetch avatar asynchronously in the background
-    ProfileService.fetchUserAvatar(user.id)
-      .then((avatarId) => {
-        setCurrentUser({ ...user, avatarId });
+    // Fetch avatar and background asynchronously in the background
+    Promise.all([
+      ProfileService.fetchUserAvatar(user.id),
+      ProfileService.fetchUserAvatarBg(user.id)
+    ])
+      .then(([avatarId, avatarBgId]) => {
+        setCurrentUser({ ...user, avatarId, avatarBgId });
       })
       .catch(() => {
         setCurrentUser(user);
@@ -595,6 +608,7 @@ export default function App() {
               setShowDashboard(true);
             }}
             onUpdateAvatar={handleUpdateAvatar}
+            onUpdateAvatarBg={handleUpdateAvatarBg}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />

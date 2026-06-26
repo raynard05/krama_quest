@@ -35,3 +35,25 @@ export function getAvatarSource(avatarId: string | undefined): any {
   const found = PROFILE_AVATARS.find(a => a.id === avatarId);
   return found ? found.source : PROFILE_AVATARS[0].source;
 }
+
+export interface BatikItem {
+  id: string;
+  source: any;
+  title: string;
+}
+
+export const PROFILE_BATIKS: BatikItem[] = [
+  { id: '1', source: require('../../assets/splash_screen/soft_cartoon_batik1.png'), title: 'Batik Pastel' },
+  { id: '2', source: require('../../assets/splash_screen/soft_cartoon_batik2.png'), title: 'Batik Blue-Violet' },
+  { id: '3', source: require('../../assets/splash_screen/soft_cartoon_batik3.png'), title: 'Batik Gold-Teal' },
+  { id: '4', source: require('../../assets/splash_screen/soft_cartoon_batik4.png'), title: 'Batik Pink-Blue' },
+  { id: '5', source: require('../../assets/splash_screen/soft_cartoon_batik5.png'), title: 'Batik Monokrom' },
+];
+
+export function getBatikSource(batikId: string | undefined): any {
+  if (!batikId) {
+    return PROFILE_BATIKS[0].source;
+  }
+  const found = PROFILE_BATIKS.find(b => b.id === batikId);
+  return found ? found.source : PROFILE_BATIKS[0].source;
+}
