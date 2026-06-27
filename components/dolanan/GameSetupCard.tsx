@@ -8,6 +8,7 @@ import {
   ScrollView,
   Image,
   TextInput,
+  PanResponder,
 } from 'react-native';
 import { ChevronLeft, ChevronRight, Users, Cpu } from 'lucide-react-native';
 import { styles } from './GameSetupCardStyles';
@@ -79,9 +80,38 @@ export default function GameSetupCard({
   // Animation values for player tabs
   const player1Scale = useRef(new Animated.Value(1)).current;
   const player2Scale = useRef(new Animated.Value(1)).current;
-  
-  // Animation for gaco carousel
-  const gacoOpacity = useRef(new Animated.Value(1)).current;
+
+  // Pan responder for swipe gesture on Player 1 gaco
+  const panResponderPlayer1 = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dx) > 5 && !isPlayer1GacoConfirmed;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx > 30) {
+          handleGacoPrev(1);
+        } else if (gestureState.dx < -30) {
+          handleGacoNext(1);
+        }
+      },
+    })
+  ).current;
+
+  // Pan responder for swipe gesture on Player 2 gaco
+  const panResponderPlayer2 = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dx) > 5 && !isPlayer2GacoConfirmed;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx > 30) {
+          handleGacoPrev(2);
+        } else if (gestureState.dx < -30) {
+          handleGacoNext(2);
+        }
+      },
+    })
+  ).current;
 
   // Mode tab animation
   useEffect(() => {
@@ -162,19 +192,6 @@ export default function GameSetupCard({
   };
 
   const handleGacoPrev = (playerNum: 1 | 2) => {
-    Animated.sequence([
-      Animated.timing(gacoOpacity, {
-        toValue: 0.3,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(gacoOpacity, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
     if (playerNum === 1) {
       setSelectedPlayer1Gaco(prev => (prev - 1 + GACOS.length) % GACOS.length);
       setIsPlayer1GacoConfirmed(false);
@@ -185,19 +202,6 @@ export default function GameSetupCard({
   };
 
   const handleGacoNext = (playerNum: 1 | 2) => {
-    Animated.sequence([
-      Animated.timing(gacoOpacity, {
-        toValue: 0.3,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(gacoOpacity, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
     if (playerNum === 1) {
       setSelectedPlayer1Gaco(prev => (prev + 1) % GACOS.length);
       setIsPlayer1GacoConfirmed(false);
@@ -244,9 +248,6 @@ export default function GameSetupCard({
       });
     }
   };
-
-  const currentPlayerGaco = activePlayer === 'player1' ? selectedPlayer1Gaco : selectedPlayer2Gaco;
-  const isCurrentGacoTaken = isGacoTaken(currentPlayerGaco, activePlayer === 'player1' ? 1 : 2);
 
   return (
     <View style={styles.cardWrapper}>
@@ -373,26 +374,52 @@ export default function GameSetupCard({
                     <ChevronLeft color="#1F2937" size={32} />
                   </TouchableOpacity>
 
-                  <Animated.View style={[
-                    styles.gacoDisplay,
-                    { opacity: gacoOpacity },
-                    isGacoTaken(selectedPlayer1Gaco, 1) && styles.gacoTaken
-                  ]}>
-                    <Image 
-                      source={GACOS[selectedPlayer1Gaco].image} 
-                      style={[
-                        styles.gacoImage,
-                        isGacoTaken(selectedPlayer1Gaco, 1) && styles.gacoImageTaken
-                      ]}
-                      resizeMode="contain"
-                    />
-                    <Text style={styles.gacoName}>
-                      {GACOS[selectedPlayer1Gaco].name}
-                    </Text>
-                    {isGacoTaken(selectedPlayer1Gaco, 1) && (
-                      <Text style={styles.gacoTakenText}>Sudah Dipakai Player 2</Text>
-                    )}
-                  </Animated.View>
+                  <View style={styles.gacoCarousel} {...panResponderPlayer1.panHandlers}>
+                    {/* Previous Gaco (Left) */}
+                    <Animated.View style={[
+                      styles.gacoDisplaySide,
+                      { opacity: isPlayer1GacoConfirmed ? 0.3 : 0.4 }
+                    ]}>
+                      <Image 
+                        source={GACOS[(selectedPlayer1Gaco - 1 + GACOS.length) % GACOS.length].image} 
+                        style={styles.gacoImageSide}
+                        resizeMode="contain"
+                      />
+                    </Animated.View>
+
+                    {/* Active Gaco (Center) */}
+                    <Animated.View style={[
+                      styles.gacoDisplayCenter,
+                      isGacoTaken(selectedPlayer1Gaco, 1) && styles.gacoTaken
+                    ]}>
+                      <Image 
+                        source={GACOS[selectedPlayer1Gaco].image} 
+                        style={[
+                          styles.gacoImageCenter,
+                          isGacoTaken(selectedPlayer1Gaco, 1) && styles.gacoImageTaken
+                        ]}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.gacoName}>
+                        {GACOS[selectedPlayer1Gaco].name}
+                      </Text>
+                      {isGacoTaken(selectedPlayer1Gaco, 1) && (
+                        <Text style={styles.gacoTakenText}>Sudah Dipakai Player 2</Text>
+                      )}
+                    </Animated.View>
+
+                    {/* Next Gaco (Right) */}
+                    <Animated.View style={[
+                      styles.gacoDisplaySide,
+                      { opacity: isPlayer1GacoConfirmed ? 0.3 : 0.4 }
+                    ]}>
+                      <Image 
+                        source={GACOS[(selectedPlayer1Gaco + 1) % GACOS.length].image} 
+                        style={styles.gacoImageSide}
+                        resizeMode="contain"
+                      />
+                    </Animated.View>
+                  </View>
 
                   <TouchableOpacity 
                     style={[
@@ -543,24 +570,50 @@ export default function GameSetupCard({
                       <ChevronLeft color="#1F2937" size={32} />
                     </TouchableOpacity>
 
-                    <Animated.View style={[
-                      styles.gacoDisplay,
-                      { opacity: gacoOpacity },
-                      isGacoTaken(selectedPlayer2Gaco, 2) && styles.gacoTaken
-                    ]}>
-                      <Image 
-                        source={GACOS[selectedPlayer2Gaco].image} 
-                        style={[
-                          styles.gacoImage,
-                          isGacoTaken(selectedPlayer2Gaco, 2) && styles.gacoImageTaken
-                        ]}
-                        resizeMode="contain"
-                      />
-                      <Text style={styles.gacoName}>{GACOS[selectedPlayer2Gaco].name}</Text>
-                      {isGacoTaken(selectedPlayer2Gaco, 2) && (
-                        <Text style={styles.gacoTakenText}>Sudah Dipakai</Text>
-                      )}
-                    </Animated.View>
+                    <View style={styles.gacoCarousel} {...panResponderPlayer2.panHandlers}>
+                      {/* Previous Gaco (Left) */}
+                      <Animated.View style={[
+                        styles.gacoDisplaySide,
+                        { opacity: isPlayer2GacoConfirmed ? 0.3 : 0.4 }
+                      ]}>
+                        <Image 
+                          source={GACOS[(selectedPlayer2Gaco - 1 + GACOS.length) % GACOS.length].image} 
+                          style={styles.gacoImageSide}
+                          resizeMode="contain"
+                        />
+                      </Animated.View>
+
+                      {/* Active Gaco (Center) */}
+                      <Animated.View style={[
+                        styles.gacoDisplayCenter,
+                        isGacoTaken(selectedPlayer2Gaco, 2) && styles.gacoTaken
+                      ]}>
+                        <Image 
+                          source={GACOS[selectedPlayer2Gaco].image} 
+                          style={[
+                            styles.gacoImageCenter,
+                            isGacoTaken(selectedPlayer2Gaco, 2) && styles.gacoImageTaken
+                          ]}
+                          resizeMode="contain"
+                        />
+                        <Text style={styles.gacoName}>{GACOS[selectedPlayer2Gaco].name}</Text>
+                        {isGacoTaken(selectedPlayer2Gaco, 2) && (
+                          <Text style={styles.gacoTakenText}>Sudah Dipakai</Text>
+                        )}
+                      </Animated.View>
+
+                      {/* Next Gaco (Right) */}
+                      <Animated.View style={[
+                        styles.gacoDisplaySide,
+                        { opacity: isPlayer2GacoConfirmed ? 0.3 : 0.4 }
+                      ]}>
+                        <Image 
+                          source={GACOS[(selectedPlayer2Gaco + 1) % GACOS.length].image} 
+                          style={styles.gacoImageSide}
+                          resizeMode="contain"
+                        />
+                      </Animated.View>
+                    </View>
 
                     <TouchableOpacity 
                       style={[
@@ -663,6 +716,7 @@ export default function GameSetupCard({
                         <TouchableOpacity 
                           style={[
                             styles.gacoArrow,
+                            styles.gacoArrowOnline,
                             isPlayer1GacoConfirmed && styles.gacoArrowDisabled
                           ]}
                           onPress={() => handleGacoPrev(1)}
@@ -671,23 +725,48 @@ export default function GameSetupCard({
                           <ChevronLeft color="#FFFFFF" size={32} />
                         </TouchableOpacity>
 
-                        <Animated.View style={[
-                          styles.gacoDisplay,
-                          { opacity: gacoOpacity }
-                        ]}>
-                          <Image 
-                            source={GACOS[selectedPlayer1Gaco].image} 
-                            style={styles.gacoImage}
-                            resizeMode="contain"
-                          />
-                          <Text style={[styles.gacoName, styles.textWhite]}>
-                            {GACOS[selectedPlayer1Gaco].name}
-                          </Text>
-                        </Animated.View>
+                        <View style={styles.gacoCarousel} {...panResponderPlayer1.panHandlers}>
+                          {/* Previous Gaco (Left) */}
+                          <Animated.View style={[
+                            styles.gacoDisplaySide,
+                            { opacity: isPlayer1GacoConfirmed ? 0.3 : 0.4 }
+                          ]}>
+                            <Image 
+                              source={GACOS[(selectedPlayer1Gaco - 1 + GACOS.length) % GACOS.length].image} 
+                              style={styles.gacoImageSide}
+                              resizeMode="contain"
+                            />
+                          </Animated.View>
+
+                          {/* Active Gaco (Center) */}
+                          <Animated.View style={styles.gacoDisplayCenter}>
+                            <Image 
+                              source={GACOS[selectedPlayer1Gaco].image} 
+                              style={styles.gacoImageCenter}
+                              resizeMode="contain"
+                            />
+                            <Text style={[styles.gacoName, styles.textWhite]}>
+                              {GACOS[selectedPlayer1Gaco].name}
+                            </Text>
+                          </Animated.View>
+
+                          {/* Next Gaco (Right) */}
+                          <Animated.View style={[
+                            styles.gacoDisplaySide,
+                            { opacity: isPlayer1GacoConfirmed ? 0.3 : 0.4 }
+                          ]}>
+                            <Image 
+                              source={GACOS[(selectedPlayer1Gaco + 1) % GACOS.length].image} 
+                              style={styles.gacoImageSide}
+                              resizeMode="contain"
+                            />
+                          </Animated.View>
+                        </View>
 
                         <TouchableOpacity 
                           style={[
                             styles.gacoArrow,
+                            styles.gacoArrowOnline,
                             isPlayer1GacoConfirmed && styles.gacoArrowDisabled
                           ]}
                           onPress={() => handleGacoNext(1)}

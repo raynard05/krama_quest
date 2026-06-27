@@ -6,8 +6,7 @@ export const styles = StyleSheet.create({
     marginVertical: 10,
   },
   cardContainer: {
-
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   
   // Mode Tabs (Lokal/Online)
@@ -69,6 +68,7 @@ export const styles = StyleSheet.create({
     padding: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+    overflow: 'visible',
   },
   
   // Player Tabs
@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'Poppins-Bold',
     color: '#1F2937',
-    marginBottom: 16,
+    marginBottom: -35,
     textAlign: 'center',
   },
   
@@ -128,26 +128,62 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
+    gap: 15,
     marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+  gacoCarousel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    minWidth: 280,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
   },
   gacoArrow: {
-    padding: 8,
+    padding: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  gacoArrowOnline: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   gacoArrowDisabled: {
-    opacity: 0.1,
+    opacity: 0.3,
   },
-  gacoDisplay: {
+  
+  // Side Gacos (Previous/Next) - Smaller and behind
+  gacoDisplaySide: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+    height: 120,
+  },
+  gacoImageSide: {
+    width: 50,
+    height: 90,
+  },
+  
+  // Center Gaco (Active) - Larger and in front
+  gacoDisplayCenter: {
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 140,
     paddingVertical: 20,
     paddingHorizontal: 30,
- 
 
-    borderColor: '#2976BF',
+ 
+  
+    zIndex: 2,
+   
+
+  
   },
-  gacoImage: {
+  gacoImageCenter: {
     width: 80,
     height: 140,
     marginBottom: 8,
@@ -332,6 +368,8 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+     marginTop:-60,
+     
   },
   confirmButtonOnline: {
     backgroundColor: '#FFFFFF',
@@ -341,6 +379,7 @@ export const styles = StyleSheet.create({
     opacity: 0.5,
   },
   confirmButtonText: {
+   
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
@@ -385,7 +424,7 @@ export const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: 20,
     borderWidth: 1,
     borderColor: '#fff',
     shadowColor: '#000',
@@ -396,6 +435,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+    
   },
   startButtonText: {
     color: '#FFFFFF',
