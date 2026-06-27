@@ -21,8 +21,6 @@ const DolananStyles = StyleSheet.create({
     transform: [{ scale: 1 }],
   },
   scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
     paddingHorizontal: 0,
     paddingBottom: 0,
   },
@@ -55,10 +53,9 @@ const DolananStyles = StyleSheet.create({
     height: rs(36, 40, 44),
   },
   contentBody: {
-    flex: 1,
     paddingHorizontal: vw(5),
     paddingTop: vh(2),
-    minHeight: vh(40), // Ensures space for future components
+    paddingBottom: vh(2),
   },
   bottomSection: {
     width: '100%',
