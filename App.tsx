@@ -6,7 +6,8 @@ import {
   Text, 
   TouchableOpacity, 
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  BackHandler
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationBar } from 'expo-navigation-bar';
@@ -552,6 +553,92 @@ export default function App() {
     networkRole === 'local'
       ? players[currentPlayerIndex]?.type === 'human'
       : (networkRole === 'host' && currentPlayerIndex === 0) || (networkRole === 'client' && players[currentPlayerIndex]?.id === localPlayerId);
+
+  // Global hardware back button handler
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Don't handle back button on splash screen
+      if (showSplash) {
+        return false;
+      }
+
+      // Handle back button based on current screen state
+      if (isLoadingScreen) {
+        return true; // Prevent back during loading
+      }
+
+      if (!isAuthenticated) {
+        // On auth screens, allow back only on register screen
+        if (authScreen === 'register') {
+          setAuthScreen('login');
+          return true;
+        }
+        return false; // Allow exit app from login
+      }
+
+      // Authenticated screens
+      if (showProfile) {
+        setShowProfile(false);
+        setShowDashboard(true);
+        return true;
+      }
+
+      if (showMateri) {
+        setShowMateri(false);
+        setShowDashboard(true);
+        return true;
+      }
+
+      if (showDolanan) {
+        setShowDolanan(false);
+        setShowDashboard(true);
+        return true;
+      }
+
+      if (showCpTp) {
+        setShowCpTp(false);
+        setShowDashboard(true);
+        return true;
+      }
+
+      if (showDolananOptions) {
+        setShowDolananOptions(false);
+        setShowDashboard(true);
+        return true;
+      }
+
+      if (status === 'lobby') {
+        setShowDolananOptions(true);
+        setStatus('lobby');
+        return true;
+      }
+
+      if (status === 'playing' || status === 'victory') {
+        handleBackToLobby();
+        return true;
+      }
+
+      if (showDashboard) {
+        return false; // Allow exit app from dashboard
+      }
+
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [
+    showSplash,
+    isLoadingScreen,
+    isAuthenticated,
+    authScreen,
+    showProfile,
+    showMateri,
+    showDolanan,
+    showCpTp,
+    showDolananOptions,
+    showDashboard,
+    status
+  ]);
 
   // Return loader if fonts aren't loaded yet and splash screen is gone
   if (!fontsLoaded && !showSplash) {

@@ -134,6 +134,9 @@ export const styles = StyleSheet.create({
   gacoArrow: {
     padding: 8,
   },
+  gacoArrowDisabled: {
+    opacity: 0.1,
+  },
   gacoDisplay: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -182,7 +185,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 16,
+    paddingVertical: 5,
     paddingHorizontal: 16,
     backgroundColor: '#F3F4F6',
     borderRadius: 16,
@@ -267,6 +270,51 @@ export const styles = StyleSheet.create({
   // Gaco Section
   gacoSection: {
     marginTop: 12,
+  },
+
+  // Online Room Section
+  onlineRoomSection: {
+    marginTop: 24,
+  },
+  onlineContentWrapper: {
+    width: '100%',
+  },
+  onlineRoomButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  onlineRoomButtonActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  onlineRoomTextActive: {
+    color: '#2976BF',
+  },
+
+  // Room Form Section
+  roomFormSection: {
+    marginTop: 20,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Poppins-SemiBold',
+    color: '#1F2937',
+    marginBottom: 8,
+    marginTop: 12,
+  },
+  formInput: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    fontFamily: 'Poppins-Regular',
+    color: '#1F2937',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+  },
+  formInputOnline: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
   },
 
   // Gaco Confirm/Cancel Buttons

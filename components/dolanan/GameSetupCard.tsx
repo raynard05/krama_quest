@@ -7,6 +7,7 @@ import {
   Easing,
   ScrollView,
   Image,
+  TextInput,
 } from 'react-native';
 import { ChevronLeft, ChevronRight, Users, Cpu } from 'lucide-react-native';
 import { styles } from './GameSetupCardStyles';
@@ -14,6 +15,7 @@ import { styles } from './GameSetupCardStyles';
 export type ModeType = 'lokal' | 'online';
 export type PlayerType = 'player1' | 'player2';
 export type OpponentType = 'pemain' | 'komputer';
+export type OnlineRoomType = 'buat' | 'gabung';
 
 interface Gaco {
   id: number;
@@ -52,10 +54,17 @@ export default function GameSetupCard({
   const [activeMode, setActiveMode] = useState<ModeType>('lokal');
   const [activePlayer, setActivePlayer] = useState<PlayerType>('player1');
   const [opponentType, setOpponentType] = useState<OpponentType>('pemain');
+  const [onlineRoomType, setOnlineRoomType] = useState<OnlineRoomType>('buat');
   const [selectedPlayer1Gaco, setSelectedPlayer1Gaco] = useState<number>(0);
   const [selectedPlayer2Gaco, setSelectedPlayer2Gaco] = useState<number>(1);
   const [selectedOpponentPlayer, setSelectedOpponentPlayer] = useState<number | null>(null);
   const [showPlayerDropdown, setShowPlayerDropdown] = useState(false);
+  
+  // Online room form states
+  const [serverUrl, setServerUrl] = useState('');
+  const [roomName, setRoomName] = useState('');
+  const [roomCode, setRoomCode] = useState('');
+  const [roomPassword, setRoomPassword] = useState('');
   
   // Confirmation states
   const [isPlayer1GacoConfirmed, setIsPlayer1GacoConfirmed] = useState(false);
@@ -302,68 +311,66 @@ export default function GameSetupCard({
           styles.contentSection,
           { backgroundColor: activeMode === 'lokal' ? '#FFFFFF' : '#2976BF' }
         ]}>
-          {/* Player Tabs: Player 1 / Player 2 */}
-          <View style={styles.playerTabContainer}>
-            <Animated.View style={{ transform: [{ scale: player1Scale }] }}>
-              <TouchableOpacity
-                style={[
-                  styles.playerTab,
-                  activePlayer === 'player1' && styles.playerTabActive,
-                  activeMode === 'online' && styles.playerTabOnlineMode,
-                ]}
-                onPress={() => handlePlayerPress('player1')}
-                activeOpacity={0.8}
-              >
-                <Text style={[
-                  styles.playerTabText,
-                  activePlayer === 'player1' && styles.playerTabTextActive,
-                  activeMode === 'online' && activePlayer === 'player1' && styles.playerTabTextActiveOnline,
-                ]}>
-                  Player 1
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
+          {/* Player Tabs: Player 1 / Player 2 - Only for Lokal Mode */}
+          {activeMode === 'lokal' && (
+            <View style={styles.playerTabContainer}>
+              <Animated.View style={{ transform: [{ scale: player1Scale }] }}>
+                <TouchableOpacity
+                  style={[
+                    styles.playerTab,
+                    activePlayer === 'player1' && styles.playerTabActive,
+                  ]}
+                  onPress={() => handlePlayerPress('player1')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[
+                    styles.playerTabText,
+                    activePlayer === 'player1' && styles.playerTabTextActive,
+                  ]}>
+                    Player 1
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
 
-            <Animated.View style={{ transform: [{ scale: player2Scale }] }}>
-              <TouchableOpacity
-                style={[
-                  styles.playerTab,
-                  activePlayer === 'player2' && styles.playerTabActive,
-                  activeMode === 'online' && styles.playerTabOnlineMode,
-                ]}
-                onPress={() => handlePlayerPress('player2')}
-                activeOpacity={0.8}
-              >
-                <Text style={[
-                  styles.playerTabText,
-                  activePlayer === 'player2' && styles.playerTabTextActive,
-                  activeMode === 'online' && activePlayer === 'player2' && styles.playerTabTextActiveOnline,
-                ]}>
-                  Player 2
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
+              <Animated.View style={{ transform: [{ scale: player2Scale }] }}>
+                <TouchableOpacity
+                  style={[
+                    styles.playerTab,
+                    activePlayer === 'player2' && styles.playerTabActive,
+                  ]}
+                  onPress={() => handlePlayerPress('player2')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[
+                    styles.playerTabText,
+                    activePlayer === 'player2' && styles.playerTabTextActive,
+                  ]}>
+                    Player 2
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            </View>
+          )}
 
           <ScrollView showsVerticalScrollIndicator={false} style={{ flexGrow: 0 }}>
-            {/* Player 1 Content */}
-            {activePlayer === 'player1' && (
+            {/* Player 1 Content - Lokal Mode */}
+            {activePlayer === 'player1' && activeMode === 'lokal' && (
               <View style={styles.playerContent}>
-                <Text style={[
-                  styles.sectionTitle,
-                  activeMode === 'online' && styles.textWhite
-                ]}>
+                <Text style={styles.sectionTitle}>
                   Pilih Gaco Kamu
                 </Text>
                 
                 {/* Gaco Selector */}
                 <View style={styles.gacoSelector}>
                   <TouchableOpacity 
-                    style={styles.gacoArrow}
+                    style={[
+                      styles.gacoArrow,
+                      isPlayer1GacoConfirmed && styles.gacoArrowDisabled
+                    ]}
                     onPress={() => handleGacoPrev(1)}
                     disabled={isPlayer1GacoConfirmed}
                   >
-                    <ChevronLeft color={activeMode === 'lokal' ? '#1F2937' : '#FFFFFF'} size={32} />
+                    <ChevronLeft color="#1F2937" size={32} />
                   </TouchableOpacity>
 
                   <Animated.View style={[
@@ -379,10 +386,7 @@ export default function GameSetupCard({
                       ]}
                       resizeMode="contain"
                     />
-                    <Text style={[
-                      styles.gacoName,
-                      activeMode === 'online' && styles.textWhite
-                    ]}>
+                    <Text style={styles.gacoName}>
                       {GACOS[selectedPlayer1Gaco].name}
                     </Text>
                     {isGacoTaken(selectedPlayer1Gaco, 1) && (
@@ -391,11 +395,14 @@ export default function GameSetupCard({
                   </Animated.View>
 
                   <TouchableOpacity 
-                    style={styles.gacoArrow}
+                    style={[
+                      styles.gacoArrow,
+                      isPlayer1GacoConfirmed && styles.gacoArrowDisabled
+                    ]}
                     onPress={() => handleGacoNext(1)}
                     disabled={isPlayer1GacoConfirmed}
                   >
-                    <ChevronRight color={activeMode === 'lokal' ? '#1F2937' : '#FFFFFF'} size={32} />
+                    <ChevronRight color="#1F2937" size={32} />
                   </TouchableOpacity>
                 </View>
 
@@ -405,17 +412,13 @@ export default function GameSetupCard({
                     <TouchableOpacity
                       style={[
                         styles.confirmButton,
-                        activeMode === 'online' && styles.confirmButtonOnline,
                         isGacoTaken(selectedPlayer1Gaco, 1) && styles.confirmButtonDisabled
                       ]}
                       onPress={() => handleConfirmGaco(1)}
                       disabled={isGacoTaken(selectedPlayer1Gaco, 1)}
                       activeOpacity={0.8}
                     >
-                      <Text style={[
-                        styles.confirmButtonText,
-                        activeMode === 'online' && styles.confirmButtonTextOnline
-                      ]}>
+                      <Text style={styles.confirmButtonText}>
                         Pilih
                       </Text>
                     </TouchableOpacity>
@@ -530,7 +533,10 @@ export default function GameSetupCard({
                   
                   <View style={styles.gacoSelector}>
                     <TouchableOpacity 
-                      style={styles.gacoArrow}
+                      style={[
+                        styles.gacoArrow,
+                        isPlayer2GacoConfirmed && styles.gacoArrowDisabled
+                      ]}
                       onPress={() => handleGacoPrev(2)}
                       disabled={isPlayer2GacoConfirmed}
                     >
@@ -557,7 +563,10 @@ export default function GameSetupCard({
                     </Animated.View>
 
                     <TouchableOpacity 
-                      style={styles.gacoArrow}
+                      style={[
+                        styles.gacoArrow,
+                        isPlayer2GacoConfirmed && styles.gacoArrowDisabled
+                      ]}
                       onPress={() => handleGacoNext(2)}
                       disabled={isPlayer2GacoConfirmed}
                     >
@@ -598,69 +607,189 @@ export default function GameSetupCard({
               </View>
             )}
 
-            {/* Online Mode Player 2 */}
-            {activePlayer === 'player2' && activeMode === 'online' && (
-              <View style={styles.playerContent}>
-                <Text style={[styles.sectionTitle, styles.textWhite]}>
-                  Pilih Gaco Kamu
-                </Text>
-                
-                <View style={styles.gacoSelector}>
-                  <TouchableOpacity 
-                    style={styles.gacoArrow}
-                    onPress={() => handleGacoPrev(2)}
-                    disabled={isPlayer2GacoConfirmed}
-                  >
-                    <ChevronLeft color="#FFFFFF" size={32} />
-                  </TouchableOpacity>
-
-                  <Animated.View style={[
-                    styles.gacoDisplay,
-                    { opacity: gacoOpacity }
-                  ]}>
-                    <Image 
-                      source={GACOS[selectedPlayer2Gaco].image} 
-                      style={styles.gacoImage}
-                      resizeMode="contain"
-                    />
-                    <Text style={[styles.gacoName, styles.textWhite]}>
-                      {GACOS[selectedPlayer2Gaco].name}
-                    </Text>
-                  </Animated.View>
-
-                  <TouchableOpacity 
-                    style={styles.gacoArrow}
-                    onPress={() => handleGacoNext(2)}
-                    disabled={isPlayer2GacoConfirmed}
-                  >
-                    <ChevronRight color="#FFFFFF" size={32} />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Confirm/Cancel Buttons */}
-                <View style={styles.gacoButtonContainer}>
-                  {!isPlayer2GacoConfirmed ? (
+            {/* Online Mode - Room Selection and Gaco */}
+            {activeMode === 'online' && (
+              <View style={styles.onlineContentWrapper}>
+                {/* Room Type Selector: Buat Room / Gabung Room */}
+                <View style={styles.onlineRoomSection}>
+                  <View style={styles.opponentTypeContainer}>
                     <TouchableOpacity
-                      style={styles.confirmButton}
-                      onPress={() => handleConfirmGaco(2)}
+                      style={[
+                        styles.opponentTypeButton,
+                        styles.onlineRoomButton,
+                        onlineRoomType === 'buat' && styles.onlineRoomButtonActive
+                      ]}
+                      onPress={() => setOnlineRoomType('buat')}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.confirmButtonText}>Pilih</Text>
+                      <Text style={[
+                        styles.opponentTypeText,
+                        styles.textWhite,
+                        onlineRoomType === 'buat' && styles.onlineRoomTextActive
+                      ]}>
+                        Buat Room
+                      </Text>
                     </TouchableOpacity>
-                  ) : (
-                    <View style={styles.gacoButtonRow}>
-                      <View style={styles.confirmedButton}>
-                        <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.opponentTypeButton,
+                        styles.onlineRoomButton,
+                        onlineRoomType === 'gabung' && styles.onlineRoomButtonActive
+                      ]}
+                      onPress={() => setOnlineRoomType('gabung')}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[
+                        styles.opponentTypeText,
+                        styles.textWhite,
+                        onlineRoomType === 'gabung' && styles.onlineRoomTextActive
+                      ]}>
+                        Gabung Room
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                {/* Buat Room Form */}
+                {onlineRoomType === 'buat' && (
+                  <View style={styles.roomFormSection}>
+                    {/* Gaco Selection for Buat Room */}
+                    <View style={styles.playerContent}>
+                      <Text style={[styles.sectionTitle, styles.textWhite]}>
+                        Pilih Gaco Kamu
+                      </Text>
+                      
+                      <View style={styles.gacoSelector}>
+                        <TouchableOpacity 
+                          style={[
+                            styles.gacoArrow,
+                            isPlayer1GacoConfirmed && styles.gacoArrowDisabled
+                          ]}
+                          onPress={() => handleGacoPrev(1)}
+                          disabled={isPlayer1GacoConfirmed}
+                        >
+                          <ChevronLeft color="#FFFFFF" size={32} />
+                        </TouchableOpacity>
+
+                        <Animated.View style={[
+                          styles.gacoDisplay,
+                          { opacity: gacoOpacity }
+                        ]}>
+                          <Image 
+                            source={GACOS[selectedPlayer1Gaco].image} 
+                            style={styles.gacoImage}
+                            resizeMode="contain"
+                          />
+                          <Text style={[styles.gacoName, styles.textWhite]}>
+                            {GACOS[selectedPlayer1Gaco].name}
+                          </Text>
+                        </Animated.View>
+
+                        <TouchableOpacity 
+                          style={[
+                            styles.gacoArrow,
+                            isPlayer1GacoConfirmed && styles.gacoArrowDisabled
+                          ]}
+                          onPress={() => handleGacoNext(1)}
+                          disabled={isPlayer1GacoConfirmed}
+                        >
+                          <ChevronRight color="#FFFFFF" size={32} />
+                        </TouchableOpacity>
                       </View>
-                      <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={() => handleCancelGaco(2)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={styles.cancelButtonText}>Ganti</Text>
-                      </TouchableOpacity>
+
+                      {/* Confirm/Cancel Buttons */}
+                      <View style={styles.gacoButtonContainer}>
+                        {!isPlayer1GacoConfirmed ? (
+                          <TouchableOpacity
+                            style={[styles.confirmButton, styles.confirmButtonOnline]}
+                            onPress={() => handleConfirmGaco(1)}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={[styles.confirmButtonText, styles.confirmButtonTextOnline]}>
+                              Pilih
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <View style={styles.gacoButtonRow}>
+                            <View style={styles.confirmedButton}>
+                              <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
+                            </View>
+                            <TouchableOpacity
+                              style={styles.cancelButton} 
+                              onPress={() => handleCancelGaco(1)}
+                              activeOpacity={0.8}
+                            >
+                              <Text style={styles.cancelButtonText}>Ganti</Text>
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </View>
                     </View>
-                  )}
+
+                    <Text style={[styles.formLabel, styles.textWhite]}>Server URL</Text>
+                    <TextInput
+                      style={[styles.formInput, styles.formInputOnline]}
+                      placeholder="https://server-url.com"
+                      placeholderTextColor="#9CA3AF"
+                      value={serverUrl}
+                      onChangeText={setServerUrl}
+                    />
+
+                    <Text style={[styles.formLabel, styles.textWhite]}>Nama Room</Text>
+                    <TextInput
+                      style={[styles.formInput, styles.formInputOnline]}
+                      placeholder="Masukkan nama room"
+                      placeholderTextColor="#9CA3AF"
+                      value={roomName}
+                      onChangeText={setRoomName}
+                    />
+
+                    <Text style={[styles.formLabel, styles.textWhite]}>Password (Opsional)</Text>
+                    <TextInput
+                      style={[styles.formInput, styles.formInputOnline]}
+                      placeholder="Kosongkan jika tidak ada password"
+                      placeholderTextColor="#9CA3AF"
+                      value={roomPassword}
+                      onChangeText={setRoomPassword}
+                      secureTextEntry
+                    />
+                  </View>
+                )}
+
+                {/* Gabung Room Form */}
+                {onlineRoomType === 'gabung' && (
+                  <View style={styles.roomFormSection}>
+                    <Text style={[styles.formLabel, styles.textWhite]}>Server URL</Text>
+                    <TextInput
+                      style={[styles.formInput, styles.formInputOnline]}
+                      placeholder="https://server-url.com"
+                      placeholderTextColor="#9CA3AF"
+                      value={serverUrl}
+                      onChangeText={setServerUrl}
+                    />
+
+                    <Text style={[styles.formLabel, styles.textWhite]}>Kode Room (5 Karakter)</Text>
+                    <TextInput
+                      style={[styles.formInput, styles.formInputOnline]}
+                      placeholder="ABCDE"
+                      placeholderTextColor="#9CA3AF"
+                      value={roomCode}
+                      onChangeText={(text) => setRoomCode(text.toUpperCase().slice(0, 5))}
+                      maxLength={5}
+                      autoCapitalize="characters"
+                    />
+
+                    <Text style={[styles.formLabel, styles.textWhite]}>Password (Opsional)</Text>
+                    <TextInput
+                      style={[styles.formInput, styles.formInputOnline]}
+                      placeholder="Kosongkan jika tidak ada password"
+                      placeholderTextColor="#9CA3AF"
+                      value={roomPassword}
+                      onChangeText={setRoomPassword}
+                      secureTextEntry
+                    />
+                  </View>
+                )}
                 </View>
               </View>
             )}
@@ -671,7 +800,12 @@ export default function GameSetupCard({
               onPress={handleStartGame}
               activeOpacity={0.8}
             >
-              <Text style={styles.startButtonText}>Mulai Game</Text>
+              <Text style={styles.startButtonText}>
+                {activeMode === 'online' 
+                  ? (onlineRoomType === 'buat' ? 'Buat Room' : 'Gabung Room')
+                  : 'Mulai Game'
+                }
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
