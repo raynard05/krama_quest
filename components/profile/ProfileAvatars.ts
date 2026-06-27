@@ -43,11 +43,11 @@ export interface BatikItem {
 }
 
 export const PROFILE_BATIKS: BatikItem[] = [
-  { id: '1', source: require('../../assets/splash_screen/soft_cartoon_batik1.png'), title: 'Batik Pastel' },
-  { id: '2', source: require('../../assets/splash_screen/soft_cartoon_batik2.png'), title: 'Batik Blue-Violet' },
-  { id: '3', source: require('../../assets/splash_screen/soft_cartoon_batik3.png'), title: 'Batik Gold-Teal' },
-  { id: '4', source: require('../../assets/splash_screen/soft_cartoon_batik4.png'), title: 'Batik Pink-Blue' },
-  { id: '5', source: require('../../assets/splash_screen/soft_cartoon_batik5.png'), title: 'Batik Monokrom' },
+  { id: '1', source: require('../../assets/splash_screen/1.webp'), title: 'Batik Pastel' },
+  { id: '2', source: require('../../assets/splash_screen/2.webp'), title: 'Batik Blue-Violet' },
+  { id: '3', source: require('../../assets/splash_screen/3.webp'), title: 'Batik Gold-Teal' },
+  { id: '4', source: require('../../assets/splash_screen/4.webp'), title: 'Batik Pink-Blue' },
+  { id: '5', source: require('../../assets/splash_screen/5.webp'), title: 'Batik Monokrom' },
 ];
 
 export function getBatikSource(batikId: string | undefined): any {

@@ -21,19 +21,21 @@ export const ProfileService = {
         return avatarCache[userId];
       }
 
-      // 2. Fetch directly from Supabase
+      // 2. Fetch directly from Supabase (both fields to pre-populate caches)
       const { data, error } = await supabase
         .from('profile_pic')
-        .select('profile_pic_num')
+        .select('profile_pic_num, bg_num')
         .eq('user_account_id', userId)
         .maybeSingle();
 
       if (error) throw error;
 
-      const avatarId = data ? String(data.profile_pic_num) : '1';
+      const avatarId = data && data.profile_pic_num !== null && data.profile_pic_num !== undefined ? String(data.profile_pic_num) : '1';
+      const bgId = data && data.bg_num !== null && data.bg_num !== undefined ? String(data.bg_num) : '1';
       
-      // Save to cache
+      // Save to caches
       avatarCache[userId] = avatarId;
+      avatarBgCache[userId] = bgId;
       return avatarId;
     } catch (err) {
       console.warn('[ProfileService] Direct Supabase fetch failed, using default "1":', err);
@@ -50,12 +52,16 @@ export const ProfileService = {
       // 1. Update cache immediately
       avatarCache[userId] = avatarId;
 
+      // Get background from cache or default to 1
+      const bgId = avatarBgCache[userId] || '1';
+
       // 2. Persist in Supabase directly
       const { error } = await supabase
         .from('profile_pic')
         .upsert({
           user_account_id: userId,
           profile_pic_num: parseInt(avatarId, 10),
+          bg_num: parseInt(bgId, 10),
           created_at: new Date()
         }, { onConflict: 'user_account_id' });
 
@@ -68,14 +74,57 @@ export const ProfileService = {
   },
 
   async fetchUserAvatarBg(userId: number): Promise<string> {
-    if (avatarBgCache[userId]) {
-      return avatarBgCache[userId];
+    try {
+      // 1. Check local cache first
+      if (avatarBgCache[userId]) {
+        return avatarBgCache[userId];
+      }
+
+      // 2. Fetch directly from Supabase (both fields to pre-populate caches)
+      const { data, error } = await supabase
+        .from('profile_pic')
+        .select('profile_pic_num, bg_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const avatarId = data && data.profile_pic_num !== null && data.profile_pic_num !== undefined ? String(data.profile_pic_num) : '1';
+      const bgId = data && data.bg_num !== null && data.bg_num !== undefined ? String(data.bg_num) : '1';
+      
+      // Save to caches
+      avatarCache[userId] = avatarId;
+      avatarBgCache[userId] = bgId;
+      return bgId;
+    } catch (err) {
+      console.warn('[ProfileService] Direct Supabase fetch BG failed, using default "1":', err);
+      return '1';
     }
-    return '1';
   },
 
   async updateUserAvatarBg(userId: number, avatarBgId: string): Promise<boolean> {
-    avatarBgCache[userId] = avatarBgId;
-    return true;
+    try {
+      // 1. Update cache immediately
+      avatarBgCache[userId] = avatarBgId;
+
+      // Get avatar from cache or default to 1
+      const avatarId = avatarCache[userId] || '1';
+
+      // 2. Persist in Supabase directly
+      const { error } = await supabase
+        .from('profile_pic')
+        .upsert({
+          user_account_id: userId,
+          profile_pic_num: parseInt(avatarId, 10),
+          bg_num: parseInt(avatarBgId, 10),
+          created_at: new Date()
+        }, { onConflict: 'user_account_id' });
+
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('[ProfileService] Direct Supabase upsert BG failed:', err);
+      return false;
+    }
   },
 };

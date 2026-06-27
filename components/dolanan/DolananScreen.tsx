@@ -9,12 +9,23 @@ import {
 } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import styles from '../../styles/dolanan/DolananStyles';
+import DolananCard from './DolananCard';
 
 interface DolananScreenProps {
   onBack: () => void;
 }
 
 export default function DolananScreen({ onBack }: DolananScreenProps) {
+  const handlePemantikStart = () => {
+    console.log('Pemantik started');
+    // Add navigation or modal logic here
+  };
+
+  const handleDolananStart = () => {
+    console.log('Dolanan started');
+    // Add navigation or modal logic here
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -34,9 +45,12 @@ export default function DolananScreen({ onBack }: DolananScreenProps) {
             <View style={styles.headerPlaceholder} />
           </View>
 
-          {/* Main content body - User can arrange new components here */}
+          {/* Main content body with Single Card */}
           <View style={styles.contentBody}>
-            {/* Empty body content as requested: keeping only the bg and the bottom image */}
+            <DolananCard 
+              onPemantikStart={handlePemantikStart}
+              onDolananStart={handleDolananStart}
+            />
           </View>
 
           {/* Bottom Section: Jembatan Illustration */}

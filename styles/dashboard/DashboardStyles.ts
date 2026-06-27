@@ -70,9 +70,8 @@ const DashboardStyles = StyleSheet.create({
   },
   greetingText: {
     fontSize: GREETING_SIZE,
-    color: '#ffffff',
-    fontFamily: 'Poppins-Medium',
-    textTransform: 'uppercase',
+    color: '#0000',
+    fontFamily: 'Poppins-Regular',
     letterSpacing: 1.2,
     opacity: 0.8,
   },
@@ -231,7 +230,7 @@ const DashboardStyles = StyleSheet.create({
   materiIntro: {
     fontSize: scaleFont(rs(13, 14, 14)),
     color: '#334155',
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-Regular',
     lineHeight: scaleFont(rs(18, 20, 20)),
     marginBottom: 16,
     textAlign: 'center',
@@ -300,7 +299,7 @@ const DashboardStyles = StyleSheet.create({
   },
   cptpText: {
     fontSize: scaleFont(rs(13, 14, 14)),
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-Regular',
     color: '#334155',
     lineHeight: scaleFont(rs(20, 22, 22)),
   },
@@ -332,7 +331,7 @@ const DashboardStyles = StyleSheet.create({
   tpText: {
     flex: 1,
     fontSize: scaleFont(rs(12, 13, 13)),
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-Regular',
     color: '#0F172A',
     lineHeight: scaleFont(rs(16, 18, 18)),
   },
@@ -360,7 +359,7 @@ const DashboardStyles = StyleSheet.create({
   },
   statLabel: {
     fontSize: scaleFont(rs(10, 11, 11)),
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-Regular',
     color: '#64748B',
     marginTop: 2,
   },

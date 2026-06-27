@@ -122,43 +122,24 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                   </Defs>
 
                   {/* Left Background Area */}
-                  <Path d="M 0,0 L 360,0 L 208,289 L 0,204 Z" fill="#0E101D" />
+                  <Path d="M 0,0 L 360,0 L 208,289 L 0,204 Z" fill="#55CDF4" />
 
                   {/* Left Side White Abstract Tech Abstractions */}
                   <G clipPath="url(#leftClip)">
                     {/* Subtle Diagonal Lines parallel to neon separator line */}
-                    <Line x1="60" y1="0" x2="8" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
-                    <Line x1="120" y1="0" x2="68" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
-                    <Line x1="180" y1="0" x2="128" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
-                    <Line x1="240" y1="0" x2="188" y2="170" stroke="#c0bcbcff" strokeWidth="1.5" opacity="0.8" />
-                    <Line x1="300" y1="0" x2="248" y2="170" stroke="#aeaeaeff" strokeWidth="1.5" opacity="0.8" />
-
-                    {/* Horizontal grid lines */}
-                    <Line x1="0" y1="34" x2="400" y2="34" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
-                    <Line x1="0" y1="68" x2="400" y2="68" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
-                    <Line x1="0" y1="102" x2="400" y2="102" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
-                    <Line x1="0" y1="136" x2="400" y2="136" stroke="#aeaeaeff" strokeWidth="0.8" opacity="0.8" />
-
+                    <Line x1="60" y1="0" x2="8" y2="170" stroke="#BFD9FD" strokeWidth="1.5" opacity="0.8" />
+                    <Line x1="120" y1="0" x2="68" y2="170" stroke="#BFD9FD" strokeWidth="3" opacity="0.8" />
+                    <Line x1="180" y1="0" x2="128" y2="170" stroke="#BFD9FD" strokeWidth="3" opacity="0.8" />
+                    <Line x1="240" y1="0" x2="188" y2="170" stroke="#BFD9FD" strokeWidth="3" opacity="0.8" />
+                    <Line x1="300" y1="0" x2="248" y2="170" stroke="#BFD9FD" strokeWidth="3" opacity="0.8" />
                     {/* Concentric tech circle accents on the far left */}
-                    <Circle cx="-20" cy="85" r="34" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.06" />
-                    <Circle cx="-20" cy="85" r="59" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.06" />
-                    <Circle cx="-20" cy="85" r="85" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.04" strokeDasharray="5 5" />
-                    <Circle cx="-20" cy="85" r="110" stroke="#aeaeaeff" strokeWidth="0.6" fill="none" opacity="0.04" />
+                    <Circle cx="-20" cy="85" r="34" stroke="#BFD9FD" strokeWidth="3" fill="none" opacity="0.06" />
+                    <Circle cx="-20" cy="85" r="59" stroke="#BFD9FD" strokeWidth="3" fill="none" opacity="0.6" />
+                    <Circle cx="-20" cy="85" r="85" stroke="#BFD9FD" strokeWidth="3" fill="none" opacity="0.4" strokeDasharray="5 5" />
+                    <Circle cx="-20" cy="85" r="110" stroke="#BFD9FD" strokeWidth="3" fill="none" opacity="0.4" />
 
-                    {/* Futuristic digital grid dots/nodes */}
-                    <Circle cx="60" cy="51" r="1.4" fill="#aeaeaeff" opacity="0.8" />
-                    <Circle cx="140" cy="51" r="1.4" fill="#aeaeaeff" opacity="0.8" />
-                    <Circle cx="100" cy="85" r="1.4" fill="#aeaeaeff" opacity="0.8" />
-                    <Circle cx="180" cy="85" r="1.4" fill="#aeaeaeff" opacity="0.8" />
-                    <Circle cx="60" cy="119" r="1.4" fill="#aeaeaeff" opacity="0.8" />
-                    <Circle cx="140" cy="119" r="1.4" fill="#aeaeaeff" opacity="0.8" />
 
-                    {/* Sleek circuit tech paths */}
-                    <Path d="M 20,42 L 80,42 L 108,54 L 160,54" stroke="#aeaeaeff" strokeWidth="0.8" fill="none" opacity="0.08" />
-                    <Circle cx="160" cy="54" r="2" fill="#aeaeaeff" opacity="0.8" />
 
-                    <Path d="M 40,127 L 100,127 L 128,115 L 192,115" stroke="#aeaeaeff" strokeWidth="0.8" fill="none" opacity="0.08" />
-                    <Circle cx="192" cy="115" r="2" fill="#aeaeaeff" opacity="0.8" />
                   </G>
 
                   {/* Right Side Batik — full image clipped to right shape, no tiling */}
@@ -174,7 +155,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                   </G>
 
                   {/* Slanted Neon Separator Line */}
-                  <Line x1="272" y1="0" x2="224" y2="170" stroke="#FF0844" strokeWidth="1.5" />
+                  <Line x1="272" y1="0" x2="224" y2="175" stroke="#FF0844" strokeWidth="3" />
                 </Svg>
               </View>
               <View style={styles.headerLeft}>
@@ -222,7 +203,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                     right: 5,
                     bottom: 5,
                     borderRadius: 999,
-                    backgroundColor: '#aeaeaeff',
+                    backgroundColor: '#BFD9FD',
                     padding: 3,
                     overflow: 'hidden',
                     justifyContent: 'center',
