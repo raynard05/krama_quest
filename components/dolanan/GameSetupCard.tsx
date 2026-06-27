@@ -12,6 +12,10 @@ import {
 } from 'react-native';
 import { Users, Cpu } from 'lucide-react-native';
 import { styles } from './GameSetupCardStyles';
+import WaitingRoomCard from './WaitingRoomCard';
+import JoinRoomCard from './JoinRoomCard';
+import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
+import { ProfileService } from '../../services/ProfileService';
 
 export type ModeType = 'lokal' | 'online';
 export type PlayerType = 'player1' | 'player2';
@@ -33,10 +37,11 @@ interface Player {
 interface GameSetupCardProps {
   onStartGame?: (config: any) => void;
   currentUserId: number;
+  currentUserAvatarId?: string;
   availablePlayers?: Player[];
 }
 
-const GACOS: Gaco[] = [
+export const GACOS: Gaco[] = [
   { id: 1, name: 'Gaco 1', image: require('../../assets/dolanan_assets/1.png') },
   { id: 2, name: 'Gaco 2', image: require('../../assets/dolanan_assets/2.png') },
   { id: 3, name: 'Gaco 3', image: require('../../assets/dolanan_assets/3.png') },
@@ -50,6 +55,7 @@ const GACOS: Gaco[] = [
 export default function GameSetupCard({
   onStartGame,
   currentUserId,
+  currentUserAvatarId,
   availablePlayers = []
 }: GameSetupCardProps) {
   const [activeMode, setActiveMode] = useState<ModeType>('lokal');
@@ -70,6 +76,340 @@ export default function GameSetupCard({
   // Confirmation states
   const [isPlayer1GacoConfirmed, setIsPlayer1GacoConfirmed] = useState(false);
   const [isPlayer2GacoConfirmed, setIsPlayer2GacoConfirmed] = useState(false);
+
+  // Waiting Room states
+  const [isWaitingRoomActive, setIsWaitingRoomActive] = useState(false);
+  const [activeRoomCode, setActiveRoomCode] = useState('');
+  const [joinedPlayer, setJoinedPlayer] = useState<{
+    name: string;
+    color: string;
+    avatarId: string;
+    userId: number;
+  } | null>(null);
+  const [isClientReady, setIsClientReady] = useState(false);
+
+  // Join Room states
+  const [isJoinRoomActive, setIsJoinRoomActive] = useState(false);
+  const [joinRoomStatusText, setJoinRoomStatusText] = useState('');
+  const [joinRoomIsConnected, setJoinRoomIsConnected] = useState(false);
+  const [joinedHostPlayer, setJoinedHostPlayer] = useState<{
+    name: string;
+    avatarId: string;
+  } | null>(null);
+  const [assignedPlayerId, setAssignedPlayerId] = useState<number>(2);
+  const [hostGacoId, setHostGacoId] = useState<number | null>(null);
+
+  const generateRandomCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
+  const cleanServerUrl = (url: string) => {
+    let cleaned = url.trim();
+    if (!cleaned) return '';
+    // Prepend https:// if no protocol is specified
+    if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+      cleaned = 'https://' + cleaned;
+    }
+    // Remove trailing slash if present
+    if (cleaned.endsWith('/')) {
+      cleaned = cleaned.slice(0, -1);
+    }
+    return cleaned;
+  };
+
+  const handleStartButtonPress = async () => {
+    if (activeMode === 'online') {
+      const cleanedUrl = cleanServerUrl(serverUrl);
+      if (onlineRoomType === 'buat') {
+        if (!cleanedUrl) {
+          alert('Masukkan Server URL terlebih dahulu!');
+          return;
+        }
+        
+        try {
+          // Save Host Gaco (selectedPlayer1Gaco + 1) directly to database gaco_num
+          const hostGacoId = selectedPlayer1Gaco + 1;
+          await ProfileService.updateUserGaco(currentUserId, String(hostGacoId));
+        } catch (err) {
+          console.warn('Failed to save host gaco to Supabase:', err);
+        }
+
+        setActiveRoomCode('Menghubungkan...');
+        setIsWaitingRoomActive(true);
+        GameNetwork.startServer(cleanedUrl, roomPassword.trim() || undefined);
+      } else {
+        // onlineRoomType === 'gabung'
+        if (!cleanedUrl) {
+          alert('Masukkan Server URL terlebih dahulu!');
+          return;
+        }
+        if (!roomCode.trim() || roomCode.trim().length < 5) {
+          alert('Masukkan Kode Room 5 Karakter!');
+          return;
+        }
+        setJoinRoomStatusText('Menghubungkan ke server...');
+        setJoinRoomIsConnected(false);
+        setIsJoinRoomActive(true);
+
+        const clientInfo = {
+          name: 'Anda',
+          color: '#2976BF',
+          icon: String(currentUserId) // send current user's DB ID in the icon slot!
+        };
+        GameNetwork.connectToServer(
+          cleanedUrl,
+          roomCode.toUpperCase().trim(),
+          roomPassword.trim(),
+          clientInfo
+        );
+      }
+    } else {
+      handleStartGame();
+    }
+  };
+
+  const handleLaunchOnlineGame = () => {
+    const opponentName = joinedPlayer?.name || 'Pemain 2';
+    const opponentColor = joinedPlayer?.color || '#EF4444';
+    const opponentUserId = joinedPlayer?.userId || 0;
+
+    // Broadcast play status to all connected clients
+    GameNetwork.broadcastState({
+      players: [
+        { id: 1, name: 'Anda', color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
+        { 
+          id: 2, 
+          name: opponentName, 
+          color: opponentColor, 
+          icon: String(opponentUserId), 
+          position: 0, 
+          type: 'human', 
+          isWinner: false 
+        }
+      ],
+      currentPlayerIndex: 0,
+      status: 'playing',
+      dieValue: 1,
+      isRolling: false,
+      logs: [{
+        id: 'start-online',
+        playerId: 0,
+        playerName: 'Sistem',
+        playerColor: '#00F2FE',
+        message: 'Permainan Multiplayer dimulai!',
+        timestamp: new Date(),
+        type: 'roll'
+      }],
+      winner: null
+    });
+
+    if (onStartGame) {
+      onStartGame({
+        mode: 'online',
+        player1Gaco: selectedPlayer1Gaco,
+        player2Gaco: selectedPlayer2Gaco,
+        opponentType: 'online',
+        opponentPlayerId: selectedOpponentPlayer,
+        networkRole: 'host',
+        localPlayerId: 1,
+        playersList: [
+          { id: 1, name: 'Anda', color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
+          { id: 2, name: opponentName, color: opponentColor, icon: String(opponentUserId), position: 0, type: 'human', isWinner: false }
+        ]
+      });
+    }
+  };
+
+  const handleCancelWaitingRoom = () => {
+    GameNetwork.closeAll();
+    setIsWaitingRoomActive(false);
+    setJoinedPlayer(null);
+    setIsClientReady(false);
+  };
+
+  const handleCancelJoinRoom = () => {
+    GameNetwork.closeAll();
+    setIsJoinRoomActive(false);
+    setJoinedHostPlayer(null);
+    setJoinRoomIsConnected(false);
+    setHostGacoId(null);
+  };
+
+  const handleConfirmClientGaco = async (gacoId: number): Promise<boolean> => {
+    try {
+      const success = await ProfileService.updateUserGaco(currentUserId, String(gacoId));
+      return success;
+    } catch (err) {
+      console.warn('Failed to update client gaco in DB:', err);
+      return false;
+    }
+  };
+
+  const handleClientReadyChange = (isReady: boolean) => {
+    if (isReady) {
+      GameNetwork.requestAction('ready', assignedPlayerId);
+    }
+  };
+
+  // Listen for socket events
+  useEffect(() => {
+    if (!isWaitingRoomActive && !isJoinRoomActive) return;
+
+    GameNetwork.registerListener((event: NetworkEvent) => {
+      // Host side events
+      if (isWaitingRoomActive) {
+        switch (event.type) {
+          case 'room_created':
+            setActiveRoomCode(event.roomCode);
+            break;
+
+          case 'client_join_request':
+            // Accept the client as Player 2
+            GameNetwork.confirmClientJoin(event.socket, 2, true);
+            
+            const clientUserId = parseInt(event.payload.icon, 10);
+            setIsClientReady(false); // Reset ready status
+
+            // Query client profile from DB instead of using sent values directly
+            ProfileService.fetchUserFullProfile(clientUserId).then((profile) => {
+              const opponentInfo = {
+                name: event.payload.name || 'Pemain 2',
+                color: event.payload.color || '#EF4444',
+                avatarId: profile.avatarId,
+                userId: clientUserId,
+              };
+              setJoinedPlayer(opponentInfo);
+
+              // Broadcast lobby state to client
+              setTimeout(() => {
+                GameNetwork.broadcastState({
+                  players: [
+                    { id: 1, name: 'Anda', color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
+                    { id: 2, name: opponentInfo.name, color: opponentInfo.color, icon: String(clientUserId), position: 0, type: 'human', isWinner: false }
+                  ],
+                  currentPlayerIndex: 0,
+                  status: 'lobby',
+                  dieValue: 1,
+                  isRolling: false,
+                  logs: [],
+                  winner: null
+                });
+              }, 150);
+            }).catch(err => {
+              console.warn('Lobby fetch client profile error:', err);
+              const opponentInfo = {
+                name: event.payload.name || 'Pemain 2',
+                color: event.payload.color || '#EF4444',
+                avatarId: '2',
+                userId: clientUserId,
+              };
+              setJoinedPlayer(opponentInfo);
+            });
+            break;
+
+          case 'action_requested':
+            if (event.action === 'ready' && event.playerId === 2) {
+              setIsClientReady(true);
+            }
+            break;
+
+          case 'client_disconnected':
+            setJoinedPlayer(null);
+            setIsClientReady(false);
+            break;
+
+          case 'connection_status':
+            if (event.status === 'error') {
+              alert(event.error || 'Terjadi kesalahan jaringan.');
+              handleCancelWaitingRoom();
+            } else if (event.status === 'disconnected') {
+              handleCancelWaitingRoom();
+            }
+            break;
+        }
+      }
+
+      // Client side events
+      if (isJoinRoomActive) {
+        switch (event.type) {
+          case 'join_result':
+            if (event.success) {
+              setJoinRoomIsConnected(true);
+              setJoinRoomStatusText('Berhasil masuk! Pilih gaco dan klik Siap...');
+              if (event.playerId) {
+                setAssignedPlayerId(event.playerId);
+              }
+            } else {
+              alert(event.error || 'Ditolak masuk ke room.');
+              handleCancelJoinRoom();
+            }
+            break;
+
+          case 'state_synced':
+            // Find the Host player (id: 1)
+            const host = event.state.players.find(p => p.id === 1);
+            if (host) {
+              const hostUserId = parseInt(host.icon, 10);
+              if (!isNaN(hostUserId)) {
+                ProfileService.fetchUserFullProfile(hostUserId).then((profile) => {
+                  setJoinedHostPlayer({
+                    name: host.name,
+                    avatarId: profile.avatarId
+                  });
+                  setHostGacoId(parseInt(profile.gacoId, 10)); // Save host's selected gaco ID
+                }).catch(err => {
+                  console.warn('Lobby fetch host profile error:', err);
+                  setJoinedHostPlayer({
+                    name: host.name,
+                    avatarId: '1'
+                  });
+                });
+              } else {
+                setJoinedHostPlayer({
+                  name: host.name,
+                  avatarId: '1'
+                });
+              }
+            }
+
+            // If the host starts playing, transition our screen!
+            if (event.state.status === 'playing') {
+              if (onStartGame) {
+                onStartGame({
+                  mode: 'online',
+                  player1Gaco: selectedPlayer1Gaco,
+                  player2Gaco: selectedPlayer2Gaco,
+                  opponentType: 'online',
+                  opponentPlayerId: selectedOpponentPlayer,
+                  networkRole: 'client',
+                  localPlayerId: assignedPlayerId,
+                  playersList: event.state.players
+                });
+              }
+            }
+            break;
+
+          case 'connection_status':
+            if (event.status === 'error') {
+              alert(event.error || 'Terjadi kesalahan jaringan.');
+              handleCancelJoinRoom();
+            } else if (event.status === 'disconnected') {
+              handleCancelJoinRoom();
+            }
+            break;
+        }
+      }
+    });
+
+    return () => {
+      GameNetwork.registerListener(() => {});
+    };
+  }, [isWaitingRoomActive, isJoinRoomActive, currentUserAvatarId, joinedPlayer, joinedHostPlayer, assignedPlayerId, isClientReady]);
 
   // Animation values for mode tabs
   const lokalScale = useRef(new Animated.Value(1)).current;
@@ -251,67 +591,90 @@ export default function GameSetupCard({
 
   return (
     <View style={styles.cardWrapper}>
-      <View style={styles.cardContainer}>
-        {/* Mode Tabs: Lokal / Online */}
-        <View style={styles.tabContainer}>
-          <Animated.View
-            style={[
-              styles.tabButtonWrapper,
-              {
-                transform: [
-                  { scale: lokalScale },
-                  { translateY: lokalTranslateY },
-                ],
-                zIndex: activeMode === 'lokal' ? 2 : 1,
-              },
-            ]}
-          >
-            <TouchableOpacity
+      {isWaitingRoomActive ? (
+        <WaitingRoomCard
+          roomCode={activeRoomCode}
+          currentUserAvatarId={currentUserAvatarId}
+          player2Name={joinedPlayer?.name}
+          player2AvatarId={joinedPlayer?.avatarId}
+          isPlayer2Ready={isClientReady}
+          onStartGame={handleLaunchOnlineGame}
+          onCancel={handleCancelWaitingRoom}
+        />
+      ) : isJoinRoomActive ? (
+        <JoinRoomCard
+          roomCode={roomCode.toUpperCase()}
+          statusText={joinRoomStatusText}
+          isConnected={joinRoomIsConnected}
+          currentUserAvatarId={currentUserAvatarId}
+          hostName={joinedHostPlayer?.name}
+          hostAvatarId={joinedHostPlayer?.avatarId}
+          takenGacoId={hostGacoId || undefined}
+          onCancel={handleCancelJoinRoom}
+          onConfirmGaco={handleConfirmClientGaco}
+          onReadyChange={handleClientReadyChange}
+        />
+      ) : (
+        <View style={styles.cardContainer}>
+          {/* Mode Tabs: Lokal / Online */}
+          <View style={styles.tabContainer}>
+            <Animated.View
               style={[
-                styles.tabButton,
-                styles.tabButtonLeft,
-                styles.tabButtonLokal,
-                activeMode !== 'lokal' && styles.tabInactiveLeft,
+                styles.tabButtonWrapper,
+                {
+                  transform: [
+                    { scale: lokalScale },
+                    { translateY: lokalTranslateY },
+                  ],
+                  zIndex: activeMode === 'lokal' ? 2 : 1,
+                },
               ]}
-              onPress={() => handleModePress('lokal')}
-              activeOpacity={0.8}
             >
-              <Text style={styles.tabTextLokal}>Offline</Text>
-            </TouchableOpacity>
-          </Animated.View>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  styles.tabButtonLeft,
+                  styles.tabButtonLokal,
+                  activeMode !== 'lokal' && styles.tabInactiveLeft,
+                ]}
+                onPress={() => handleModePress('lokal')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.tabTextLokal}>Offline</Text>
+              </TouchableOpacity>
+            </Animated.View>
 
-          <Animated.View
-            style={[
-              styles.tabButtonWrapper,
-              {
-                transform: [
-                  { scale: onlineScale },
-                  { translateY: onlineTranslateY },
-                ],
-                zIndex: activeMode === 'online' ? 2 : 1,
-              },
-            ]}
-          >
-            <TouchableOpacity
+            <Animated.View
               style={[
-                styles.tabButton,
-                styles.tabButtonRight,
-                styles.tabButtonOnline,
-                activeMode !== 'online' && styles.tabInactiveRight,
+                styles.tabButtonWrapper,
+                {
+                  transform: [
+                    { scale: onlineScale },
+                    { translateY: onlineTranslateY },
+                  ],
+                  zIndex: activeMode === 'online' ? 2 : 1,
+                },
               ]}
-              onPress={() => handleModePress('online')}
-              activeOpacity={0.8}
             >
-              <Text style={styles.tabTextOnline}>Online</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  styles.tabButtonRight,
+                  styles.tabButtonOnline,
+                  activeMode !== 'online' && styles.tabInactiveRight,
+                ]}
+                onPress={() => handleModePress('online')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.tabTextOnline}>Online</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
 
-        {/* Content Section */}
-        <View style={[
-          styles.contentSection,
-          { backgroundColor: activeMode === 'lokal' ? '#FFFFFF' : '#2976BF' }
-        ]}>
+          <View style={[
+            styles.contentSection,
+            { backgroundColor: activeMode === 'lokal' ? '#FFFFFF' : '#2976BF' }
+          ]}>
           {/* Player Tabs: Player 1 / Player 2 - Only for Lokal Mode */}
           {activeMode === 'lokal' && (
             <View style={styles.playerTabContainer}>
@@ -846,7 +1209,7 @@ export default function GameSetupCard({
             {/* Start Button */}
             <TouchableOpacity
               style={styles.startButton}
-              onPress={handleStartGame}
+              onPress={handleStartButtonPress}
               activeOpacity={0.8}
             >
               <Text style={styles.startButtonText}>
@@ -859,6 +1222,7 @@ export default function GameSetupCard({
           </View>
         </View>
       </View>
+      )}
     </View>
   );
 }

@@ -145,6 +145,7 @@ export default function App() {
   // Network State
   const [networkRole, setNetworkRole] = useState<NetworkRole>('local');
   const [localPlayerId, setLocalPlayerId] = useState<number>(0);
+  const [playerProfiles, setPlayerProfiles] = useState<Record<number, { avatarId: string; bgId: string; gacoId: string }>>({});
 
   // Keep a ref to the moving state to prevent double rolling or race conditions
   const isMovingRef = useRef<boolean>(false);
@@ -169,8 +170,28 @@ export default function App() {
     setLogs((prev) => [...prev, newLog]);
   };
 
+  const fetchProfilesForGame = async (configuredPlayers: Player[]) => {
+    const profiles: Record<number, { avatarId: string; bgId: string; gacoId: string }> = {};
+    for (const p of configuredPlayers) {
+      const userId = parseInt(p.icon, 10);
+      if (!isNaN(userId) && userId > 0) {
+        try {
+          const profile = await ProfileService.fetchUserFullProfile(userId);
+          profiles[p.id] = profile;
+        } catch (err) {
+          console.warn(`Failed to fetch profile for user ${userId}:`, err);
+          profiles[p.id] = { avatarId: '1', bgId: '1', gacoId: '1' };
+        }
+      } else {
+        profiles[p.id] = { avatarId: '1', bgId: '1', gacoId: '1' };
+      }
+    }
+    setPlayerProfiles(profiles);
+  };
+
   // Start a new game from the lobby configuration (Local)
   const handleStartGame = (configuredPlayers: Player[]) => {
+    fetchProfilesForGame(configuredPlayers);
     setNetworkRole('local');
     setLocalPlayerId(0);
     setPlayers(configuredPlayers);
@@ -201,6 +222,7 @@ export default function App() {
 
   // Start a new multiplayer game
   const handleStartNetworkGame = (configuredPlayers: Player[], role: NetworkRole, assignedId: number) => {
+    fetchProfilesForGame(configuredPlayers);
     setNetworkRole(role);
     setLocalPlayerId(assignedId);
     setPlayers(configuredPlayers);
@@ -729,6 +751,14 @@ export default function App() {
               setShowDolanan(false);
               setShowDashboard(true);
             }}
+            onStartLocalGame={(configuredPlayers) => {
+              setShowDolanan(false);
+              handleStartGame(configuredPlayers);
+            }}
+            onStartNetworkGame={(configuredPlayers, role, assignedId) => {
+              setShowDolanan(false);
+              handleStartNetworkGame(configuredPlayers, role, assignedId);
+            }}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />
@@ -837,9 +867,10 @@ export default function App() {
             onBackToLobby={handleBackToLobby}
             onResetGame={handleResetGame}
             winner={winner}
+            profiles={playerProfiles}
           />
 
-          <Board players={players} />
+          <Board players={players} profiles={playerProfiles} />
 
           {/* Action Panel */}
           <View style={styles.actionPanel}>

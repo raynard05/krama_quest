@@ -127,4 +127,72 @@ export const ProfileService = {
       return false;
     }
   },
+
+  async fetchUserGaco(userId: number): Promise<string> {
+    try {
+      const { data, error } = await supabase
+        .from('profile_pic')
+        .select('gaco_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data && data.gaco_num !== null && data.gaco_num !== undefined ? String(data.gaco_num) : '1';
+    } catch (err) {
+      console.warn('[ProfileService] Fetch gaco failed, using default "1":', err);
+      return '1';
+    }
+  },
+
+  async updateUserGaco(userId: number, gacoId: string): Promise<boolean> {
+    try {
+      // 1. Fetch current profile pic record to avoid overwriting existing avatar/bg values
+      const { data } = await supabase
+        .from('profile_pic')
+        .select('profile_pic_num, bg_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      const profilePicNum = data?.profile_pic_num ?? 1;
+      const bgNum = data?.bg_num ?? 1;
+
+      // 2. Persist in Supabase directly
+      const { error } = await supabase
+        .from('profile_pic')
+        .upsert({
+          user_account_id: userId,
+          profile_pic_num: profilePicNum,
+          bg_num: bgNum,
+          gaco_num: parseInt(gacoId, 10),
+          created_at: new Date()
+        }, { onConflict: 'user_account_id' });
+
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('[ProfileService] Update gaco failed:', err);
+      return false;
+    }
+  },
+
+  async fetchUserFullProfile(userId: number): Promise<{ avatarId: string; bgId: string; gacoId: string }> {
+    try {
+      const { data, error } = await supabase
+        .from('profile_pic')
+        .select('profile_pic_num, bg_num, gaco_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      return {
+        avatarId: data && data.profile_pic_num !== null && data.profile_pic_num !== undefined ? String(data.profile_pic_num) : '1',
+        bgId: data && data.bg_num !== null && data.bg_num !== undefined ? String(data.bg_num) : '1',
+        gacoId: data && data.gaco_num !== null && data.gaco_num !== undefined ? String(data.gaco_num) : '1',
+      };
+    } catch (err) {
+      console.warn('[ProfileService] Fetch full profile failed, returning defaults:', err);
+      return { avatarId: '1', bgId: '1', gacoId: '1' };
+    }
+  }
 };

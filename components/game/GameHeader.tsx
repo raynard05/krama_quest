@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { ArrowLeft, RotateCcw } from 'lucide-react-native';
 import { Player } from '../../types';
+import { getGacoImageSource } from './Board';
 
 interface GameHeaderProps {
   players: Player[];
@@ -9,6 +10,7 @@ interface GameHeaderProps {
   onBackToLobby: () => void;
   onResetGame: () => void;
   winner: Player | null;
+  profiles?: Record<number, { avatarId: string; bgId: string; gacoId: string }>;
 }
 
 export default function GameHeader({
@@ -17,11 +19,24 @@ export default function GameHeader({
   onBackToLobby,
   onResetGame,
   winner,
+  profiles,
 }: GameHeaderProps) {
   const activePlayer = players[currentPlayerIndex];
 
   // Sort players by position descending to show ranking
   const rankedPlayers = [...players].sort((a, b) => b.position - a.position);
+
+  const renderPlayerIcon = (player: Player, size = 18) => {
+    let gacoId = player.icon;
+    if (profiles && profiles[player.id]) {
+      gacoId = profiles[player.id].gacoId;
+    }
+    const source = getGacoImageSource(gacoId);
+    if (source) {
+      return <Image source={source} style={{ width: size, height: size, marginRight: 6 }} resizeMode="contain" />;
+    }
+    return <Text style={[styles.standingIcon, { color: player.color, fontSize: size - 4, marginRight: 4 }]}>{player.icon}</Text>;
+  };
 
   return (
     <View style={styles.container}>
@@ -43,17 +58,21 @@ export default function GameHeader({
         {winner ? (
           <View style={styles.winnerSection}>
             <Text style={styles.victoryTitle}>🎉 KEMENANGAN! 🎉</Text>
-            <Text style={[styles.winnerName, { color: winner.color }]}>
-              {winner.icon} {winner.name} Menang!
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+              {renderPlayerIcon(winner, 24)}
+              <Text style={[styles.winnerName, { color: winner.color, marginTop: 0 }]}>
+                {winner.name} Menang!
+              </Text>
+            </View>
           </View>
         ) : (
           <View style={styles.turnSection}>
             <Text style={styles.turnTitle}>Giliran Sekarang</Text>
             <View style={styles.currentPlayerInfo}>
               <View style={[styles.colorIndicator, { backgroundColor: activePlayer.color, shadowColor: activePlayer.color }]} />
+              {renderPlayerIcon(activePlayer, 20)}
               <Text style={styles.currentPlayerName}>
-                {activePlayer.icon} {activePlayer.name}
+                {activePlayer.name}
               </Text>
               <Text style={styles.playerTypeBadge}>
                 {activePlayer.type === 'computer' ? '🤖 AI' : '👤 Anda'}
@@ -77,7 +96,7 @@ export default function GameHeader({
             >
               <View style={styles.standingLeft}>
                 <Text style={styles.rankText}>#{idx + 1}</Text>
-                <Text style={[styles.standingIcon, { color: player.color }]}>{player.icon}</Text>
+                {renderPlayerIcon(player, 16)}
                 <Text style={styles.standingName} numberOfLines={1}>
                   {player.name}
                 </Text>

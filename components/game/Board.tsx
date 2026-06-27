@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, Animated, ViewStyle } from 'react-native';
+import { StyleSheet, View, Text, Animated, ViewStyle, Image } from 'react-native';
 import Svg, { Line, Path, Circle, Defs, LinearGradient } from 'react-native-svg';
 import { 
   BOARD_ROWS, 
@@ -15,6 +15,21 @@ import { Player } from '../../types';
 
 interface BoardProps {
   players: Player[];
+  profiles?: Record<number, { avatarId: string; bgId: string; gacoId: string }>;
+}
+
+export function getGacoImageSource(gacoId: string) {
+  switch (gacoId) {
+    case '1': return require('../../assets/dolanan_assets/1.png');
+    case '2': return require('../../assets/dolanan_assets/2.png');
+    case '3': return require('../../assets/dolanan_assets/3.png');
+    case '4': return require('../../assets/dolanan_assets/4.png');
+    case '5': return require('../../assets/dolanan_assets/5.png');
+    case '6': return require('../../assets/dolanan_assets/6.png');
+    case '7': return require('../../assets/dolanan_assets/7.png');
+    case '8': return require('../../assets/dolanan_assets/8.png');
+    default: return require('../../assets/dolanan_assets/1.png');
+  }
 }
 
 // Helper to calculate offset coordinate when multiple players land on the same cell
@@ -67,7 +82,15 @@ function getPlayerOffsetPosition(cell: number, playerId: number, players: Player
 }
 
 // Individual animated token component
-function Token({ player, players }: { player: Player; players: Player[] }) {
+function Token({ 
+  player, 
+  players,
+  profiles
+}: { 
+  player: Player; 
+  players: Player[];
+  profiles?: Record<number, { avatarId: string; bgId: string; gacoId: string }>;
+}) {
   const targetPos = getPlayerOffsetPosition(player.position, player.id, players);
   
   // Keep track of animated X and Y positions
@@ -92,6 +115,13 @@ function Token({ player, players }: { player: Player; players: Player[] }) {
     ]).start();
   }, [targetPos.x, targetPos.y]);
 
+  let gacoSource = null;
+  if (profiles && profiles[player.id]) {
+    gacoSource = getGacoImageSource(profiles[player.id].gacoId);
+  } else {
+    gacoSource = getGacoImageSource(player.icon);
+  }
+
   return (
     <Animated.View
       style={[
@@ -110,12 +140,16 @@ function Token({ player, players }: { player: Player; players: Player[] }) {
         },
       ]}
     >
-      <Text style={styles.tokenIcon}>{player.icon}</Text>
+      {gacoSource ? (
+        <Image source={gacoSource} style={{ width: 14, height: 14 }} resizeMode="contain" />
+      ) : (
+        <Text style={styles.tokenIcon}>{player.icon}</Text>
+      )}
     </Animated.View>
   );
 }
 
-export default function Board({ players }: BoardProps) {
+export default function Board({ players, profiles }: BoardProps) {
   // Generate all grid cells
   const renderCells = () => {
     const cells = [];
@@ -331,7 +365,7 @@ export default function Board({ players }: BoardProps) {
 
         {/* Animated Tokens */}
         {players.map((player) => (
-          <Token key={`token-${player.id}`} player={player} players={players} />
+          <Token key={`token-${player.id}`} player={player} players={players} profiles={profiles} />
         ))}
       </View>
     </View>

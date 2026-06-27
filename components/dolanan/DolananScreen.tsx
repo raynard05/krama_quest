@@ -13,12 +13,21 @@ import DolananCard from './DolananCard';
 import GameSetupCard from './GameSetupCard';
 import { supabase } from '../../services/AuthService';
 
+import { ProfileService } from '../../services/ProfileService';
+
 interface DolananScreenProps {
   currentUser: any;
   onBack: () => void;
+  onStartLocalGame: (configuredPlayers: any[]) => void;
+  onStartNetworkGame: (configuredPlayers: any[], role: 'host' | 'client', assignedId: number) => void;
 }
 
-export default function DolananScreen({ currentUser, onBack }: DolananScreenProps) {
+export default function DolananScreen({
+  currentUser,
+  onBack,
+  onStartLocalGame,
+  onStartNetworkGame
+}: DolananScreenProps) {
   const [showGameSetup, setShowGameSetup] = useState(false);
   const currentUserId = currentUser?.id || 1;
   const [availablePlayers, setAvailablePlayers] = useState<any[]>([]);
@@ -51,10 +60,58 @@ export default function DolananScreen({ currentUser, onBack }: DolananScreenProp
     setShowGameSetup(true);
   };
 
-  const handleStartGame = (config: any) => {
+  const handleStartGame = async (config: any) => {
     console.log('Starting game with config:', config);
-    // TODO: Navigate to actual game screen or save config
-    // For now, just log the configuration
+    if (config.mode === 'lokal') {
+      const player1GacoId = String(config.player1Gaco + 1);
+      
+      try {
+        // Save host selected gaco directly to database
+        await ProfileService.updateUserGaco(currentUserId, player1GacoId);
+      } catch (err) {
+        console.warn('Failed to update host gaco on local game start:', err);
+      }
+
+      const opponentName = config.opponentType === 'komputer' 
+        ? 'Komputer' 
+        : (config.opponentPlayerId 
+            ? (availablePlayers.find(p => p.id === config.opponentPlayerId)?.nama_lengkap || 'Pemain 2') 
+            : 'Pemain 2');
+
+      const localPlayers = [
+        { 
+          id: 1, 
+          name: currentUser?.nama_lengkap || 'Pemain 1', 
+          color: '#2976BF', 
+          icon: String(currentUserId), // database userId
+          position: 0, 
+          type: 'human', 
+          isWinner: false 
+        },
+        { 
+          id: 2, 
+          name: opponentName, 
+          color: '#EF4444', 
+          icon: String(config.opponentPlayerId || 0), // opponent userId, or '0' for computer
+          position: 0, 
+          type: config.opponentType === 'komputer' ? 'computer' : 'human', 
+          isWinner: false 
+        }
+      ];
+      onStartLocalGame(localPlayers);
+    } else {
+      // online mode
+      const parsedPlayers = config.playersList.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        color: p.color,
+        icon: String(p.icon), // Contains opponent's database userId
+        position: p.position || 0,
+        type: p.type || 'human',
+        isWinner: p.isWinner || false
+      }));
+      onStartNetworkGame(parsedPlayers, config.networkRole, config.localPlayerId);
+    }
   };
 
   const handleBackFromSetup = () => {
@@ -98,6 +155,7 @@ export default function DolananScreen({ currentUser, onBack }: DolananScreenProp
                 // Show GameSetupCard (Lokal/Online, Player setup)
                 <GameSetupCard
                   currentUserId={currentUserId}
+                  currentUserAvatarId={currentUser?.avatarId}
                   availablePlayers={availablePlayers}
                   onStartGame={handleStartGame}
                 />
