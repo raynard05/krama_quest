@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   cardContainer: {
     overflow: 'visible',
   },
-  
+
   // Mode Tabs (Lokal/Online)
   tabContainer: {
     flexDirection: 'row',
@@ -35,21 +35,21 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     borderTopStartRadius: 40,
   },
-  
+
   tabButtonLokal: {
     backgroundColor: '#FFFFFF',
   },
   tabButtonOnline: {
     backgroundColor: '#2976BF',
   },
-  
+
   tabInactiveLeft: {
     marginRight: 15,
   },
   tabInactiveRight: {
     marginLeft: 15,
   },
-  
+
   tabTextLokal: {
     fontSize: 19,
     fontWeight: '700',
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     overflow: 'visible',
   },
-  
+
   // Player Tabs
   playerTabContainer: {
     flexDirection: 'row',
@@ -109,7 +109,7 @@ export const styles = StyleSheet.create({
   playerContent: {
     marginBottom: 20,
   },
-  
+
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
@@ -118,7 +118,7 @@ export const styles = StyleSheet.create({
     marginBottom: -35,
     textAlign: 'center',
   },
-  
+
   textWhite: {
     color: '#FFFFFF',
   },
@@ -155,7 +155,7 @@ export const styles = StyleSheet.create({
   gacoArrowDisabled: {
     opacity: 0.3,
   },
-  
+
   // Side Gacos (Previous/Next) - Smaller and behind
   gacoDisplaySide: {
     alignItems: 'center',
@@ -167,26 +167,32 @@ export const styles = StyleSheet.create({
     width: 50,
     height: 90,
   },
-  
-  // Center Gaco (Active) - Larger and in front
+
   gacoDisplayCenter: {
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 140,
     paddingVertical: 20,
     paddingHorizontal: 30,
-
- 
-  
     zIndex: 2,
-   
 
-  
   },
   gacoImageCenter: {
     width: 80,
     height: 140,
+  },
+  gacoImageWrapper: {
+    padding: 8,
+    borderWidth: 3,
+    borderColor: 'transparent',
+    borderRadius: 20,
     marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gacoImageWrapperTaken: {
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+   
   },
   gacoImageTaken: {
     opacity: 0.4,
@@ -197,9 +203,17 @@ export const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     color: '#1F2937',
   },
+  swipeGif: {
+    position: 'absolute',
+    right: 30,
+    bottom: 30,
+    width: 90,
+    height: 90,
+    transform: [{ rotate: '0deg' }],
+  },
   gacoTaken: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    borderColor: '#EF4444',
   },
   gacoTakenText: {
     fontSize: 12,
@@ -361,6 +375,7 @@ export const styles = StyleSheet.create({
   gacoButtonRow: {
     flexDirection: 'row',
     gap: 12,
+        marginTop:-60,
   },
   confirmButton: {
     backgroundColor: '#2976BF',
@@ -368,8 +383,8 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-     marginTop:-60,
-     
+    marginTop: -60,
+
   },
   confirmButtonOnline: {
     backgroundColor: '#FFFFFF',
@@ -379,16 +394,18 @@ export const styles = StyleSheet.create({
     opacity: 0.5,
   },
   confirmButtonText: {
-   
+
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
     fontFamily: 'Poppins-SemiBold',
   },
   confirmButtonTextOnline: {
+
     color: '#2976BF',
   },
   confirmedButton: {
+
     flex: 1,
     backgroundColor: '#10B981',
     paddingVertical: 12,
@@ -401,6 +418,7 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     fontFamily: 'Poppins-SemiBold',
+    
   },
   cancelButton: {
     flex: 1,
@@ -409,6 +427,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    
   },
   cancelButtonText: {
     color: '#FFFFFF',
@@ -435,7 +454,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-    
+
   },
   startButtonText: {
     color: '#FFFFFF',

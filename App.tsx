@@ -724,6 +724,7 @@ export default function App() {
       return (
         <>
           <DolananScreen
+            currentUser={currentUser}
             onBack={() => {
               setShowDolanan(false);
               setShowDashboard(true);

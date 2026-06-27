@@ -21,6 +21,7 @@ const DolananStyles = StyleSheet.create({
     transform: [{ scale: 1 }],
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 0,
     paddingBottom: 0,
   },
@@ -56,16 +57,21 @@ const DolananStyles = StyleSheet.create({
     paddingHorizontal: vw(5),
     paddingTop: vh(2),
     paddingBottom: vh(2),
+    zIndex: 2, // Layer 3 (draw on top of the bridge illustration)
+    elevation: 2,
   },
   bottomSection: {
     width: '100%',
     height: BOTTOM_H,
     position: 'relative',
     overflow: 'hidden',
+    marginTop: -190, // Pull the section up
+    zIndex: 1, // Layer 2 (draw behind the card component)
+    elevation: 1,
   },
   cityImg: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 0, // Reset to 0 to prevent cropping at the top and empty space at the bottom
     left: CITY_LEFT_BLEED,
     width: CITY_IMG_W,
     height: CITY_IMG_H,

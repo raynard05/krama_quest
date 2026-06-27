@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,21 +11,35 @@ import { ArrowLeft } from 'lucide-react-native';
 import styles from '../../styles/dolanan/DolananStyles';
 import DolananCard from './DolananCard';
 import GameSetupCard from './GameSetupCard';
+import { supabase } from '../../services/AuthService';
 
 interface DolananScreenProps {
+  currentUser: any;
   onBack: () => void;
 }
 
-export default function DolananScreen({ onBack }: DolananScreenProps) {
+export default function DolananScreen({ currentUser, onBack }: DolananScreenProps) {
   const [showGameSetup, setShowGameSetup] = useState(false);
-  const [currentUserId] = useState(1); // TODO: Get from auth context/session
-  const [availablePlayers] = useState([
-    // TODO: Fetch from Supabase
-    { id: 2, username: 'budi123', nama_lengkap: 'Budi Santoso' },
-    { id: 3, username: 'siti_2024', nama_lengkap: 'Siti Aminah' },
-    { id: 4, username: 'ahmad_99', nama_lengkap: 'Ahmad Fauzi' },
-    { id: 5, username: 'rina_jkt', nama_lengkap: 'Rina Wijaya' },
-  ]);
+  const currentUserId = currentUser?.id || 1;
+  const [availablePlayers, setAvailablePlayers] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadPlayers() {
+      try {
+        const { data, error } = await supabase
+          .from('user_account')
+          .select('id, username, nama_lengkap')
+          .order('username', { ascending: true });
+        if (error) throw error;
+        if (data) {
+          setAvailablePlayers(data);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch players from Supabase:', err);
+      }
+    }
+    loadPlayers();
+  }, []);
 
   const handlePemantikStart = () => {
     console.log('Pemantik started');
@@ -56,38 +70,39 @@ export default function DolananScreen({ onBack }: DolananScreenProps) {
         resizeMode="cover"
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={{ flex: 1 }}>
+            {/* Custom Header with Back Button */}
+            <View style={styles.header}>
+              <TouchableOpacity 
+                style={styles.backButton} 
+                onPress={showGameSetup ? handleBackFromSetup : onBack} 
+                activeOpacity={0.7}
+              >
+                <ArrowLeft color="#FFFFFF" size={22} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>
+                {showGameSetup ? 'Setup Game' : 'Dolanan'}
+              </Text>
+              <View style={styles.headerPlaceholder} />
+            </View>
 
-          {/* Custom Header with Back Button */}
-          <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton} 
-              onPress={showGameSetup ? handleBackFromSetup : onBack} 
-              activeOpacity={0.7}
-            >
-              <ArrowLeft color="#FFFFFF" size={22} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>
-              {showGameSetup ? 'Setup Game' : 'Dolanan'}
-            </Text>
-            <View style={styles.headerPlaceholder} />
-          </View>
-
-          {/* Main content body */}
-          <View style={styles.contentBody}>
-            {!showGameSetup ? (
-              // Show DolananCard (Pemantik/Dolanan selection)
-              <DolananCard 
-                onPemantikStart={handlePemantikStart}
-                onDolananStart={handleDolananStart}
-              />
-            ) : (
-              // Show GameSetupCard (Lokal/Online, Player setup)
-              <GameSetupCard
-                currentUserId={currentUserId}
-                availablePlayers={availablePlayers}
-                onStartGame={handleStartGame}
-              />
-            )}
+            {/* Main content body */}
+            <View style={styles.contentBody}>
+              {!showGameSetup ? (
+                // Show DolananCard (Pemantik/Dolanan selection)
+                <DolananCard 
+                  onPemantikStart={handlePemantikStart}
+                  onDolananStart={handleDolananStart}
+                />
+              ) : (
+                // Show GameSetupCard (Lokal/Online, Player setup)
+                <GameSetupCard
+                  currentUserId={currentUserId}
+                  availablePlayers={availablePlayers}
+                  onStartGame={handleStartGame}
+                />
+              )}
+            </View>
           </View>
 
           {/* Bottom Section: Jembatan Illustration */}
