@@ -638,7 +638,7 @@ export default function GameSetupCard({
                   activeMode !== 'lokal' && styles.tabInactiveLeft,
                 ]}
                 onPress={() => handleModePress('lokal')}
-                activeOpacity={0.8}
+                activeOpacity={1}
               >
                 <Text style={styles.tabTextLokal}>Offline</Text>
               </TouchableOpacity>
@@ -664,7 +664,7 @@ export default function GameSetupCard({
                   activeMode !== 'online' && styles.tabInactiveRight,
                 ]}
                 onPress={() => handleModePress('online')}
-                activeOpacity={0.8}
+                activeOpacity={1}
               >
                 <Text style={styles.tabTextOnline}>Online</Text>
               </TouchableOpacity>

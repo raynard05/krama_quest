@@ -19,7 +19,7 @@ import {
   Poppins_700Bold, 
   Poppins_800ExtraBold 
 } from '@expo-google-fonts/poppins';
-import { Player, GameStatus, GameLog, GameState, NetworkRole } from './types';
+import { Player, GameStatus, GameLog, NetworkRole } from './types';
 import { TOTAL_CELLS, SNAKES, LADDERS } from './constants';
 import NetworkLobby from './components/game/NetworkLobby';
 import Board from './components/game/Board';
@@ -39,6 +39,8 @@ import { ProfileService } from './services/ProfileService';
 import MateriScreen from './components/materi/MateriScreen';
 import CpTpScreen from './components/cptp/CpTpScreen';
 import DolananScreen from './components/dolanan/DolananScreen';
+import GameScreen from './components/gameadvance/GameScreen';
+
 
 type AuthScreen = 'login' | 'register';
 
@@ -65,6 +67,8 @@ export default function App() {
   const [showDolanan, setShowDolanan] = useState<boolean>(false);
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
+  const [showGameScreen, setShowGameScreen] = useState<boolean>(false);
+  
 
   const handleUpdateAvatar = async (avatarId: string) => {
     if (currentUser) {
@@ -617,6 +621,12 @@ export default function App() {
         return true;
       }
 
+      if (showGameScreen) {
+        setShowGameScreen(false);
+        setShowDolanan(true);
+        return true;
+      }
+
       if (showCpTp) {
         setShowCpTp(false);
         setShowDashboard(true);
@@ -656,6 +666,7 @@ export default function App() {
     showProfile,
     showMateri,
     showDolanan,
+    showGameScreen,
     showCpTp,
     showDolananOptions,
     showDashboard,
@@ -758,6 +769,27 @@ export default function App() {
             onStartNetworkGame={(configuredPlayers, role, assignedId) => {
               setShowDolanan(false);
               handleStartNetworkGame(configuredPlayers, role, assignedId);
+            }}
+            onNavigateToPemantik={() => {
+              setShowDolanan(false);
+              setShowGameScreen(true);
+            }}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
+    // Render GameScreen (Pemantik)
+    if (showGameScreen) {
+      return (
+        <>
+          <GameScreen
+            currentUser={currentUser}
+            onBack={() => {
+              setShowGameScreen(false);
+              setShowDolanan(true);
             }}
           />
           <StatusBar style="light" />

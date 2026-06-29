@@ -183,7 +183,7 @@ export default function DolananCard({
 
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ['0deg', '120deg'],
   });
 
   return (
@@ -212,7 +212,7 @@ export default function DolananCard({
                 activeTab !== 'pemantik' && styles.tabInactiveLeft,
               ]}
               onPress={() => handleTabPress('pemantik')}
-              activeOpacity={0.8}
+              activeOpacity={1}
             >
               <Text style={styles.tabTextPemantik}>
                 Pemantik
@@ -240,7 +240,7 @@ export default function DolananCard({
                 activeTab !== 'dolanan' && styles.tabInactiveRight,
               ]}
               onPress={() => handleTabPress('dolanan')}
-              activeOpacity={0.8}
+              activeOpacity={1}
             >
               <Text style={styles.tabTextDolanan}>
                 Dolanan

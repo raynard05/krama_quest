@@ -20,13 +20,15 @@ interface DolananScreenProps {
   onBack: () => void;
   onStartLocalGame: (configuredPlayers: any[]) => void;
   onStartNetworkGame: (configuredPlayers: any[], role: 'host' | 'client', assignedId: number) => void;
+  onNavigateToPemantik: () => void;
 }
 
 export default function DolananScreen({
   currentUser,
   onBack,
   onStartLocalGame,
-  onStartNetworkGame
+  onStartNetworkGame,
+  onNavigateToPemantik
 }: DolananScreenProps) {
   const [showGameSetup, setShowGameSetup] = useState(false);
   const currentUserId = currentUser?.id || 1;
@@ -51,8 +53,8 @@ export default function DolananScreen({
   }, []);
 
   const handlePemantikStart = () => {
-    console.log('Pemantik started');
-    // Add navigation or modal logic here
+    console.log('Pemantik started - Navigate to GameScreen');
+    onNavigateToPemantik();
   };
 
   const handleDolananStart = () => {
