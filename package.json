@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo-google-fonts/bebas-neue": "^0.4.1",
     "@expo-google-fonts/poppins": "^0.4.1",
+    "@expo-google-fonts/squada-one": "^0.4.1",
     "@react-native-community/netinfo": "12.0.1",
     "@supabase/supabase-js": "^2.108.1",
     "bcryptjs": "^3.0.3",

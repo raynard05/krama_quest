@@ -19,6 +19,8 @@ import {
   Poppins_700Bold, 
   Poppins_800ExtraBold 
 } from '@expo-google-fonts/poppins';
+import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
+import { SquadaOne_400Regular } from '@expo-google-fonts/squada-one';
 import { Player, GameStatus, GameLog, NetworkRole } from './types';
 import { TOTAL_CELLS, SNAKES, LADDERS } from './constants';
 import NetworkLobby from './components/game/NetworkLobby';
@@ -53,6 +55,8 @@ export default function App() {
     'Poppins-SemiBold': Poppins_600SemiBold,
     'Poppins-Bold': Poppins_700Bold,
     'Poppins-ExtraBold': Poppins_800ExtraBold,
+    'BebasNeue': BebasNeue_400Regular,
+    'SquadaOne': SquadaOne_400Regular,
   });
 
   // ── Auth state ──────────────────────────────────────────────────────────

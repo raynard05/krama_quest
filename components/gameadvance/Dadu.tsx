@@ -17,11 +17,24 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
   // Animation for shining effect
   const shinePosition = useRef(new Animated.Value(-410)).current;
 
-  // Animation for GIF rotation (triggered on tap)
-  const gifRotateAnim = useRef(new Animated.Value(0)).current;
+  // Animation for GIF 1 rotation (triggered on tap) - rotate to +70deg
+  const gifRotateAnim1 = useRef(new Animated.Value(0)).current;
 
-  // Animation for batik swing left-right (looping)
-  const batikSwingAnim = useRef(new Animated.Value(0)).current;
+  // Animation for GIF 2 rotation (triggered on tap) - rotate to -70deg
+  const gifRotateAnim2 = useRef(new Animated.Value(0)).current;
+  // Animation for GIF 1 rotation (triggered on tap) - rotate to +70deg
+  const gifY1 = useRef(new Animated.Value(0)).current;
+  // Animation for GIF 1 X movement - move right toward dice
+  const gifX1 = useRef(new Animated.Value(0)).current;
+
+  // Animation for GIF 2 rotation (triggered on tap) - rotate to -70deg
+  const gifY2 = useRef(new Animated.Value(0)).current;
+
+  // Animation for batik 1 - moves right
+  const batikSwingAnim1 = useRef(new Animated.Value(0)).current;
+
+  // Animation for batik 2 - moves left (opposite direction)
+  const batikSwingAnim2 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Loop animation: 3 shine lines moving from top to bottom
@@ -40,51 +53,114 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
         Animated.delay(700), // Pause before next loop
       ])
     ).start();
-
-    // Loop animation: batik swing left-right
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(batikSwingAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(batikSwingAnim, {
-          toValue: -1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(batikSwingAnim, {
-          toValue: 0,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
   }, []);
 
-  // Trigger GIF rotate on tap
+  // Track if batik animation has been started
+  const batikAnimStarted = useRef(false);
+
+  // Trigger GIF rotate on tap - GIF1 goes +70deg, GIF2 goes -70deg
   const handleTap = () => {
-    gifRotateAnim.setValue(0);
-    Animated.timing(gifRotateAnim, {
+
+
+    // GIF 1: rotate +70deg dulu, setelah selesai baru gerak ke bawah+kanan pelan menuju samping dadu
+    gifRotateAnim1.setValue(0);
+    gifY1.setValue(0);
+    gifX1.setValue(0);
+    Animated.sequence([
+      // Step 1: rotate 70deg (500ms)
+      Animated.timing(gifRotateAnim1, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      // Step 2: gerak ke bawah saja pelan menuju posisi samping dadu
+      Animated.timing(gifY1, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+    ]).start();
+
+    // GIF 2: rotate to -70deg then hold
+    gifRotateAnim2.setValue(0);
+    Animated.timing(gifRotateAnim2, {
       toValue: 1,
-      duration: 600,
+      duration: 500,
       useNativeDriver: true,
-    }).start(() => {
-      gifRotateAnim.setValue(0);
-    });
+    }).start();
+
+    // Batik: only start loop once on first tap
+    if (!batikAnimStarted.current) {
+      batikAnimStarted.current = true;
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(batikSwingAnim1, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(batikSwingAnim1, {
+            toValue: -1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(batikSwingAnim2, {
+            toValue: -1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(batikSwingAnim2, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
   };
 
-  // Interpolate gif rotate: 0 -> 360deg
-  const gifSpin = gifRotateAnim.interpolate({
+  // GIF 1: 0 -> +70deg
+  const gifSpin1 = gifRotateAnim1.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ['0deg', '70deg'],
   });
 
-  // Interpolate batik swing: -1 -> -10deg, 0 -> 0deg, 1 -> 10deg
-  const batikSwing = batikSwingAnim.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ['-10deg', '0deg', '10deg'],
+  // GIF 2: 0 -> -70deg
+  const gifSpin2 = gifRotateAnim2.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '-70.9deg'],
+  });
+
+    
+    const gifY1anim = gifY1.interpolate({
+       inputRange:[0,1],
+       outputRange: [0, 200]  // bergerak 200px ke bawah menuju samping dadu
+     });
+
+  const gifX1anim = gifX1.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 80],  // bergerak 80px ke kanan masuk ke area dadu
+  });
+
+  
+
+  
+  // Batik 1: swings right (translateX positive)
+  const batikTranslate1 = batikSwingAnim1.interpolate({
+    inputRange: [-1, 1],
+    outputRange: [-12, 12],
+  });
+
+  // Batik 2: swings left (translateX negative, opposite of batik 1)
+  const batikTranslate2 = batikSwingAnim2.interpolate({
+    inputRange: [-1, 1],
+    outputRange: [-12, 12],
   });
 
   // Render dots based on dice value
@@ -103,10 +179,6 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
 
     const pattern = dotPatterns[value] || [];
     
-
-
-       
-   
 
 
 
@@ -158,19 +230,19 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
 
          <Animated.Image
             source={getBatikSource(batikId)}
-            style={[styles.batikBackground, { transform: [{ rotate: batikSwing }] }]}
+            style={[styles.batikBackground]}
             resizeMode="cover"
           />
          <Animated.Image
             source={getBatikSource(batikId)}
-            style={[styles.batikBackground2, { transform: [{ rotate: batikSwing }] }]}
+            style={[styles.batikBackground2]}
             resizeMode="cover"
           />
 
           {/* User Name */}
           {userName && (
             <Text style={styles.userNameText} numberOfLines={1}>
-             #{userName}
+             Giliran Kamu
             </Text>
           )}
 
@@ -178,16 +250,12 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
           <View>
             <Animated.Image
               source={require('../../assets/dolanan_assets/snake_motion2.gif')}
-              style={[styles.snakegifcontainer, { transform: [{ rotate: gifSpin }] }]}
+              style={[styles.snakegifcontainer, { transform: [{ rotate: gifSpin1 }] }]}
               resizeMode="contain"
             />
           </View>
           <View>
-            <Animated.Image
-              source={require('../../assets/dolanan_assets/snake_motion2.gif')}
-              style={[styles.snakegifcontainer2, { transform: [{ rotate: '0deg' }, { scaleX: -1 }, { rotate: gifSpin }] }]}
-              resizeMode="contain"
-            />
+          
           </View>
       
           {/* Multi-layer Border: White → Black → Dice */}
@@ -198,6 +266,9 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
               </View>
             </View>
           </View>
+
+          {/* Angka Dadu */}
+          <Text style={styles.diceNumber}>{value}</Text>
 
           <Text style={styles.rollText}>
             {disabled ? 'Tunggu...' : 'Kocok Dadu'}
@@ -232,7 +303,8 @@ const styles = StyleSheet.create({
     borderWidth: 9,
     borderColor: '#1a5a8f', // Dark blue
     borderRadius: 60,
-   
+    borderTopLeftRadius:0,
+    borderBottomRightRadius:0,
     justifyContent:"center",
     alignItems:"center",
     marginTop: -645,
@@ -243,8 +315,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     borderRadius: 50,
-    borderBottomRightRadius: 50,
+    borderBottomRightRadius: 0,
     borderBottomLeftRadius: 50,
+    borderTopLeftRadius: 0,
+    backgroundColor:"#ffffffff",
+    width:"100%",
+    
   },
   daduContainer: {
     backgroundColor: '#2976BF',
@@ -252,10 +328,11 @@ const styles = StyleSheet.create({
     width: 300,
     borderWidth: 15,
     borderColor: '#ffffff', // White border (already exists)
- 
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 50,
+    borderTopLeftRadius:0,
+    borderBottomRightRadius:0,
 
 
   },
@@ -273,13 +350,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 90,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    shadowColor: '#f4f4f4ff',
+    backgroundColor: 'rgba(255, 255, 255, 0.41)',
+    shadowColor: '#f4f4f46f',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 15,
     borderWidth:3.5,
     borderColor:"#ffffff32",
+    borderRadius:30,
+       transform: [{ rotate: '15deg' }, { scale:1.2  }], 
 
   },
   daduDisabled: {
@@ -374,6 +453,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
+  diceNumber: {
+    position:'absolute',
+    zIndex:2,
+    fontSize: 90,
+    color: '#FFFFFF',
+    fontFamily: 'SquadaOne',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+    letterSpacing: 4,
+   
+    bottom:10,
+    right:30,
+  },
 
 
   snakegifcontainer: {
@@ -392,8 +486,8 @@ const styles = StyleSheet.create({
     zIndex: 2,
     width: 75,
     height: 75,
-    bottom:-260,
-    right:-120,
+    bottom:-270,
+    right:-130,
     backgroundColor: '#2976BF',
     borderRadius: 30,
     transform: [{ rotate: '0deg' }, { scaleX: -1 }], 
@@ -407,10 +501,10 @@ const styles = StyleSheet.create({
     borderRadius:2,
     borderWidth:3.5,
     borderColor:"#ffff",
-    bottom:20,
+    bottom:10,
     left:20,
     borderTopRightRadius:20,
-
+    
     borderBottomLeftRadius:20,
   },
   batikBackground2 :{
@@ -421,7 +515,7 @@ const styles = StyleSheet.create({
     borderRadius:2,
     borderWidth:3.5,
     borderColor:"#ffff",
-    bottom:70,
+    bottom:50,
     left:20,
     borderTopRightRadius:20,
     borderBottomLeftRadius:20,
