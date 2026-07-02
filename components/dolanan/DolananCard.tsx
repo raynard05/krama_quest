@@ -16,18 +16,18 @@ interface DolananCardProps {
   onDolananStart?: () => void;
 }
 
-export default function DolananCard({ 
-  onPemantikStart, 
-  onDolananStart 
+export default function DolananCard({
+  onPemantikStart,
+  onDolananStart
 }: DolananCardProps) {
   const [activeTab, setActiveTab] = useState<TabType>('pemantik');
-  
+
   // Animation values for tabs
   const pemantikScale = useRef(new Animated.Value(1)).current;
   const pemantikTranslateY = useRef(new Animated.Value(0)).current;
   const dolananScale = useRef(new Animated.Value(1)).current;
   const dolananTranslateY = useRef(new Animated.Value(8)).current;
-  
+
   // Animation values for icon
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -44,6 +44,7 @@ export default function DolananCard({
       bgColor: '#FFFFFF',
       tabBgColor: '#FFFFFF',
       tabTextColor: '#1F2937',
+
     },
     dolanan: {
       title: 'Dolanan',
@@ -55,7 +56,7 @@ export default function DolananCard({
       bgColor: '#2976BF',
       tabBgColor: '#2976BF',
       tabTextColor: '#FFFFFF',
-      
+
     },
   };
 
@@ -165,7 +166,7 @@ export default function DolananCard({
 
   const handleTabPress = (tab: TabType) => {
     setActiveTab(tab);
-    
+
     // Scale animation for content
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -250,10 +251,10 @@ export default function DolananCard({
         </View>
 
         {/* Content Section with Dynamic Background */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.contentSection,
-            { 
+            {
               backgroundColor: currentTab.bgColor,
               transform: [{ scale: scaleAnim }],
             },
@@ -269,15 +270,15 @@ export default function DolananCard({
                 ],
               }}
             >
-              <IconComponent 
-                color={currentTab.iconColor} 
+              <IconComponent
+                color={currentTab.iconColor}
                 size={60}
                 strokeWidth={2}
               />
             </Animated.View>
           </View>
 
-          <Text 
+          <Text
             style={[
               styles.contentTitle,
               activeTab === 'dolanan' && styles.contentTitleWhite,
@@ -285,8 +286,8 @@ export default function DolananCard({
           >
             {currentTab.title}
           </Text>
-          
-          <Text 
+
+          <Text
             style={[
               styles.contentDescription,
               activeTab === 'dolanan' && styles.contentDescriptionWhite,

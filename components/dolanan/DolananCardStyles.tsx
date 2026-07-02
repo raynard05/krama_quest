@@ -4,21 +4,21 @@ export const styles = StyleSheet.create({
   cardWrapper: {
     marginHorizontal: 20,
     marginVertical: 10,
-  
+
   },
   cardContainer: {
-   
+
     overflow: 'hidden', // Prevent tabs from going outside
   },
-  
+
   // Tab Switcher Styles with 3D Effect matching card colors
   tabContainer: {
     flexDirection: 'row',
-  
+
     overflow: 'hidden',
     position: 'relative',
     height: 65,
-    marginBottom:-6,
+    marginBottom: -6,
     paddingHorizontal: 0,
   },
   tabButtonWrapper: {
@@ -32,22 +32,23 @@ export const styles = StyleSheet.create({
   },
   tabButtonLeft: {
     borderTopLeftRadius: 24,
-    borderTopEndRadius:40,
+    borderTopEndRadius: 40,
   },
   tabButtonRight: {
     borderTopRightRadius: 24,
     borderTopStartRadius: 40,
   },
-  
+
   // Tab button colors matching card colors
   tabButtonPemantik: {
     backgroundColor: '#FFFFFF',
-    
+
+
   },
   tabButtonDolanan: {
     backgroundColor: '#2976BF',
   },
-  
+
   // Tab inactive margins
   tabInactiveLeft: {
     marginRight: 15,
@@ -55,18 +56,24 @@ export const styles = StyleSheet.create({
   tabInactiveRight: {
     marginLeft: 15,
   },
-  
+
   // Tab text colors
   tabText: {
     fontSize: 19,
     fontWeight: '700',
-   fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-Bold',
   },
   tabTextPemantik: {
     color: '#1F2937',
+    fontSize: 19,
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
   },
   tabTextDolanan: {
     color: '#FFFFFF',
+    fontSize: 19,
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
   },
 
   // Content Section Styles
@@ -76,7 +83,7 @@ export const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
-  
+
   // Icon Styles
   iconContainer: {
     alignItems: 'center',
@@ -84,7 +91,7 @@ export const styles = StyleSheet.create({
     marginBottom: 24,
     marginTop: 12,
   },
-  
+
   contentTitle: {
     fontSize: 26,
     fontWeight: 'bold',
@@ -116,7 +123,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 12,
     shadowColor: '#000',
-    borderWidth:1,
+    borderWidth: 1,
     borderColor: "#fff",
     shadowOffset: {
       width: 0,
