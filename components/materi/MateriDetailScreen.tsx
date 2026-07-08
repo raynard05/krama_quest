@@ -8,10 +8,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  
 } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
+
 import styles from '../../styles/materi/MateriStyles';
 import { rs, scaleFont, vw, vh } from '../../utils/responsive';
+import BackButton from '../BackButton';
 
 interface MateriDetailScreenProps {
   nodeId: number;
@@ -83,10 +85,8 @@ export default function MateriDetailScreen({ nodeId, title, onBack }: MateriDeta
           
           {/* Custom Header with Back Button (returns to roadmap list) */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
-              <ArrowLeft color="#FFFFFF" size={22} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Materi</Text>
+            <BackButton onPress={onBack} />
+            <Image source={require('../../assets/title_board/materi.png')} style={{ width: 140, height: 45 }} resizeMode="contain" />
             <View style={styles.headerPlaceholder} />
           </View>
 

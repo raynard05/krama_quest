@@ -47,11 +47,11 @@ const ROADMAP_DATA: RoadmapNode[] = [
 ];
 
 interface MateriRoadmapProps {
-  activeNodeId: number;
+  visitedNodeIds: number[];
   onNodePress: (nodeId: number) => void;
 }
 
-export default function MateriRoadmap({ activeNodeId, onNodePress }: MateriRoadmapProps) {
+export default function MateriRoadmap({ visitedNodeIds, onNodePress }: MateriRoadmapProps) {
   const [containerWidth, setContainerWidth] = useState(320);
   const offsetAnim = useRef(new Animated.Value(0)).current;
 
@@ -127,7 +127,7 @@ export default function MateriRoadmap({ activeNodeId, onNodePress }: MateriRoadm
                 >
                   <View style={[
                     styles.nodeCircle,
-                    { backgroundColor: node.id === activeNodeId ? '#FF9F0A' : '#1E6FE3' }
+                    { backgroundColor: visitedNodeIds.includes(node.id) ? '#FF9F0A' : '#1E6FE3' }
                   ]}>
                     <Text style={styles.circleNumber}>{node.id}</Text>
                   </View>
@@ -156,7 +156,7 @@ export default function MateriRoadmap({ activeNodeId, onNodePress }: MateriRoadm
                 >
                   <View style={[
                     styles.nodeCircle,
-                    { backgroundColor: node.id === activeNodeId ? '#FF9F0A' : '#1E6FE3' }
+                    { backgroundColor: visitedNodeIds.includes(node.id) ? '#FF9F0A' : '#1E6FE3' }
                   ]}>
                     <Text style={styles.circleNumber}>{node.id}</Text>
                   </View>

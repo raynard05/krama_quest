@@ -15,6 +15,7 @@ import Svg, { Circle, LinearGradient, Stop, Defs, Pattern, Rect, Image as SvgIma
 import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerStyles';
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 import { PROFILE_AVATARS, getAvatarSource, AvatarItem, PROFILE_BATIKS, getBatikSource } from './ProfileAvatars';
+import BackButton from '../BackButton';
 
 interface AvatarPickerScreenProps {
   initialAvatarId: string | undefined;
@@ -168,10 +169,8 @@ export default function AvatarPickerScreen({
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
-              <ArrowLeft color="#FFFFFF" size={22} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Kustomisasi</Text>
+            <BackButton onPress={onBack} />
+            <Image source={require('../../assets/title_board/profile.png')} style={{ width: 140, height: 45 }} resizeMode="contain" />
             <View style={styles.headerPlaceholder} />
           </View>
 

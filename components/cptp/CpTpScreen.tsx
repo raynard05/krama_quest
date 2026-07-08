@@ -7,10 +7,12 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  
 } from 'react-native';
-import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import styles from '../../styles/cptp/CpTpStyles';
 import { rs, scaleFont } from '../../utils/responsive';
+import BackButton from '../BackButton';
 
 interface CpTpScreenProps {
   onBack: () => void;
@@ -86,10 +88,8 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
           
           {/* Custom Header with Back Button */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
-              <ArrowLeft color="#FFFFFF" size={22} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Capaian Pembelajaran{"\n"}& ATP</Text>
+            <BackButton onPress={onBack} />
+            <Image source={require('../../assets/title_board/cp.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
             <View style={styles.headerPlaceholder} />
           </View>
 

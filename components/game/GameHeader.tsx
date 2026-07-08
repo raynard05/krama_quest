@@ -1,8 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
-import { ArrowLeft, RotateCcw } from 'lucide-react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Image
+} from 'react-native';
+import { RotateCcw } from 'lucide-react-native';
 import { Player } from '../../types';
 import { getGacoImageSource } from './Board';
+import BackButton from '../BackButton';
 
 interface GameHeaderProps {
   players: Player[];
@@ -42,10 +49,7 @@ export default function GameHeader({
     <View style={styles.container}>
       {/* Top Bar Navigation */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.iconButton} onPress={onBackToLobby} activeOpacity={0.7}>
-          <ArrowLeft color="#FFFFFF" size={20} />
-          <Text style={styles.backText}>Lobby</Text>
-        </TouchableOpacity>
+        <BackButton onPress={onBackToLobby} />
 
         <TouchableOpacity style={styles.iconButton} onPress={onResetGame} activeOpacity={0.7}>
           <RotateCcw color="#FFFFFF" size={16} />

@@ -9,6 +9,7 @@ import {
   Image,
   TextInput,
   PanResponder,
+  ImageBackground,
 } from 'react-native';
 import { Users, Cpu } from 'lucide-react-native';
 import { styles } from './GameSetupCardStyles';
@@ -634,13 +635,19 @@ export default function GameSetupCard({
                 style={[
                   styles.tabButton,
                   styles.tabButtonLeft,
-                  styles.tabButtonLokal,
                   activeMode !== 'lokal' && styles.tabInactiveLeft,
+                  { paddingVertical: 0, overflow: 'hidden' }
                 ]}
                 onPress={() => handleModePress('lokal')}
                 activeOpacity={1}
               >
-                <Text style={styles.tabTextLokal}>Offline</Text>
+                <ImageBackground
+                  source={require('../../assets/texture/texture2.png')}
+                  style={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', paddingVertical: 21 }}
+                  resizeMode="cover"
+                >
+                  <Text style={styles.tabTextLokal}>Offline</Text>
+                </ImageBackground>
               </TouchableOpacity>
             </Animated.View>
 
@@ -660,21 +667,31 @@ export default function GameSetupCard({
                 style={[
                   styles.tabButton,
                   styles.tabButtonRight,
-                  styles.tabButtonOnline,
                   activeMode !== 'online' && styles.tabInactiveRight,
+                  { paddingVertical: 0, overflow: 'hidden' }
                 ]}
                 onPress={() => handleModePress('online')}
                 activeOpacity={1}
               >
-                <Text style={styles.tabTextOnline}>Online</Text>
+                <ImageBackground
+                  source={require('../../assets/texture/texture1.png')}
+                  style={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', paddingVertical: 21 }}
+                  resizeMode="cover"
+                >
+                  <Text style={styles.tabTextOnline}>Online</Text>
+                </ImageBackground>
               </TouchableOpacity>
             </Animated.View>
           </View>
 
-          <View style={[
-            styles.contentSection,
-            { backgroundColor: activeMode === 'lokal' ? '#FFFFFF' : '#2976BF' }
-          ]}>
+          <ImageBackground 
+            source={activeMode === 'lokal' ? require('../../assets/texture/texture2.png') : require('../../assets/texture/texture1.png')}
+            style={[
+              styles.contentSection,
+              { overflow: 'hidden' }
+            ]}
+            resizeMode="cover"
+          >
           {/* Player Tabs: Player 1 / Player 2 - Only for Lokal Mode */}
           {activeMode === 'lokal' && (
             <View style={styles.playerTabContainer}>
@@ -1220,7 +1237,7 @@ export default function GameSetupCard({
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </ImageBackground>
       </View>
       )}
     </View>

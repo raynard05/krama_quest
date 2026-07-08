@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import {
+
   View,
   Text,
   Image,
   ImageBackground,
   ScrollView,
   TouchableOpacity,
+
 } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
+
 import styles from './GameScreenStyle';
 import Board from './Board';
 import Dadu from './Dadu';
-
+import BackButton from '../BackButton';
 interface GameScreenProps {
   currentUser: any;
   onBack: () => void;
@@ -56,13 +58,7 @@ export default function GameScreen({
           <View style={{ flex: 1 }}>
             {/* Custom Header with Back Button */}
             <View style={styles.header}>
-              <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={onBack} 
-                activeOpacity={0.7}
-              >
-                <ArrowLeft color="#FFFFFF" size={22} />
-              </TouchableOpacity>
+              <BackButton onPress={onBack} />
               <Text style={styles.headerTitle}>Pemantik</Text>
               <View style={styles.headerPlaceholder} />
             </View>
@@ -71,10 +67,10 @@ export default function GameScreen({
             <View style={styles.contentBody}>
               {/* Board Component */}
               <Board />
-              
+
               {/* Dadu Component */}
-              <Dadu 
-                value={diceValue} 
+              <Dadu
+                value={diceValue}
                 onRoll={handleRollDice}
                 disabled={isRolling}
                 avatarId={currentUser?.avatarId}

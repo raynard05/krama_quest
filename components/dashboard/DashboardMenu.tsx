@@ -15,6 +15,8 @@ import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardStyles';
 import DashboardMenuCard from './DashboardMenuCard';
 import DashboardProfileModal from './DashboardProfileModal';
+import DashboardCarousel from './DashboardCarousel';
+import DashboardEnsiklopediaCard from './DashboardEnsiklopediaCard';
 import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
 
 interface DashboardMenuProps {
@@ -227,16 +229,13 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
               </TouchableOpacity>
             </View>
 
-            {/* Mascot Banner */}
-            <View style={styles.bannerContainer}>
-              <View style={styles.bannerMain}>
-                <Image
-                  source={require('../../assets/dashboard_assets/greeting3.png')}
-                  style={styles.bannerImage}
-                  resizeMode="cover"
-                />
-              </View>
-            </View>
+
+
+            <DashboardCarousel 
+              onSelectDolanan={onSelectDolanan}
+              onOpenProfile={onOpenProfile}
+              onSelectMateri={onSelectMateri}
+            />
 
             {/* Grid of Menu Cards */}
             <View style={styles.gridContainer}>
@@ -267,6 +266,9 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                 }}
               />
             </View>
+
+            {/* Ensiklopedia Button Below Grid */}
+            <DashboardEnsiklopediaCard onPress={() => console.log('Ensiklopedia clicked')} />
 
           </ScrollView>
         </View>

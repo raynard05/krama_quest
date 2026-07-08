@@ -6,14 +6,16 @@ import {
   ImageBackground,
   ScrollView,
   TouchableOpacity,
+
 } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
+
 import styles from '../../styles/dolanan/DolananStyles';
 import DolananCard from './DolananCard';
 import GameSetupCard from './GameSetupCard';
 import { supabase } from '../../services/AuthService';
 
 import { ProfileService } from '../../services/ProfileService';
+import BackButton from '../BackButton';
 
 interface DolananScreenProps {
   currentUser: any;
@@ -66,7 +68,7 @@ export default function DolananScreen({
     console.log('Starting game with config:', config);
     if (config.mode === 'lokal') {
       const player1GacoId = String(config.player1Gaco + 1);
-      
+
       try {
         // Save host selected gaco directly to database
         await ProfileService.updateUserGaco(currentUserId, player1GacoId);
@@ -74,30 +76,30 @@ export default function DolananScreen({
         console.warn('Failed to update host gaco on local game start:', err);
       }
 
-      const opponentName = config.opponentType === 'komputer' 
-        ? 'Komputer' 
-        : (config.opponentPlayerId 
-            ? (availablePlayers.find(p => p.id === config.opponentPlayerId)?.nama_lengkap || 'Pemain 2') 
-            : 'Pemain 2');
+      const opponentName = config.opponentType === 'komputer'
+        ? 'Komputer'
+        : (config.opponentPlayerId
+          ? (availablePlayers.find(p => p.id === config.opponentPlayerId)?.nama_lengkap || 'Pemain 2')
+          : 'Pemain 2');
 
       const localPlayers = [
-        { 
-          id: 1, 
-          name: currentUser?.nama_lengkap || 'Pemain 1', 
-          color: '#2976BF', 
+        {
+          id: 1,
+          name: currentUser?.nama_lengkap || 'Pemain 1',
+          color: '#2976BF',
           icon: String(currentUserId), // database userId
-          position: 0, 
-          type: 'human', 
-          isWinner: false 
+          position: 0,
+          type: 'human',
+          isWinner: false
         },
-        { 
-          id: 2, 
-          name: opponentName, 
-          color: '#EF4444', 
+        {
+          id: 2,
+          name: opponentName,
+          color: '#EF4444',
           icon: String(config.opponentPlayerId || 0), // opponent userId, or '0' for computer
-          position: 0, 
-          type: config.opponentType === 'komputer' ? 'computer' : 'human', 
-          isWinner: false 
+          position: 0,
+          type: config.opponentType === 'komputer' ? 'computer' : 'human',
+          isWinner: false
         }
       ];
       onStartLocalGame(localPlayers);
@@ -132,16 +134,8 @@ export default function DolananScreen({
           <View style={{ flex: 1 }}>
             {/* Custom Header with Back Button */}
             <View style={styles.header}>
-              <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={showGameSetup ? handleBackFromSetup : onBack} 
-                activeOpacity={0.7}
-              >
-                <ArrowLeft color="#FFFFFF" size={22} />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>
-                {showGameSetup ? 'Setup Game' : 'Dolanan'}
-              </Text>
+              <BackButton onPress={showGameSetup ? handleBackFromSetup : onBack} />
+              <Image source={require('../../assets/title_board/dolanan.png')} style={{ width: 150, height: 50 }} resizeMode="contain" />
               <View style={styles.headerPlaceholder} />
             </View>
 
@@ -149,12 +143,12 @@ export default function DolananScreen({
             <View style={styles.contentBody}>
               {!showGameSetup ? (
                 // Show DolananCard (Pemantik/Dolanan selection)
-                <DolananCard 
+                <DolananCard
                   onPemantikStart={handlePemantikStart}
                   onDolananStart={handleDolananStart}
                 />
               ) : (
-                // Show GameSetupCard (Lokal/Online, Player setup)
+                // Show GameSetupCard (Lokal/Online, Player setup)   
                 <GameSetupCard
                   currentUserId={currentUserId}
                   currentUserAvatarId={currentUser?.avatarId}
@@ -168,7 +162,7 @@ export default function DolananScreen({
           {/* Bottom Section: Jembatan Illustration */}
           <View style={styles.bottomSection}>
             <Image
-              source={require('../../assets/dolanan_assets/jembatan.webp')}
+              source={require('../../assets/dolanan_assets/ship_bg.webp')}
               style={styles.cityImg}
               resizeMode="cover"
             />

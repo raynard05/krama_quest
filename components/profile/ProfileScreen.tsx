@@ -8,10 +8,11 @@ import {
   ImageBackground,
   Alert
 } from 'react-native';
-import { ArrowLeft, ChevronRight, Edit2, History, Settings, Info } from 'lucide-react-native';
+import { ChevronRight, Edit2, History, Settings, Info } from 'lucide-react-native';
 import type { UserAccount } from '../../services/AuthService';
 import { ProfileStyles as styles } from '../../styles/profile/ProfileStyles';
 import { getAvatarSource } from './ProfileAvatars';
+import BackButton from '../BackButton';
 
 interface ProfileScreenProps {
   currentUser: (UserAccount & { avatarId?: string }) | null;
@@ -26,7 +27,7 @@ export default function ProfileScreen({
   onNavigateToHistory,
   onEditAvatar
 }: ProfileScreenProps) {
-  
+
   const displayName = currentUser?.nama_lengkap || 'Pemain Krama Quest';
   const schoolClass = currentUser?.kelas ? `Siswa Kelas ${currentUser.kelas}` : 'Siswa TK An Nur';
 
@@ -45,10 +46,8 @@ export default function ProfileScreen({
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Custom Header */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
-              <ArrowLeft color="#FFFFFF" size={22} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Profile</Text>
+            <BackButton onPress={onBack} />
+            <Image source={require('../../assets/title_board/profile.png')} style={{ width: 140, height: 45 }} resizeMode="contain" />
             <View style={styles.headerPlaceholder} />
           </View>
 
@@ -72,7 +71,12 @@ export default function ProfileScreen({
           </View>
 
           {/* Stats Card Unified */}
-          <View style={styles.statsCardUnified}>
+          <ImageBackground
+            source={require('../../assets/texture/texture2.png')}
+            style={styles.statsCardUnified}
+            imageStyle={{ borderRadius: 24 }} // opacity set so it blends well as a texture
+            resizeMode="cover"
+          >
             {/* Stat 1: Materi */}
             <View style={styles.statCol}>
               <Image
@@ -109,10 +113,15 @@ export default function ProfileScreen({
               <Text style={styles.statValue}>98%</Text>
               <Text style={styles.statLabel}>Skor Rata-rata</Text>
             </View>
-          </View>
+          </ImageBackground>
 
           {/* Options Card Unified */}
-          <View style={styles.optionsCard}>
+          <ImageBackground
+            source={require('../../assets/texture/texture2.png')}
+            style={styles.optionsCard}
+            imageStyle={{ borderRadius: 23 }}
+            resizeMode="cover"
+          >
             {/* Option 1: Riwayat Sinau */}
             <TouchableOpacity
               style={styles.optionRow}
@@ -161,7 +170,7 @@ export default function ProfileScreen({
               </View>
               <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
             </TouchableOpacity>
-          </View>
+          </ImageBackground>
         </ScrollView>
       </ImageBackground>
     </View>

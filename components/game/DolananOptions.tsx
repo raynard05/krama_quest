@@ -8,9 +8,11 @@ import {
   Dimensions,
   SafeAreaView,
   Modal,
-  ScrollView
+  ScrollView,
+  Image
 } from 'react-native';
-import { ArrowLeft, Gamepad2, X, Info, HelpCircle } from 'lucide-react-native';
+import { Gamepad2, X, Info, HelpCircle } from 'lucide-react-native';
+import BackButton from '../BackButton';
 
 const { width } = Dimensions.get('window');
 
@@ -27,9 +29,7 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack} activeOpacity={0.7}>
-          <ArrowLeft color="#1C1C1E" size={24} />
-        </TouchableOpacity>
+        <BackButton onPress={onBack} />
         <Text style={styles.headerTitle}>Pilihan Dolanan</Text>
         <View style={styles.headerSpacer} />
       </View>

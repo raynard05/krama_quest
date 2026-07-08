@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
   },
   tabTextPemantik: {
-    color: '#1F2937',
+    color: '#000000ff',
     fontSize: 19,
     fontWeight: '700',
     fontFamily: 'Poppins-Bold',
@@ -104,7 +104,7 @@ export const styles = StyleSheet.create({
   },
   contentDescription: {
     fontSize: 15,
-    color: '#6B7280',
+    color: '#000000ff',
     lineHeight: 23,
     marginBottom: 28,
     textAlign: 'center',

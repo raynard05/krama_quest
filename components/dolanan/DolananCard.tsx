@@ -5,9 +5,12 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
+  ImageBackground,
 } from 'react-native';
 import { Lightbulb, Gamepad2 } from 'lucide-react-native';
 import { styles } from "./DolananCardStyles";
+
+const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground);
 
 export type TabType = 'pemantik' | 'dolanan';
 
@@ -40,7 +43,7 @@ export default function DolananCard({
       buttonText: 'Mulai Pemantik',
       onPress: onPemantikStart,
       icon: Lightbulb,
-      iconColor: '#F59E0B',
+      iconColor: '#000000ff',
       bgColor: '#FFFFFF',
       tabBgColor: '#FFFFFF',
       tabTextColor: '#1F2937',
@@ -184,7 +187,7 @@ export default function DolananCard({
 
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '120deg'],
+    outputRange: ['0deg', '360deg'],
   });
 
   return (
@@ -209,15 +212,21 @@ export default function DolananCard({
               style={[
                 styles.tabButton,
                 styles.tabButtonLeft,
-                styles.tabButtonPemantik,
                 activeTab !== 'pemantik' && styles.tabInactiveLeft,
+                { paddingVertical: 0, overflow: 'hidden' }
               ]}
               onPress={() => handleTabPress('pemantik')}
               activeOpacity={1}
             >
-              <Text style={styles.tabTextPemantik}>
-                Pemantik
-              </Text>
+              <ImageBackground
+                source={require('../../assets/texture/texture2.png')}
+                style={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', paddingVertical: 21 }}
+                resizeMode="cover"
+              >
+                <Text style={styles.tabTextPemantik}>
+                  Pemantik
+                </Text>
+              </ImageBackground>
             </TouchableOpacity>
           </Animated.View>
 
@@ -237,28 +246,36 @@ export default function DolananCard({
               style={[
                 styles.tabButton,
                 styles.tabButtonRight,
-                styles.tabButtonDolanan,
                 activeTab !== 'dolanan' && styles.tabInactiveRight,
+                { paddingVertical: 0, overflow: 'hidden' }
               ]}
               onPress={() => handleTabPress('dolanan')}
               activeOpacity={1}
             >
-              <Text style={styles.tabTextDolanan}>
-                Dolanan
-              </Text>
+              <ImageBackground
+                source={require('../../assets/texture/texture1.png')}
+                style={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', paddingVertical: 21 }}
+                resizeMode="cover"
+              >
+                <Text style={styles.tabTextDolanan}>
+                  Dolanan
+                </Text>
+              </ImageBackground>
             </TouchableOpacity>
           </Animated.View>
         </View>
 
         {/* Content Section with Dynamic Background */}
-        <Animated.View
+        <AnimatedImageBackground
+          source={activeTab === 'pemantik' ? require('../../assets/texture/texture2.png') : require('../../assets/texture/texture1.png')}
           style={[
             styles.contentSection,
             {
-              backgroundColor: currentTab.bgColor,
               transform: [{ scale: scaleAnim }],
+              overflow: 'hidden',
             },
           ]}
+          resizeMode="cover"
         >
           {/* Animated Icon */}
           <View style={styles.iconContainer}>
@@ -304,7 +321,7 @@ export default function DolananCard({
           >
             <Text style={styles.startButtonText}>{currentTab.buttonText}</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </AnimatedImageBackground>
       </View>
     </View>
   );

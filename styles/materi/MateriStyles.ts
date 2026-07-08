@@ -36,11 +36,6 @@ const MateriStyles = StyleSheet.create({
     marginBottom: vh(-4),
   },
   backButton: {
-    padding: rs(8, 10, 12),
-    borderRadius: rs(10, 12, 14),
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -3,6 +3,7 @@ import {
   Text,
   TouchableOpacity,
   Animated,
+  ImageBackground,
 } from 'react-native';
 import styles from '../../styles/dashboard/DashboardMenuCardStyles';
 
@@ -81,14 +82,21 @@ export default function DashboardMenuCard({ title, imageSource, onPress, type }:
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.9}
-        style={cardStyle}
+        style={{ flex: 1 }}
       >
-        <Animated.Image
-          source={imageSource}
-          style={[styles.cardImage, { transform: [{ rotate }] }]}
-          resizeMode="contain"
-        />
-        <Text style={titleStyle}>{title}</Text>
+        <ImageBackground
+          source={require('../../assets/dashboard_assets/option_button.png')}
+          style={cardStyle}
+          imageStyle={{ borderRadius: 24 }}
+          resizeMode="stretch"
+        >
+          <Animated.Image
+            source={imageSource}
+            style={[styles.cardImage, { transform: [{ rotate }] }]}
+            resizeMode="contain"
+          />
+          <Text style={titleStyle}>{title}</Text>
+        </ImageBackground>
       </TouchableOpacity>
     </Animated.View>
   );
