@@ -3,11 +3,9 @@ import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   ScrollView,
   ImageBackground
 } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
 import { HistoryStyles as styles } from '../../styles/profile/HistoryStyles';
 import BackButton from '../BackButton';
 import { ProgressService } from '../../services/ProgressService';
@@ -24,11 +22,14 @@ interface HistoryItem {
   mascot: any;
 }
 
+const CHARACTER_HISTORY = require('../../assets/profile/character_history.png');
+const TEXTURE_BG = require('../../assets/texture/texture2ver.png');
+
 const MATERI_DATA: Record<number, { title: string, mascot: any }> = {
-  1: { title: 'Materi Unggah-Unggah', mascot: require('../../assets/dashboard_assets/greeting.webp') },
-  2: { title: 'Krama Inggil', mascot: require('../../assets/dashboard_assets/greeting.webp') },
-  3: { title: 'Krama Madya', mascot: require('../../assets/dashboard_assets/greeting.webp') },
-  4: { title: 'Basa Ngoko', mascot: require('../../assets/dashboard_assets/greeting.webp') },
+  1: { title: 'Materi Unggah-Unggah', mascot: CHARACTER_HISTORY },
+  2: { title: 'Krama Inggil', mascot: CHARACTER_HISTORY },
+  3: { title: 'Krama Madya', mascot: CHARACTER_HISTORY },
+  4: { title: 'Basa Ngoko', mascot: CHARACTER_HISTORY },
 };
 
 export default function HistoryScreen({ onBack }: HistoryScreenProps) {
@@ -43,11 +44,11 @@ export default function HistoryScreen({ onBack }: HistoryScreenProps) {
     
     // Convert visited IDs into HistoryItem objects
     const items: HistoryItem[] = visitedIds.map(id => {
-      const data = MATERI_DATA[id] || { title: `Materi ${id}`, mascot: require('../../assets/dashboard_assets/greeting.webp') };
+      const data = MATERI_DATA[id] || { title: `Materi ${id}`, mascot: CHARACTER_HISTORY };
       return {
         id: String(id),
         title: data.title,
-        date: 'Sudah Dibaca', // You can enhance this to save real dates later in ProgressService
+        date: 'Sudah Dibaca',
         status: 'Rampung',
         mascot: data.mascot,
       };
@@ -79,20 +80,34 @@ export default function HistoryScreen({ onBack }: HistoryScreenProps) {
             </View>
           ) : (
             historyItems.map((item) => (
-              <View key={item.id} style={styles.card}>
-                <Image source={item.mascot} style={styles.mascotImage} resizeMode="contain" />
-                <View style={styles.cardContent}>
-                  <Text style={styles.materialTitle}>{item.title}</Text>
-                  <Text style={styles.dateText}>{item.date}</Text>
-                  <View style={styles.statusContainer}>
-                    <Text style={styles.statusText}>
-                      Status: <Text style={{ color: '#16A34A' }}>{item.status}</Text>
-                    </Text>
+              <View key={item.id} style={styles.cardWrapper}>
+                <ImageBackground
+                  source={TEXTURE_BG}
+                  style={styles.card}
+                  imageStyle={styles.cardTextureImage}
+                  resizeMode="cover"
+                >
+                  {/* Spacer for character area */}
+                  <View style={styles.mascotArea} />
+
+                  {/* Text content */}
+                  <View style={styles.cardContent}>
+                    <Text style={styles.materialTitle}>{item.title}</Text>
+                    <Text style={styles.dateText}>{item.date}</Text>
+                    <View style={styles.statusContainer}>
+                      <Text style={styles.statusText}>
+                        Status: <Text style={{ color: '#16A34A', fontFamily: 'Poppins-Bold' }}>{item.status}</Text>
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <TouchableOpacity style={styles.chevronButton} activeOpacity={0.6}>
-                  <ChevronRight color="#64748B" size={20} />
-                </TouchableOpacity>
+                </ImageBackground>
+
+                {/* Character overlapping bottom-left of card */}
+                <Image
+                  source={item.mascot}
+                  style={styles.mascotImage}
+                  resizeMode="contain"
+                />
               </View>
             ))
           )}

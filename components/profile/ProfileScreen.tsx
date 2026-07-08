@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import type { UserAccount } from '../../services/AuthService';
 import { ProfileStyles as styles } from '../../styles/profile/ProfileStyles';
 import { getAvatarSource } from './ProfileAvatars';
 import BackButton from '../BackButton';
+import { ProgressService } from '../../services/ProgressService';
 
 interface ProfileScreenProps {
   currentUser: (UserAccount & { avatarId?: string }) | null;
@@ -27,6 +28,16 @@ export default function ProfileScreen({
   onNavigateToHistory,
   onEditAvatar
 }: ProfileScreenProps) {
+  const [materiCount, setMateriCount] = useState(0);
+
+  const loadMateriCount = useCallback(async () => {
+    const visited = await ProgressService.getVisitedMateri();
+    setMateriCount(visited.length);
+  }, []);
+
+  useEffect(() => {
+    loadMateriCount();
+  }, [loadMateriCount]);
 
   const displayName = currentUser?.nama_lengkap || 'Pemain Krama Quest';
   const schoolClass = currentUser?.kelas ? `Siswa Kelas ${currentUser.kelas}` : 'Siswa TK An Nur';
@@ -84,7 +95,7 @@ export default function ProfileScreen({
                 style={styles.statIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.statValue}>5</Text>
+              <Text style={styles.statValue}>{materiCount}</Text>
               <Text style={styles.statLabel}>Materi Rampung</Text>
             </View>
 

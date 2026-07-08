@@ -102,14 +102,19 @@ export default function MateriDetailScreen({ nodeId, title, onBack }: MateriDeta
             />
           </View>
 
-          {/* White Content Card at the bottom */}
-          <View style={localStyles.contentCard}>
+          {/* Parchment Content Card at the bottom */}
+          <ImageBackground
+            source={require('../../assets/texture/texture3.png')}
+            style={localStyles.contentCard}
+            imageStyle={localStyles.contentCardImage}
+            resizeMode="cover"
+          >
             {content.paragraphs.map((p, idx) => (
               <Text key={idx} style={localStyles.paragraphText}>
                 {p}
               </Text>
             ))}
-          </View>
+          </ImageBackground>
 
         </ScrollView>
       </ImageBackground>
@@ -136,26 +141,32 @@ const localStyles = StyleSheet.create({
     height: rs(180, 200, 220),
   },
   contentCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 32,
-    padding: 24,
+    overflow: 'hidden',
+    borderRadius: 28,
+    padding: rs(28, 32, 36),
+    paddingTop: rs(36, 40, 44),
+    paddingBottom: rs(36, 40, 44),
     marginHorizontal: vw(5),
     marginBottom: vh(5),
     ...Platform.select({
       ios: {
-        shadowColor: '#000000',
+        shadowColor: '#6B3F1D',
         shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
       },
       android: {
-        elevation: 4,
+        elevation: 6,
       },
       default: {},
     }),
   },
+  contentCardImage: {
+    borderRadius: 28,
+    transform: [{ scale: 1.8 }],
+  },
   paragraphText: {
-    color: '#334155', // Slate-700
+    color: '#3B1E08',
     fontSize: scaleFont(rs(13, 14, 14)),
     fontFamily: 'Poppins-Regular',
     lineHeight: scaleFont(rs(18, 20, 22)),
