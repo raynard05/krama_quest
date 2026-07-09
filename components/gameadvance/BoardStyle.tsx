@@ -4,16 +4,16 @@ import { vw, vh } from '../../utils/responsive';
 const styles = StyleSheet.create({
   boardContainer: {
     width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-   
+    marginTop: 15
+
   },
   boardImage: {
-    marginTop:-120 ,
-    width: vw(90),
-    height: vw(209),
-    maxWidth: 600,
-    maxHeight: 600,
+    width: '70%',
+    height: '100%',
+    transform: [{ scale: 1.15 }],
   },
 });
 

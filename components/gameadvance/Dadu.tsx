@@ -14,9 +14,10 @@ interface DaduProps {
   avatarId?: string;
   batikId?: string;
   userName?: string;
+  colorIndex?: number;
 }
 
-export default function Dadu({ value, onRoll, disabled = false, avatarId, userName, batikId }: DaduProps) {
+export default function Dadu({ value, onRoll, disabled = false, avatarId, userName, batikId, colorIndex = 0 }: DaduProps) {
 
   // ─── Shine sweep (original 3 lines) ──────────────────────────────────────
   const shinePosition = useRef(new Animated.Value(-410)).current;
@@ -147,24 +148,15 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
       ])
     ).start();
 
-    // Background color cycling — kuning→ungu→merah→hijau muda→pink (loop)
-    // Setiap warna bertahan 2.5s, transisi 1s
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(colorAnim, { toValue: 1, duration: 1000, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-        Animated.delay(2000),
-        Animated.timing(colorAnim, { toValue: 2, duration: 1000, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-        Animated.delay(2000),
-        Animated.timing(colorAnim, { toValue: 3, duration: 1000, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-        Animated.delay(2000),
-        Animated.timing(colorAnim, { toValue: 4, duration: 1000, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-        Animated.delay(2000),
-        Animated.timing(colorAnim, { toValue: 5, duration: 1000, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-        Animated.delay(2000),
-        Animated.timing(colorAnim, { toValue: 0, duration: 0, useNativeDriver: false }),
-      ])
-    ).start();
-  }, []);
+    // Update color based on colorIndex prop
+    Animated.timing(colorAnim, {
+      toValue: colorIndex % 6,
+      duration: 800,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+
+  }, [colorIndex]);
 
   // ─── handleTap: snake + batik animations only (onRoll handled by button) ──
   const handleTap = () => {
@@ -252,7 +244,7 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
       3: ['topLeft', 'center', 'bottomRight'],
       4: ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'],
       5: ['topLeft', 'topRight', 'center', 'bottomLeft', 'bottomRight'],
-      6: ['topLeft', 'topRight', 'middleLeft', 'middleRight', 'bottomLeft', 'bottomRight'],
+
     };
 
     const pattern = dotPatterns[value] || [];
@@ -414,15 +406,13 @@ const styles = StyleSheet.create({
   // Outer layer: Dark Blue border
   outerDarkBlueLayer: {
     width: 315,
-    borderWidth: 9,
+    borderWidth: 0,
     borderColor: '#1a5a8f',
     borderRadius: 60,
     borderTopLeftRadius: 0,
     borderBottomRightRadius: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -645,
-    left: vh(2),
     transform: [{ scale: 1.05 }],
   },
   borderGlowRing: {

@@ -32,6 +32,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(5),
     paddingTop: vh(2),
     paddingBottom: vh(1.5),
+    position: 'relative',
+  },
+  headerCenterContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+    pointerEvents: 'none',
   },
   backButton: {
     width: 40,
@@ -71,12 +81,45 @@ const styles = StyleSheet.create({
   },
   cityImg: {
     position: "absolute",
-  
     bottom: 0,
-      
-        left: CITY_LEFT_BLEED,
-        width: CITY_IMG_W,
-        height: CITY_IMG_H,
+    left: CITY_LEFT_BLEED,
+    width: CITY_IMG_W,
+    height: CITY_IMG_H,
+  },
+  boardWrapper: {
+    position: 'relative',
+    width: vw(85),
+    height: vh(65),
+    alignSelf: 'center',
+    marginTop: vh(3),
+  },
+  topScoreContainer: {
+    position: 'absolute',
+    top: -17,
+    left: 43,
+    zIndex: 10,
+  },
+  bottomScoreContainer: {
+    position: 'absolute',
+    bottom: -50,
+    right: 42,
+    zIndex: 10,
+  },
+  topDiceContainer: {
+    position: 'absolute',
+    top: -7,
+    right: 46,
+    zIndex: 5,
+  },
+  bottomDiceContainer: {
+    position: 'absolute',
+    bottom: -40,
+    left: 45,
+    zIndex: 5,
+  },
+  diceImage: {
+    width: 45,
+    height: 45,
   },
 });
 

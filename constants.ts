@@ -1,23 +1,21 @@
-export const BOARD_ROWS = 5;
-export const BOARD_COLS = 10;
+export const BOARD_ROWS = 10;
+export const BOARD_COLS = 5;
 export const TOTAL_CELLS = BOARD_ROWS * BOARD_COLS; // 50
 
 // Snakes: Key is head, value is tail (head > tail)
 export const SNAKES: Record<number, number> = {
-  16: 6,
-  28: 10,
-  37: 18,
-  45: 24,
-  49: 30,
+  49: 32,
+  43: 29,
+  28: 14,
 };
 
 // Ladders: Key is start, value is end (start < end)
 export const LADDERS: Record<number, number> = {
-  3: 12,
-  8: 26,
-  15: 25,
-  22: 44,
-  31: 48,
+  4: 7,
+  12: 22,
+  25: 36,
+  34: 44,
+  40: 41,
 };
 
 // Map cell index (1 to 50) to grid coordinates (row, col)
@@ -42,13 +40,23 @@ export interface PercentPosition {
 }
 
 export function getPercentPosition(cell: number): PercentPosition {
-  if (cell <= 0) return { x: 5, y: 90 }; // Start position (virtual cell 0)
+  if (cell <= 0) return { x: 10, y: 95 }; // Start position (virtual cell 0)
   if (cell > TOTAL_CELLS) cell = TOTAL_CELLS;
-  
+
   const { row, col } = getGridPosition(cell);
+
+  // Board image has thick wooden borders, adjusting the playable grid percentage
+  const GRID_LEFT = 11;
+  const GRID_RIGHT = 90;
+  const GRID_TOP = 7;
+  const GRID_BOTTOM = 92;
+
+  const gridWidth = GRID_RIGHT - GRID_LEFT;
+  const gridHeight = GRID_BOTTOM - GRID_TOP;
+
   return {
-    x: (col + 0.5) * (100 / BOARD_COLS),
-    y: ((BOARD_ROWS - 1 - row) + 0.5) * (100 / BOARD_ROWS),
+    x: GRID_LEFT + (col + 0.5) * (gridWidth / BOARD_COLS),
+    y: GRID_TOP + ((BOARD_ROWS - 1 - row) + 0.5) * (gridHeight / BOARD_ROWS),
   };
 }
 
@@ -64,3 +72,11 @@ export const MODERN_COLORS = [
 export const AVATAR_ICONS = [
   '🤖', '👾', '👻', '🦊', '🐱', '🦖', '🐼', '🦄', '🦁', '🐸', '🐙', '⭐'
 ];
+
+// Pengaturan Kecepatan Animasi Gaco (Pion)
+export const ANIMATION_SPEED = {
+  STEP_DELAY_MS: 500,         // Waktu jeda (milidetik) saat gaco melompat antar kotak. Ubah ke 600 untuk lebih lambat, atau 200 untuk lebih cepat.
+  SPRING_FRICTION: 10,         // Gesekan animasi (semakin kecil = semakin membal)
+  SPRING_TENSION: 10,         // Tarikan animasi (semakin besar = semakin cepat sampai)
+  SNAKE_LADDER_DELAY_MS: 650, // Jeda dramatis (milidetik) sebelum gaco naik tangga atau turun ular
+};
