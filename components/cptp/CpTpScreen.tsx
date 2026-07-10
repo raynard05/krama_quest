@@ -7,7 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
-  
+
 } from 'react-native';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import styles from '../../styles/cptp/CpTpStyles';
@@ -18,55 +18,32 @@ interface CpTpScreenProps {
   onBack: () => void;
 }
 
-type TabType = 'cp' | 'atp';
+type TabType = 'cp' | 'tp';
 
-interface ElementData {
-  id: string;
-  title: string;
-  cpDescription: string;
-  tps: string[];
-  indicator: string;
-}
+const CP_DATA = [
+  {
+    id: 'menulis',
+    title: 'Elemen: menulis',
+    content: 'Peserta didik mampu menyampaikan ungkapan rasa simpati, empati, peduli, dan pendapat pro/kontra sesuai unggah-ungguh basa/tata krama dalam memberikan penghargaan secara tertulis dalam teks multimoda.',
+  }
+];
 
-const ELEMENT_DATA: ElementData[] = [
+const TP_DATA = [
   {
-    id: 'menyimak',
-    title: 'Elemen: Menyimak Krama Alus',
-    cpDescription: 'Peserta didik mampu menganalisis dan mengevaluasi informasi berupa gagasan, pikiran, perasaan, pandangan, arahan, atau pesan yang akurat dari berbagai tipe teks berbahasa Jawa ragam Krama Alus (seperti pacelathon/percakapan, cerita rakyat, atau pidato) yang disimak secara audio maupun visual.',
+    id: 'tp_placeholder',
+    title: 'Tujuan Pembelajaran (TP)',
     tps: [
-      'TP 1: Peserta didik dapat mengidentifikasi dan mencatat kosakata baru ragam Krama Alus dari percakapan sehari-hari yang didengar.',
-      'TP 2: Peserta didik dapat membedakan secara tepat penggunaan ragam Ngoko, Krama Lugu, dan Krama Alus berdasarkan konteks sosial (siapa yang berbicara dan dengan siapa berbicara).',
-      'TP 3: Peserta didik mampu menyimpulkan pesan moral atau instruksi dari teks narasi Sidoarjo berbahasa Krama Alus dengan tepat.',
-      'TP 4: Peserta didik dapat merespons dan menjawab pertanyaan (kuis/evaluasi) terkait detail informasi dari teks yang disimak dengan tingkat akurasi minimal 75%.'
+      '1. Setelah membaca materi dari aplikasi unggah-ungguh basa(C), peserta didik(A)secara bernalar kritis mampu memahami pengertian unggah-ungguh basa(B) dengan baik(D).C1',
+      '2. Setelah menyimak materi unggah-ungguh basa dari aplikasi(C), peserta didik(A) secara bernalar kritis mampu mengerjakan pertanyaan dan pernyataan dari aplikasi(B) dengan benar(D).C4',
+      '3. Setelah mengerjakan pernyataan dan pertanyaan dari aplikasi unggah-ungguh basa(C), peserta didik(A) secara bergotong royong mampu menciptakan dialog dengan unggah-ungguh basa pada soal evaluasi dari aplikasi(B) dengan benar(D). P5'
     ],
-    indicator: 'Indikator Keberhasilan dalam Game: Pemain mampu menjawab soal evaluasi biasa (3 Poin) dan soal HOTS (8 Poin) yang berkaitan dengan terjemahan dan penerapan Krama Alus pada saat bidak berhenti di kotak kuis.'
-  },
-  {
-    id: 'membaca',
-    title: 'Elemen: Membaca & Memirsa Krama Alus',
-    cpDescription: 'Peserta didik mampu membaca, memahami, dan menginterpretasikan informasi dari berbagai teks sastra (seperti geguritan, cerita pendek, cerita rakyat Sidoarjo) dan teks nonsastra berbahasa Jawa ragam Krama Alus secara mandiri.',
-    tps: [
-      'TP 1: Peserta didik dapat membaca teks berbahasa Krama Alus dengan pelafalan lan intonasi yang tepat.',
-      'TP 2: Peserta didik dapat menganalisis watak tokoh, latar belakang, dan amanat dari cerita rakyat Sidoarjo berbahasa Krama Alus.',
-      'TP 3: Peserta didik mampu menterjemahkan kalimat sederhana dari ragam Ngoko ke Krama Alus dengan tata bahasa yang benar.'
-    ],
-    indicator: 'Indikator Keberhasilan dalam Game: Pemain mampu memahami petunjuk jalan dan teks misi khusus yang muncul di petak papan permainan dengan tingkat akurasi tinggi.'
-  },
-  {
-    id: 'berbicara',
-    title: 'Elemen: Berbicara & Mempresentasikan',
-    cpDescription: 'Peserta didik mampu menyampaikan gagasan, pikiran, pandangan, arahan, atau pesan dengan santun menggunakan basa Jawa ragam Krama Alus secara lisan untuk berbagai tujuan sosial.',
-    tps: [
-      'TP 1: Peserta didik dapat melakukan pacelathon (percakapan) sederhana dengan guru menggunakan Krama Alus secara santun.',
-      'TP 2: Peserta didik mampu memperagakan tata krama (subasita) yang selaras dengan basa Krama Alus saat berbicara dengan orang tua.'
-    ],
-    indicator: 'Indikator Keberhasilan dalam Game: Pemain mampu menyelesaikan misi interaktif dialog krama inggil dengan skor kelulusan minimal 80%.'
+
   }
 ];
 
 export default function CpTpScreen({ onBack }: CpTpScreenProps) {
   const [activeTab, setActiveTab] = useState<TabType>('cp');
-  const [expandedElement, setExpandedElement] = useState<string | null>('menyimak');
+  const [expandedElement, setExpandedElement] = useState<string | null>('menulis');
 
   const toggleExpand = (id: string) => {
     if (expandedElement === id) {
@@ -85,11 +62,11 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
         resizeMode="cover"
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          
+
           {/* Custom Header with Back Button */}
           <View style={styles.header}>
             <BackButton onPress={onBack} />
-            <Image source={require('../../assets/title_board/cp.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
+            <Image source={require('../../assets/title_board/cp1.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
             <View style={styles.headerPlaceholder} />
           </View>
 
@@ -109,24 +86,20 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.tabButton, activeTab === 'atp' && styles.tabButtonActive]}
-                onPress={() => setActiveTab('atp')}
+                style={[styles.tabButton, activeTab === 'tp' && styles.tabButtonActive]}
+                onPress={() => setActiveTab('tp')}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.tabText, activeTab === 'atp' && styles.tabTextActive]}>
-                  Alur Tujuan{"\n"}(ATP)
+                <Text style={[styles.tabText, activeTab === 'tp' && styles.tabTextActive]}>
+                  Alur Tujuan{"\n"}(TP)
                 </Text>
               </TouchableOpacity>
             </View>
 
-            {/* Dropdown Selector (Fase D) */}
-            <TouchableOpacity style={styles.dropdownButton} activeOpacity={0.85}>
-              <Text style={styles.dropdownText}>Fase D (Umum)</Text>
-              <ChevronDown color="#64748B" size={20} />
-            </TouchableOpacity>
+
 
             {/* Accordion List for Elements */}
-            {ELEMENT_DATA.map((element) => {
+            {(activeTab === 'cp' ? CP_DATA : TP_DATA).map((element: any) => {
               const isExpanded = expandedElement === element.id;
 
               return (
@@ -149,17 +122,13 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
                       {activeTab === 'cp' ? (
                         // Capaian Pembelajaran Tab Content
                         <Text style={styles.paragraph}>
-                          {element.cpDescription}
+                          {element.content}
                         </Text>
                       ) : (
-                        // Alur Tujuan (ATP) Tab Content
+                        // Alur Tujuan (TP) Tab Content
                         <>
-                          <Text style={styles.paragraph}>
-                            {element.cpDescription}
-                          </Text>
-                          
-                          <Text style={styles.subHeading}>Alur Tujuan Pembelajaran (ATP)</Text>
-                          {element.tps.map((tp, idx) => (
+
+                          {element.tps.map((tp: string, idx: number) => (
                             <View key={idx} style={styles.bulletItem}>
                               <Text style={styles.bulletChar}>•</Text>
                               <Text style={styles.bulletText}>{tp}</Text>
@@ -180,7 +149,7 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
           </View>
 
           {/* Bottom Section: Lapindo Monument Illustration */}
-         
+
 
         </ScrollView>
       </ImageBackground>

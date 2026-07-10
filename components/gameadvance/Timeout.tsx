@@ -6,7 +6,7 @@ interface TimeoutProps {
 }
 
 export default function Timeout({ isEnabled = true }: TimeoutProps) {
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(30 * 60);
 
   useEffect(() => {
     if (!isEnabled) return;

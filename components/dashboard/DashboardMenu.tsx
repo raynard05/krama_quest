@@ -240,6 +240,12 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
             {/* Grid of Menu Cards */}
             <View style={styles.gridContainer}>
               <DashboardMenuCard
+                type="cptp"
+                title="CP & TP"
+                imageSource={require('../../assets/dashboard_assets/cp.png')}
+                onPress={onSelectCpTp}
+              />
+              <DashboardMenuCard
                 type="materi"
                 title="Materi"
                 imageSource={require('../../assets/dashboard_assets/materi.png')}
@@ -250,12 +256,6 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                 title="Dolanan"
                 imageSource={require('../../assets/splash_screen/icon.webp')}
                 onPress={onSelectDolanan}
-              />
-              <DashboardMenuCard
-                type="cptp"
-                title="CP & TP"
-                imageSource={require('../../assets/dashboard_assets/cp.png')}
-                onPress={onSelectCpTp}
               />
               <DashboardMenuCard
                 type="evaluasi"
