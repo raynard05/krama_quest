@@ -1,5 +1,13 @@
 export type PlayerType = 'human' | 'computer';
 
+export interface Soal {
+  id: string;
+  tingkat: 'easy' | 'medium' | 'hots';
+  pertanyaan: string;
+  kunciJawaban: string; // supports alternatives separated by '/'
+  bobot: number;
+}
+
 export interface Player {
   id: number;
   name: string;
@@ -9,6 +17,11 @@ export interface Player {
   type: PlayerType;
   isWinner?: boolean;
   bounceCount?: number; // to count if they bounced back from 100
+  score?: number;
+  soalTerjawabCount?: number;
+  answeredQuestionIds?: string[];
+  activeQuestionId?: string | null;
+  status?: 'playing' | 'spectator';
 }
 
 export type GameStatus = 'lobby' | 'playing' | 'victory';
@@ -46,4 +59,3 @@ export interface NetworkConfig {
   password?: string;
   localPlayerId?: number; // ID assigned to this client device
 }
-

@@ -29,10 +29,10 @@ function getPlayerOffsetPosition(cell: number, playerId: number, players: Player
     const playersAtStart = players.filter(p => p.position === 0);
     const index = playersAtStart.findIndex(p => p.id === playerId);
     if (index === -1) return basePos;
-    const count = playersAtStart.length;
-    const spacing = 6;
-    const startX = 50 - ((count - 1) * spacing) / 2;
-    return { x: startX + index * spacing, y: 95 };
+    // Posisikan di sebelah kiri kotak 1 (kotak 1 y: ~88%, x: ~18.9%)
+    const startX = 3.5;
+    const spacing = 4.5;
+    return { x: startX + index * spacing, y: 88 };
   }
   const playersAtCell = players.filter(p => p.position === cell);
   const index = playersAtCell.findIndex(p => p.id === playerId);
@@ -128,7 +128,7 @@ export default function Board({ players = [], profiles }: BoardProps) {
       />
       
       {/* SIMULATOR OVERLAY */}
-      <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, pointerEvents: 'none', zIndex: 3 }}>
+      <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, pointerEvents: 'none', zIndex: 3, opacity: 0 }}>
         {Array.from({ length: 50 }).map((_, i) => {
           const cell = i + 1;
           const pos = getPercentPosition(cell);

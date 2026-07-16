@@ -95,14 +95,14 @@ const styles = StyleSheet.create({
   },
   topScoreContainer: {
     position: 'absolute',
-    top: -17,
+    top: -25,
     left: 43,
     zIndex: 10,
   },
   bottomScoreContainer: {
     position: 'absolute',
-    bottom: -50,
-    right: 42,
+    bottom: -60,
+    right: 40,
     zIndex: 10,
   },
   topDiceContainer: {
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
   },
+
 });
 
 export default styles;

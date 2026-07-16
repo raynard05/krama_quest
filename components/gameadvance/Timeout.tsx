@@ -3,9 +3,10 @@ import { View, Text, StyleSheet } from 'react-native';
 
 interface TimeoutProps {
   isEnabled?: boolean;
+  onTimeUp?: () => void;
 }
 
-export default function Timeout({ isEnabled = true }: TimeoutProps) {
+export default function Timeout({ isEnabled = true, onTimeUp }: TimeoutProps) {
   const [timeLeft, setTimeLeft] = useState(30 * 60);
 
   useEffect(() => {
@@ -13,8 +14,9 @@ export default function Timeout({ isEnabled = true }: TimeoutProps) {
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 0) {
+        if (prev <= 1) {
           clearInterval(timer);
+          if (onTimeUp) onTimeUp();
           return 0;
         }
         return prev - 1;
@@ -22,7 +24,7 @@ export default function Timeout({ isEnabled = true }: TimeoutProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isEnabled]);
+  }, [isEnabled, onTimeUp]);
 
   const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
   const seconds = (timeLeft % 60).toString().padStart(2, '0');

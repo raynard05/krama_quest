@@ -40,7 +40,7 @@ export interface PercentPosition {
 }
 
 export function getPercentPosition(cell: number): PercentPosition {
-  if (cell <= 0) return { x: 10, y: 95 }; // Start position (virtual cell 0)
+  if (cell <= 0) return { x: 3.5, y: 88 }; // Start position (virtual cell 0)
   if (cell > TOTAL_CELLS) cell = TOTAL_CELLS;
 
   const { row, col } = getGridPosition(cell);
@@ -80,3 +80,232 @@ export const ANIMATION_SPEED = {
   SPRING_TENSION: 10,         // Tarikan animasi (semakin besar = semakin cepat sampai)
   SNAKE_LADDER_DELAY_MS: 650, // Jeda dramatis (milidetik) sebelum gaco naik tangga atau turun ular
 };
+
+import { Soal } from './types';
+
+// Helper to determine if a cell contains a question (even numbers create an alternating/selang-seling pattern)
+export function isKotakSoal(cell: number): boolean {
+  if (cell <= 0 || cell >= 50) return false; // Start and End cells do not trigger questions
+  return cell % 2 === 0;
+}
+
+// Validation logic: "minimal 2 kata benar sudah dianggap benar"
+// If target answer is 1 word, matches if user includes it.
+// If target answer is >= 2 words, user must match at least 2 words.
+export function checkAnswerCorrectness(userInput: string, correctAnswer: string): boolean {
+  if (!userInput) return false;
+
+  const clean = (str: string) =>
+    str.toLowerCase()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, " ")
+      .split(/\s+/)
+      .filter(Boolean);
+
+  const userWords = clean(userInput);
+  const alternatives = correctAnswer.split('/').map(alt => clean(alt));
+
+  for (const altWords of alternatives) {
+    if (altWords.length === 0) continue;
+
+    if (altWords.length === 1) {
+      if (userWords.includes(altWords[0])) {
+        return true;
+      }
+    } else {
+      let matches = 0;
+      for (const w of altWords) {
+        if (userWords.includes(w)) {
+          matches++;
+        }
+      }
+      if (matches >= 2) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export const SOAL_BANK: Soal[] = [
+  // --- EASY QUESTIONS (10 Soal, Bobot: 3) ---
+  {
+    id: 'e1',
+    tingkat: 'easy',
+    pertanyaan: 'Basa kramane tembung "mangan" yaiku...',
+    kunciJawaban: 'Dhahar/ Nedha',
+    bobot: 3
+  },
+  {
+    id: 'e2',
+    tingkat: 'easy',
+    pertanyaan: 'Basa ngokone tembung "sare" yaiku...',
+    kunciJawaban: 'Turu',
+    bobot: 3
+  },
+  {
+    id: 'e3',
+    tingkat: 'easy',
+    pertanyaan: 'Basa ngokone tembung "tindak" yaiku...',
+    kunciJawaban: 'Lunga',
+    bobot: 3
+  },
+  {
+    id: 'e4',
+    tingkat: 'easy',
+    pertanyaan: 'Basa ngokone tembung "mirsani" yaiku...',
+    kunciJawaban: 'Ndelok Ndeleng',
+    bobot: 3
+  },
+  {
+    id: 'e5',
+    tingkat: 'easy',
+    pertanyaan: 'Basa kramane tembung "krungu" yaiku...',
+    kunciJawaban: 'Miring/ Kepireng',
+    bobot: 3
+  },
+  {
+    id: 'e6',
+    tingkat: 'easy',
+    pertanyaan: 'Basa kramane tembung "njaluk" yaiku...',
+    kunciJawaban: 'Nyuwun',
+    bobot: 3
+  },
+  {
+    id: 'e7',
+    tingkat: 'easy',
+    pertanyaan: 'Basa kramane tembung "turu" yaiku...',
+    kunciJawaban: 'Sare Tilem',
+    bobot: 3
+  },
+  {
+    id: 'e8',
+    tingkat: 'easy',
+    pertanyaan: 'Basa ngokone tembung "lunga" (mangkat sekolah/kerja) yaiku...',
+    kunciJawaban: 'Budhal',
+    bobot: 3
+  },
+  {
+    id: 'e9',
+    tingkat: 'easy',
+    pertanyaan: 'Basa kramane tembung "weruh / takon" yaiku...',
+    kunciJawaban: 'Pirsa tanglet',
+    bobot: 3
+  },
+  {
+    id: 'e10',
+    tingkat: 'easy',
+    pertanyaan: 'Basa kramane tembung "njaluk ngapura" yaiku...',
+    kunciJawaban: 'Sepura ngapura',
+    bobot: 3
+  },
+
+  // --- MEDIUM QUESTIONS (10 Soal, Bobot: 3) ---
+  {
+    id: 'm1',
+    tingkat: 'medium',
+    pertanyaan: 'Ukara krama saka "Bapak arep lunga menyang ngendi?" yaiku...',
+    kunciJawaban: 'Bapak badhe tindak dhateng pundi?',
+    bobot: 3
+  },
+  {
+    id: 'm2',
+    tingkat: 'medium',
+    pertanyaan: 'Ukara krama saka "Ibu arep mangan Lontong Kupang" yaiku...',
+    kunciJawaban: 'Ibu badhe dhahar Lontong Kupang',
+    bobot: 3
+  },
+  {
+    id: 'm3',
+    tingkat: 'medium',
+    pertanyaan: '"Panjenengan punapa sampun …. pawarta menika?" Isinen titik-titik kasebut saengga dadi ukara kang jangkep!',
+    kunciJawaban: 'Kepireng',
+    bobot: 3
+  },
+  {
+    id: 'm4',
+    tingkat: 'medium',
+    pertanyaan: '"Kula badhe …pirsa dhateng bapak guru" Isinen titik-titik kasebut saengga dadi ukara kang jangkep!',
+    kunciJawaban: 'Nyuwun',
+    bobot: 3
+  },
+  {
+    id: 'm5',
+    tingkat: 'medium',
+    pertanyaan: 'Ukara ngoko saka "Kula badhe mirsani wayang" yaiku...',
+    kunciJawaban: 'Aku arep ndeleng wayang',
+    bobot: 3
+  },
+  {
+    id: 'm6',
+    tingkat: 'medium',
+    pertanyaan: '"Ibnu nembe mirsani tv" Tulisen nganggo basa ngoko!',
+    kunciJawaban: 'Ibnu lagi ndeleng tv',
+    bobot: 3
+  },
+  {
+    id: 'm7',
+    tingkat: 'medium',
+    pertanyaan: '"Simbah sampun …. Dereng?" isinen nganggo basa krama!',
+    kunciJawaban: 'Simbah sampun dhahar dereng?',
+    bobot: 3
+  },
+  {
+    id: 'm8',
+    tingkat: 'medium',
+    pertanyaan: '"Panjenengan badhe … pundi?" Isinen titik-titik kasebut saengga dadi ukara kang jangkep!',
+    kunciJawaban: 'Tindak',
+    bobot: 3
+  },
+  {
+    id: 'm9',
+    tingkat: 'medium',
+    pertanyaan: '"Aku didukani ibu" Ukara kasebut diowahi ing basa ngoko yaiku...',
+    kunciJawaban: 'Aku dikandani ibu/ aku diwarahi ibu',
+    bobot: 3
+  },
+  {
+    id: 'm10',
+    tingkat: 'medium',
+    pertanyaan: '"Aku dhahar karo Adhik, dene Ibu nedha kalih Bapak" Ukara kasebut owahana nggunakake unggah-ungguh basa kang bener!',
+    kunciJawaban: 'Aku mangan karo adik. Dene ibu dhahar kalihan/ kalih bapak.',
+    bobot: 3
+  },
+
+  // --- HOTS QUESTIONS (5 Soal, Bobot: 8) ---
+  {
+    id: 'h1',
+    tingkat: 'hots',
+    pertanyaan: '"Pak Fahdi numpak becak menyang stasiun Sidoarjo" Tulisen nganggo basa krama kang trep!',
+    kunciJawaban: 'Pak Fahdi nitih becak dhateng stasiun Sidoarjo',
+    bobot: 8
+  },
+  {
+    id: 'h2',
+    tingkat: 'hots',
+    pertanyaan: '"Budhe lunga ning Pantai Tlocor dina Minggu" Tulisen nganggo basa krama kang trep!',
+    kunciJawaban: 'Budhe tindak dhateng Pantai Tlocor dina Minggu',
+    bobot: 8
+  },
+  {
+    id: 'h3',
+    tingkat: 'hots',
+    pertanyaan: '"Adik nyuwun jajan kue Lumpur dhateng ibu" Tulisen nganggo basa ngoko kang trep!',
+    kunciJawaban: 'Adik njaluk jajan kue lumpur ning ibu',
+    bobot: 8
+  },
+  {
+    id: 'h4',
+    tingkat: 'hots',
+    pertanyaan: '"Pakdhe tuku urang lan bandeng ing pasar larangan" Tulisen nganggo basa krama kang trep!',
+    kunciJawaban: 'Pakdhe mundhut urang lan bandheng dhateng peken larangan',
+    bobot: 8
+  },
+  {
+    id: 'h5',
+    tingkat: 'hots',
+    pertanyaan: '"Wiwit esuk kucinge Hari ora kersa dhahar" Tulisen nggunakake basa ngoko kang cetha!',
+    kunciJawaban: 'Wiwit esuk kucinge Hari ora doyan mangan',
+    bobot: 8
+  }
+];
