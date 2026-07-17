@@ -20,13 +20,15 @@ interface ProfileScreenProps {
   onBack: () => void;
   onNavigateToHistory: () => void;
   onEditAvatar: () => void;
+  onNavigateToSettings: () => void;
 }
 
 export default function ProfileScreen({
   currentUser,
   onBack,
   onNavigateToHistory,
-  onEditAvatar
+  onEditAvatar,
+  onNavigateToSettings,
 }: ProfileScreenProps) {
   const [materiCount, setMateriCount] = useState(0);
 
@@ -153,7 +155,7 @@ export default function ProfileScreen({
             {/* Option 2: Pengaturan */}
             <TouchableOpacity
               style={styles.optionRow}
-              onPress={() => handleInfoPress('Pengaturan', 'Fitur pengaturan badhe dipunbuka enggal!')}
+              onPress={onNavigateToSettings}
               activeOpacity={0.7}
             >
               <View style={styles.optionRowLeft}>

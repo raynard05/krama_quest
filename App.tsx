@@ -42,6 +42,7 @@ import MateriScreen from './components/materi/MateriScreen';
 import CpTpScreen from './components/cptp/CpTpScreen';
 import DolananScreen from './components/dolanan/DolananScreen';
 import GameScreen from './components/gameadvance/GameScreen';
+import { SoundManager } from './utils/SoundManager';
 
 
 type AuthScreen = 'login' | 'register';
@@ -58,6 +59,17 @@ export default function App() {
     'BebasNeue': BebasNeue_400Regular,
     'SquadaOne': SquadaOne_400Regular,
   });
+
+  useEffect(() => {
+    // Delay audio init so all native modules are fully registered first
+    const timer = setTimeout(() => {
+      SoundManager.init();
+    }, 2000);
+    return () => {
+      clearTimeout(timer);
+      SoundManager.stopBackgroundMusic();
+    };
+  }, []);
 
   // ── Auth state ──────────────────────────────────────────────────────────
   const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
@@ -93,6 +105,9 @@ export default function App() {
     setIsAuthenticated(true);
     setIsLoadingScreen(true);
     setShowDashboard(false);
+    
+    // Play background sound immediately on login interaction
+    SoundManager.playBackgroundMusic();
 
     // Fetch avatar and background asynchronously in the background
     Promise.all([
@@ -113,6 +128,9 @@ export default function App() {
     setIsLoadingScreen(true);
     setShowDashboard(false);
 
+    // Play background sound immediately on registration interaction
+    SoundManager.playBackgroundMusic();
+
     // Fetch avatar and background asynchronously in the background
     Promise.all([
       ProfileService.fetchUserAvatar(user.id),
@@ -127,6 +145,9 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Stop background music on logout
+    SoundManager.stopBackgroundMusic();
+
     setCurrentUser(null);
     setIsAuthenticated(false);
     setShowDashboard(true);
@@ -626,9 +647,8 @@ export default function App() {
       }
 
       if (showGameScreen) {
-        setShowGameScreen(false);
-        setShowDolanan(true);
-        return true;
+        // Biarkan komponen GameScreen menangani tombol back sendiri
+        return false;
       }
 
       if (showCpTp) {

@@ -5,6 +5,7 @@ import type { UserAccount } from '../../services/AuthService';
 import ProfileScreen from './ProfileScreen';
 import HistoryScreen from './HistoryScreen';
 import AvatarPickerScreen from './AvatarPickerScreen';
+import BacksoundSettingsScreen from './BacksoundSettingsScreen';
 
 interface ProfileMainProps {
   currentUser: (UserAccount & { avatarId?: string; avatarBgId?: string }) | null;
@@ -13,7 +14,7 @@ interface ProfileMainProps {
   onUpdateAvatarBg: (avatarBgId: string) => void;
 }
 
-type SubScreen = 'main' | 'history' | 'avatar_picker';
+type SubScreen = 'main' | 'history' | 'avatar_picker' | 'backsound_settings';
 
 export default function ProfileMain({
   currentUser,
@@ -31,6 +32,7 @@ export default function ProfileMain({
           onBack={onBack}
           onNavigateToHistory={() => setActiveSubScreen('history')}
           onEditAvatar={() => setActiveSubScreen('avatar_picker')}
+          onNavigateToSettings={() => setActiveSubScreen('backsound_settings')}
         />
       )}
 
@@ -52,6 +54,12 @@ export default function ProfileMain({
             onUpdateAvatarBg(avatarBgId);
             setActiveSubScreen('main');
           }}
+        />
+      )}
+
+      {activeSubScreen === 'backsound_settings' && (
+        <BacksoundSettingsScreen
+          onBack={() => setActiveSubScreen('main')}
         />
       )}
     </SafeAreaView>

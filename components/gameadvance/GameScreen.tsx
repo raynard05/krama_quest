@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Animated,
   TextInput,
+  Alert,
+  BackHandler,
 } from 'react-native';
 
 import styles from './GameScreenStyle';
@@ -24,6 +26,13 @@ const INITIAL_PLAYERS: Player[] = [
   { id: 1, name: 'Sabitul', color: '#E25C3D', icon: '1', position: 0, type: 'human', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' },
   { id: 2, name: 'Wafi', color: '#202124', icon: '2', position: 0, type: 'computer', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' }
 ];
+
+const BACKGROUND_IMAGES = [
+  require('../../assets/dolanan_assets/lapindo.webp'),
+  require('../../assets/dolanan_assets/jembatan.webp'),
+  require('../../assets/dolanan_assets/temple.png'),
+  require('../../assets/dolanan_assets/ship_bg.webp'),
+];
 interface GameScreenProps {
   currentUser: any;
   onBack: () => void;
@@ -35,6 +44,7 @@ export default function GameScreen({
 }: GameScreenProps) {
   const [diceValue, setDiceValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState<boolean>(false);
+  const isRollingRef = useRef<boolean>(false);
 
   const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
@@ -57,6 +67,30 @@ export default function GameScreen({
 
   // 5-second countdown at the start of the game
   const [startCountdown, setStartCountdown] = useState<number | null>(5);
+  const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
+  const [showEnemyRollPopup, setShowEnemyRollPopup] = useState<boolean>(false);
+  const [bgIndex, setBgIndex] = useState<number>(0);
+
+  useEffect(() => {
+    const bgInterval = setInterval(() => {
+      setBgIndex(prev => (prev + 1) % BACKGROUND_IMAGES.length);
+    }, 30000);
+    return () => clearInterval(bgInterval);
+  }, []);
+
+  const handleBackPress = () => {
+    if (gameFinished) {
+      onBack();
+      return true;
+    }
+    setShowExitConfirm(true);
+    return true;
+  };
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => backHandler.remove();
+  }, [gameFinished, onBack]);
 
   useEffect(() => {
     if (startCountdown === null) return;
@@ -155,7 +189,7 @@ export default function GameScreen({
       } else {
         setTimeout(() => {
           transitionTurn(newPlayers);
-        }, 100);
+        }, 2500);
       }
 
       return newPlayers;
@@ -250,8 +284,10 @@ export default function GameScreen({
 
     if (currentPlayer.type === 'human') {
       setShowDaduCard(true);
+      setShowEnemyRollPopup(false);
     } else {
       setShowDaduCard(false);
+      setShowEnemyRollPopup(true);
       // Auto-roll for computer
       const timer = setTimeout(() => {
         handleRollDice();
@@ -261,8 +297,9 @@ export default function GameScreen({
   }, [currentPlayerIndex, gameFinished, startCountdown]);
 
   const handleRollDice = async () => {
-    if (isRolling) return;
+    if (isRollingRef.current) return;
 
+    isRollingRef.current = true;
     setIsRolling(true);
 
     let rolls = 0;
@@ -274,6 +311,7 @@ export default function GameScreen({
         clearInterval(rollInterval);
         const finalValue = Math.floor(Math.random() * 5) + 1; // 1-5 as original
         setDiceValue(finalValue);
+        isRollingRef.current = false;
         setIsRolling(false);
         handleDiceRollEnd(finalValue);
       }
@@ -281,6 +319,7 @@ export default function GameScreen({
   };
 
   const handleDiceRollEnd = (roll: number) => {
+    setShowEnemyRollPopup(false);
     setPlayerLastRolls(prev => {
       const newRolls = [...prev];
       newRolls[currentPlayerIndex] = roll;
@@ -403,7 +442,7 @@ export default function GameScreen({
             {/* Custom Header with Back Button */}
             <View style={styles.header}>
               <View style={{ zIndex: 10 }}>
-                <BackButton onPress={onBack} />
+                <BackButton onPress={handleBackPress} />
               </View>
 
               <View style={styles.headerCenterContainer}>
@@ -441,67 +480,7 @@ export default function GameScreen({
                 {/* Board Component */}
                 <Board players={players} />
 
-                {/* Center Dice Overlay with Dark Background */}
-                {showDaduCard && startCountdown === null && players[currentPlayerIndex].type === 'human' && !showQuestionModal && !gameFinished && !showSpectatorPopup && (
-                  <View style={{ position: 'absolute', top: -500, bottom: -500, left: -500, right: -500, alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
-                    <Animated.View
-                      style={{
-                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                        backgroundColor: 'black',
-                        opacity: daduAnimY.interpolate({ inputRange: [0, 800], outputRange: [0.6, 0] })
-                      }}
-                    />
 
-                    {/* Animated Text */}
-                    <Animated.View style={{ transform: [{ translateX: textAnimX }], marginBottom: 15 }}>
-                      <Text style={{
-                        fontSize: 36,
-                        fontWeight: '500',
-                        color: '#FFF',
-                        fontFamily: 'Poppins-Bold',
-                        letterSpacing: 2,
-                        textShadowColor: 'rgba(255, 69, 0, 0.8)',
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 15
-                      }}>
-                        GILIRANMU
-                      </Text>
-                    </Animated.View>
-
-                    <Animated.View style={{ transform: [{ scale: 0.85 }, { translateY: daduAnimY }], width: 315, height: 440, alignItems: 'center', justifyContent: 'center' }}>
-                      <Dadu
-                        value={diceValue}
-                        onRoll={handleRollDice}
-                        disabled={isRolling || (players[currentPlayerIndex]?.type as string) === 'computer'}
-                        colorIndex={colorIndex}
-                      />
-                    </Animated.View>
-                  </View>
-                )}
-
-
-                {/* Standalone Javanese Game Popups component */}
-                <GamePopups
-                  showQuestionModal={showQuestionModal}
-                  activeQuestion={activeQuestion}
-                  typedAnswer={typedAnswer}
-                  setTypedAnswer={setTypedAnswer}
-                  hasCheckedAnswer={hasCheckedAnswer}
-                  setHasCheckedAnswer={setHasCheckedAnswer}
-                  isAnswerCorrect={isAnswerCorrect}
-                  setIsAnswerCorrect={setIsAnswerCorrect}
-                  questionTimeLeft={questionTimeLeft}
-                  currentPlayer={players[currentPlayerIndex]}
-                  handleAnswerSubmit={handleAnswerSubmit}
-                  showSpectatorPopup={showSpectatorPopup}
-                  setShowSpectatorPopup={setShowSpectatorPopup}
-                  spectatorPlayerName={spectatorPlayerName}
-                  transitionTurn={transitionTurn}
-                  gameFinished={gameFinished}
-                  endReason={endReason}
-                  players={players}
-                  onBack={onBack}
-                />
 
                 {/* Bottom Player Dice = Device Player (Index 0) */}
                 <View style={styles.bottomDiceContainer}>
@@ -526,7 +505,7 @@ export default function GameScreen({
           {/* Bottom Section: Jembatan Illustration */}
           <View style={styles.bottomSection}>
             <Image
-              source={require('../../assets/dolanan_assets/jembatan.webp')}
+              source={BACKGROUND_IMAGES[bgIndex]}
               style={styles.cityImg}
               resizeMode="cover"
             />
@@ -534,6 +513,70 @@ export default function GameScreen({
 
         </ScrollView>
       </ImageBackground>
+
+      {/* Standalone Javanese Game Popups component */}
+      <GamePopups
+        showQuestionModal={showQuestionModal}
+        activeQuestion={activeQuestion}
+        typedAnswer={typedAnswer}
+        setTypedAnswer={setTypedAnswer}
+        hasCheckedAnswer={hasCheckedAnswer}
+        setHasCheckedAnswer={setHasCheckedAnswer}
+        isAnswerCorrect={isAnswerCorrect}
+        setIsAnswerCorrect={setIsAnswerCorrect}
+        questionTimeLeft={questionTimeLeft}
+        currentPlayer={players[currentPlayerIndex]}
+        handleAnswerSubmit={handleAnswerSubmit}
+        showSpectatorPopup={showSpectatorPopup}
+        setShowSpectatorPopup={setShowSpectatorPopup}
+        spectatorPlayerName={spectatorPlayerName}
+        transitionTurn={transitionTurn}
+        gameFinished={gameFinished}
+        endReason={endReason}
+        players={players}
+        onBack={onBack}
+        showExitConfirm={showExitConfirm}
+        setShowExitConfirm={setShowExitConfirm}
+        onConfirmExit={onBack}
+      />
+
+      {/* Center Dice Overlay with Dark Background (Fullscreen root level) */}
+      {showDaduCard && startCountdown === null && players[currentPlayerIndex].type === 'human' && !showQuestionModal && !gameFinished && !showSpectatorPopup && (
+        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center', zIndex: 9998 }}>
+          <Animated.View
+            style={{
+              position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+              backgroundColor: 'black',
+              opacity: daduAnimY.interpolate({ inputRange: [0, 800], outputRange: [0.6, 0] })
+            }}
+          />
+
+          {/* Animated Text */}
+          <Animated.View style={{ transform: [{ translateX: textAnimX }], marginBottom: 15 }}>
+            <Text style={{
+              fontSize: 36,
+              fontWeight: '500',
+              color: '#FFF',
+              fontFamily: 'Poppins-Bold',
+              letterSpacing: 2,
+              textShadowColor: 'rgba(255, 69, 0, 0.8)',
+              textShadowOffset: { width: 0, height: 0 },
+              textShadowRadius: 15
+            }}>
+              Wayahmu
+            </Text>
+          </Animated.View>
+
+          <Animated.View style={{ transform: [{ scale: 0.85 }, { translateY: daduAnimY }], width: 315, height: 440, alignItems: 'center', justifyContent: 'center' }}>
+            <Dadu
+              value={diceValue}
+              onRoll={handleRollDice}
+              disabled={isRolling || (players[currentPlayerIndex]?.type as string) === 'computer'}
+              colorIndex={colorIndex}
+            />
+          </Animated.View>
+        </View>
+      )}
 
       {/* 5-Second Javanese Start Countdown Overlay (Fullscreen root level) */}
       {startCountdown !== null && (
@@ -549,24 +592,24 @@ export default function GameScreen({
           zIndex: 9999,
         }}>
           <View style={{
-            backgroundColor: '#4E2C0E',
+            backgroundColor: '#FFECC0',
             borderColor: '#784B23',
-            borderWidth: 2.5,
-            borderRadius: 16,
-            padding: 18,
-            width: '60%',
+            borderWidth: 4,
+            borderRadius: 20,
+            padding: 24,
+            width: '85%',
             alignItems: 'center',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 9 },
-            shadowOpacity: 0.4,
+            shadowOffset: { width: 0, height: 5 },
+            shadowOpacity: 0.5,
             shadowRadius: 10,
-            elevation: 8,
+            elevation: 10,
           }}>
             <Text style={{
-              fontSize: 14,
+              fontSize: 22,
               fontFamily: 'Poppins-Bold',
-              color: '#FFDE43',
-              marginBottom: 5,
+              color: '#784B23',
+              marginBottom: 10,
               textAlign: 'center',
             }}>
               Dolanan Bakal Dimulai...
@@ -574,7 +617,7 @@ export default function GameScreen({
             <Text style={{
               fontSize: 18,
               fontFamily: 'Poppins-Medium',
-              color: '#FFF',
+              color: '#4E2C0E',
               textAlign: 'center',
               marginVertical: 8,
             }}>
@@ -587,10 +630,40 @@ export default function GameScreen({
             <Text style={{
               fontSize: startCountdown === 0 ? 32 : 44,
               fontFamily: 'Poppins-Bold',
-              color: '#39FF14',
+              color: '#E25C3D',
               textAlign: 'center',
             }}>
               {startCountdown > 0 ? startCountdown : '🎮'}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Enemy Rolling Popup */}
+      {showEnemyRollPopup && startCountdown === null && !gameFinished && (
+        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0, 0, 0, 0.75)', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <View style={{
+            width: '85%',
+            backgroundColor: '#FFECC0',
+            borderRadius: 20,
+            padding: 24,
+            borderWidth: 4,
+            borderColor: '#784B23',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 5 },
+            shadowOpacity: 0.5,
+            shadowRadius: 10,
+            elevation: 10,
+            alignItems: 'center',
+          }}>
+            <Text style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#784B23',
+              fontFamily: 'Poppins-Bold',
+              textAlign: 'center'
+            }}>
+              Nengga mungsuh ngocak dadu
             </Text>
           </View>
         </View>

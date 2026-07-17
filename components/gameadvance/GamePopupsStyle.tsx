@@ -4,10 +4,10 @@ import { vw, vh } from '../../utils/responsive';
 const styles = StyleSheet.create({
   modalOverlay: {
     position: 'absolute',
-    top: -500,
-    bottom: -500,
-    left: -500,
-    right: -500,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -183,6 +183,65 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'Poppins-Bold',
+  },
+  exitConfirmContainer: {
+    width: vw(85),
+    backgroundColor: '#FFECC0',
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 4,
+    borderColor: '#784B23',
+
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+
+    alignItems: 'center',
+  },
+  exitConfirmTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#784B23',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 10,
+  },
+  exitConfirmText: {
+    fontSize: 16,
+    color: '#4E2C0E',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  exitConfirmButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  exitConfirmBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginHorizontal: 5,
+    borderWidth: 2,
+  },
+  exitConfirmBtnCancel: {
+    backgroundColor: '#FFF',
+    borderColor: '#784B23',
+  },
+  exitConfirmBtnConfirm: {
+    backgroundColor: '#E25C3D',
+    borderColor: '#9E3219',
+  },
+  exitConfirmBtnCancelText: {
+    color: '#784B23',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  exitConfirmBtnConfirmText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ImageBackground, Animated } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ImageBackground, Animated, Image } from 'react-native';
 import { Player, Soal } from '../../types';
 import styles from './GamePopupsStyle';
 import { checkAnswerCorrectness } from '../../constants';
@@ -34,6 +34,11 @@ interface GamePopupsProps {
   endReason: 'normal' | 'timeout';
   players: Player[];
   onBack: () => void;
+
+  // Exit Confirm
+  showExitConfirm: boolean;
+  setShowExitConfirm: (show: boolean) => void;
+  onConfirmExit: () => void;
 }
 
 export default function GamePopups({
@@ -56,9 +61,35 @@ export default function GamePopups({
   endReason,
   players,
   onBack,
+  showExitConfirm,
+  setShowExitConfirm,
+  onConfirmExit,
 }: GamePopupsProps) {
   // Slide-in animation for result popup (correct/wrong/timeout)
   const slideAnim = useRef(new Animated.Value(-500)).current;
+  const [redirectCountdown, setRedirectCountdown] = useState<number>(3600);
+
+  useEffect(() => {
+    if (gameFinished) {
+      const timer = setInterval(() => {
+        setRedirectCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            onBack();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [gameFinished, onBack]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     if (hasCheckedAnswer) {
@@ -203,19 +234,9 @@ export default function GamePopups({
       {/* Game Finished Summary Overlay (Javanese Win/Loss/Timeout) */}
       {gameFinished && (
         <View style={styles.modalOverlay}>
-          <ImageBackground
-            source={
-              players[0].score! >= players[1].score!
-                ? CORRECT_POPUP_IMG
-                : WRONG_POPUP_IMG
-            }
-            style={styles.popupBg}
-            imageStyle={{ borderRadius: 24 }}
-          >
-            <Text style={{ fontSize: 26, fontFamily: 'Poppins-Bold', color: '#FFF', marginBottom: 5, textAlign: 'center' }}>
-              DOLANAN RAMPUNG!
-            </Text>
-            <Text style={{ fontSize: 13, color: '#E0EFFF', marginBottom: 15, textAlign: 'center', fontFamily: 'Poppins-Medium' }}>
+          <View style={styles.exitConfirmContainer}>
+            <Text style={styles.exitConfirmTitle}>DOLANAN RAMPUNG!</Text>
+            <Text style={styles.exitConfirmText}>
               {endReason === 'timeout'
                 ? 'Wektu dolanan wis entek! (30 Menit)'
                 : 'Asil biji pungkasan siswa (1v1)'}
@@ -228,21 +249,28 @@ export default function GamePopups({
                   flexDirection: 'row',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  backgroundColor: 'rgba(120, 75, 35, 0.1)',
                   padding: 12,
                   borderRadius: 12,
                   marginVertical: 4,
                   borderWidth: 1,
-                  borderColor: p.score && p.score >= 70 ? '#39FF1450' : 'rgba(255,255,255,0.1)'
+                  borderColor: p.score && p.score >= 70 ? '#4CAF50' : 'rgba(120,75,35,0.2)'
                 }}>
-                  <Text style={{ color: '#FFF', fontSize: 15, fontWeight: 'bold' }}>
-                    {i === 0 ? '🙋' : '🤖'} {p.name}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Image 
+                      source={i === 0 ? require('../../assets/profile-pic/1.webp') : require('../../assets/profile-pic/2.webp')}
+                      style={{ width: 28, height: 28, borderRadius: 14, marginRight: 8, borderWidth: 1, borderColor: '#784B23' }}
+                      resizeMode="cover"
+                    />
+                    <Text style={{ color: '#4E2C0E', fontSize: 15, fontWeight: 'bold' }}>
+                      {p.name}
+                    </Text>
+                  </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ color: '#00F2FE', fontSize: 16, fontWeight: 'bold' }}>
+                    <Text style={{ color: '#E25C3D', fontSize: 16, fontWeight: 'bold' }}>
                       {p.score || 0} Biji
                     </Text>
-                    <Text style={{ color: '#D0D0E0', fontSize: 10 }}>
+                    <Text style={{ color: '#784B23', fontSize: 10 }}>
                       Pitakon: {p.soalTerjawabCount || 0}/25
                     </Text>
                   </View>
@@ -251,16 +279,44 @@ export default function GamePopups({
             </View>
 
             {/* Winner text banner in Javanese */}
-            <Text style={{ color: '#39FF14', fontSize: 18, fontWeight: 'bold', fontFamily: 'Poppins-Bold', marginBottom: 15, textAlign: 'center', textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 }}>
+            <Text style={{ color: '#E25C3D', fontSize: 18, fontWeight: 'bold', fontFamily: 'Poppins-Bold', marginBottom: 15, textAlign: 'center' }}>
               {players[0].score === players[1].score
                 ? '🤝 Asile Seri!'
                 : (players[0].score! > players[1].score! ? '🎉 Kowe Menang!' : '😢 Kowe Kalah!')}
             </Text>
 
-            <TouchableOpacity style={[styles.nextButton, { backgroundColor: '#BD00FF' }]} onPress={onBack}>
-              <Text style={styles.nextButtonText}>Bali menyang Menu</Text>
-            </TouchableOpacity>
-          </ImageBackground>
+            <View style={[styles.nextButton, { backgroundColor: '#784B23', width: '100%' }]}>
+              <Text style={[styles.nextButtonText, { fontSize: 14 }]}>
+                Dialihake menyang Rangking: {formatTime(redirectCountdown)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Exit Confirmation Modal */}
+      {showExitConfirm && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.exitConfirmContainer}>
+            <Text style={styles.exitConfirmTitle}>Konfirmasi</Text>
+            <Text style={styles.exitConfirmText}>
+              Punapa panjenengan yakin badhe medal saking game? Sesi game badhe dipungkasi.
+            </Text>
+            <View style={styles.exitConfirmButtonRow}>
+              <TouchableOpacity
+                style={[styles.exitConfirmBtn, styles.exitConfirmBtnCancel]}
+                onPress={() => setShowExitConfirm(false)}
+              >
+                <Text style={styles.exitConfirmBtnCancelText}>Batal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.exitConfirmBtn, styles.exitConfirmBtnConfirm]}
+                onPress={onConfirmExit}
+              >
+                <Text style={styles.exitConfirmBtnConfirmText}>Inggih</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       )}
     </>

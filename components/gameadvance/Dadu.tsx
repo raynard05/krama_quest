@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Image, Animated, Easing } from 'react-native';
 
 // Animated TouchableOpacity untuk bisa animate backgroundColor
@@ -18,6 +18,7 @@ interface DaduProps {
 }
 
 export default function Dadu({ value, onRoll, disabled = false, avatarId, userName, batikId, colorIndex = 0 }: DaduProps) {
+  const [timeLeft, setTimeLeft] = useState(10);
 
   // ─── Shine sweep (original 3 lines) ──────────────────────────────────────
   const shinePosition = useRef(new Animated.Value(-410)).current;
@@ -51,6 +52,22 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
   const batikSwingAnim1 = useRef(new Animated.Value(0)).current;
   const batikSwingAnim2 = useRef(new Animated.Value(0)).current;
   const batikAnimStarted = useRef(false);
+
+  useEffect(() => {
+    if (disabled) return;
+
+    if (timeLeft <= 0) {
+      setTimeLeft(10);
+      onRoll();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, disabled, onRoll]);
 
   useEffect(() => {
     // Original shine loop
@@ -372,7 +389,7 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
           <Text style={styles.diceNumber}>{value}</Text>
 
           <Text style={styles.rollText}>
-            {disabled ? 'Tunggu...' : 'Kocok Dadu'}
+            {disabled ? 'Ditengga...' : `Ngocok dadu (${timeLeft} Detik)`}
           </Text>
 
           {/* Sparkle stars — pointerEvents none agar tidak ganggu roll */}

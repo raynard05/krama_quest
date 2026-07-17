@@ -7,7 +7,7 @@ interface TimeoutProps {
 }
 
 export default function Timeout({ isEnabled = true, onTimeUp }: TimeoutProps) {
-  const [timeLeft, setTimeLeft] = useState(30 * 60);
+  const [timeLeft, setTimeLeft] = useState(0 * 60);
 
   useEffect(() => {
     if (!isEnabled) return;
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth:2,
 
   },
   timeText: {

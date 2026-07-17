@@ -83,10 +83,18 @@ export const ANIMATION_SPEED = {
 
 import { Soal } from './types';
 
-// Helper to determine if a cell contains a question (even numbers create an alternating/selang-seling pattern)
+// Daftar kotak (sel) yang akan memunculkan soal saat bidak mendarat di atasnya.
+// Silakan tambah atau hapus angka di bawah ini untuk mengatur kotak mana saja yang mendapat soal.
+export const KOTAK_SOAL: number[] = [
+  2, 5, 7, 8, 9, 11, 14, 15, 18, 20, 19,
+  22, 23, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+  42, 44, 46, 48, 47, 46,
+];
+
+// Helper to determine if a cell contains a question
 export function isKotakSoal(cell: number): boolean {
   if (cell <= 0 || cell >= 50) return false; // Start and End cells do not trigger questions
-  return cell % 2 === 0;
+  return KOTAK_SOAL.includes(cell);
 }
 
 // Validation logic: "minimal 2 kata benar sudah dianggap benar"

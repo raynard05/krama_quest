@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ImageSourcePropType, Animated } from 'react-native';
+import { rs } from '../../utils/responsive';
 
 interface ScoreProps {
   playerName: string;
@@ -19,22 +20,49 @@ export default function Score({
   status = 'playing',
 }: ScoreProps) {
   const prevScoreRef = useRef(score);
-  const shimmerAnim = useRef(new Animated.Value(-200)).current;
+  const shimmerAnim = useRef(new Animated.Value(-300)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const trophyAnim = useRef(new Animated.Value(0)).current;
+  const [showTrophies, setShowTrophies] = useState(false);
 
   useEffect(() => {
     if (score > prevScoreRef.current) {
-      shimmerAnim.setValue(-200);
-      Animated.timing(shimmerAnim, {
-        toValue: 200,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
+      shimmerAnim.setValue(-300);
+      trophyAnim.setValue(0);
+      setShowTrophies(true);
+
+      Animated.parallel([
+        Animated.timing(shimmerAnim, {
+          toValue: 400,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+        Animated.timing(trophyAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.sequence([
+          Animated.timing(scaleAnim, {
+            toValue: 1.15,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          })
+        ])
+      ]).start(() => {
+        setShowTrophies(false);
+      });
     }
     prevScoreRef.current = score;
   }, [score]);
 
   return (
-    <View style={[styles.container, isTopPlayer ? styles.topStyle : styles.bottomStyle]}>
+    <Animated.View style={[styles.container, isTopPlayer ? styles.topStyle : styles.bottomStyle, { transform: [{ scale: scaleAnim }] }]}>
       {/* Animated shiny bar */}
       <Animated.View style={[
         styles.shimmerBar,
@@ -56,7 +84,28 @@ export default function Score({
           {status === 'spectator' ? '👀 Penonton' : `📝 ${soalTerjawabCount}/25 Soal`}
         </Text>
       </View>
-    </View>
+
+      {/* Floating Trophies */}
+      {showTrophies && (
+        <Animated.View style={[styles.trophyContainer, {
+          opacity: trophyAnim.interpolate({
+            inputRange: [0, 0.2, 0.8, 1],
+            outputRange: [0, 1, 1, 0]
+          }),
+          transform: [{
+            translateY: trophyAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [10, -20]
+            })
+          }]
+        }]}>
+          <Text style={styles.trophyText}>🏆</Text>
+          <Text style={[styles.trophyText, { fontSize: 14, marginLeft: -5, marginTop: 5 }]}>🏆</Text>
+          <Text style={[styles.trophyText, { fontSize: 18, marginLeft: 15 }]}>🏆</Text>
+          <Text style={[styles.trophyText, { fontSize: 12, marginLeft: -10, marginTop: 10 }]}>🏆</Text>
+        </Animated.View>
+      )}
+    </Animated.View>
   );
 }
 
@@ -73,15 +122,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-    minWidth: 180,
+    minWidth: rs(170, 180, 208),
     position: 'relative',
   },
   shimmerBar: {
     position: 'absolute',
     top: -60,
     bottom: -60,
-    width: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    width: 45,
+    backgroundColor: 'rgba(255, 235, 59, 0.95)',
+    shadowColor: '#FFFF00',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    elevation: 15,
     zIndex: 5,
   },
   topStyle: {
@@ -140,5 +194,15 @@ const styles = StyleSheet.create({
   },
   lightTextDim: {
     color: '#E0EFFF',
+  },
+  trophyContainer: {
+    position: 'absolute',
+    right: 20,
+    top: 5,
+    flexDirection: 'row',
+    zIndex: 10,
+  },
+  trophyText: {
+    fontSize: 20,
   }
 });
