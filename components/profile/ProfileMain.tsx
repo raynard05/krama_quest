@@ -10,8 +10,7 @@ import BacksoundSettingsScreen from './BacksoundSettingsScreen';
 interface ProfileMainProps {
   currentUser: (UserAccount & { avatarId?: string; avatarBgId?: string }) | null;
   onBack: () => void;
-  onUpdateAvatar: (avatarId: string) => void;
-  onUpdateAvatarBg: (avatarBgId: string) => void;
+  onUpdateBoth: (avatarId: string, avatarBgId: string) => void;
 }
 
 type SubScreen = 'main' | 'history' | 'avatar_picker' | 'backsound_settings';
@@ -19,8 +18,7 @@ type SubScreen = 'main' | 'history' | 'avatar_picker' | 'backsound_settings';
 export default function ProfileMain({
   currentUser,
   onBack,
-  onUpdateAvatar,
-  onUpdateAvatarBg
+  onUpdateBoth
 }: ProfileMainProps) {
   const [activeSubScreen, setActiveSubScreen] = useState<SubScreen>('main');
 
@@ -47,11 +45,8 @@ export default function ProfileMain({
           initialAvatarId={currentUser?.avatarId}
           initialAvatarBgId={currentUser?.avatarBgId}
           onBack={() => setActiveSubScreen('main')}
-          onSave={(avatarId) => {
-            onUpdateAvatar(avatarId);
-          }}
-          onSaveBg={(avatarBgId) => {
-            onUpdateAvatarBg(avatarBgId);
+          onSaveBoth={(avatarId, avatarBgId) => {
+            onUpdateBoth(avatarId, avatarBgId);
             setActiveSubScreen('main');
           }}
         />

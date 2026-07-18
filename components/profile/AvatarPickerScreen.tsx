@@ -21,8 +21,7 @@ interface AvatarPickerScreenProps {
   initialAvatarId: string | undefined;
   initialAvatarBgId: string | undefined;
   onBack: () => void;
-  onSave: (avatarId: string) => void;
-  onSaveBg: (avatarBgId: string) => void;
+  onSaveBoth: (avatarId: string, avatarBgId: string) => void;
 }
 
 // Optimized & Animated Grid Item component
@@ -143,8 +142,7 @@ export default function AvatarPickerScreen({
   initialAvatarId,
   initialAvatarBgId,
   onBack,
-  onSave,
-  onSaveBg
+  onSaveBoth
 }: AvatarPickerScreenProps) {
   const [selectedId, setSelectedId] = useState<string>(initialAvatarId || '1');
   const [selectedBgId, setSelectedBgId] = useState<string>(initialAvatarBgId || '1');
@@ -297,8 +295,7 @@ export default function AvatarPickerScreen({
           <TouchableOpacity
             style={styles.selesaiButton}
             onPress={() => {
-              onSave(selectedId);
-              onSaveBg(selectedBgId);
+              onSaveBoth(selectedId, selectedBgId);
             }}
             activeOpacity={0.8}
           >

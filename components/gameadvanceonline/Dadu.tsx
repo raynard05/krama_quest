@@ -362,7 +362,6 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
               />
             </View>
           </View>
-
           {/* Batik decorations */}
           <Animated.Image
             source={getBatikSource(batikId)}

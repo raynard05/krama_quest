@@ -21,6 +21,9 @@ import Timeout from './Timeout';
 import GamePopups from './GamePopups';
 import { Player, Soal } from '../../types';
 import { SNAKES, LADDERS, ANIMATION_SPEED, isKotakSoal, SOAL_BANK, checkAnswerCorrectness } from '../../constants';
+import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
+import { ProfileService } from '../../services/ProfileService';
+import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
 
 const INITIAL_PLAYERS: Player[] = [
   { id: 1, name: 'Sabitul', color: '#E25C3D', icon: '1', position: 0, type: 'human', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' },
@@ -35,18 +38,24 @@ const BACKGROUND_IMAGES = [
 ];
 interface GameScreenProps {
   currentUser: any;
+  isHost?: boolean;
+  initialPlayers: Player[];
   onBack: () => void;
 }
 
 export default function GameScreen({
   currentUser,
+  isHost = true,
+  initialPlayers,
   onBack,
 }: GameScreenProps) {
+  const localPlayerIndex = isHost ? 0 : 1;
+  const remotePlayerIndex = isHost ? 1 : 0;
   const [diceValue, setDiceValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState<boolean>(false);
   const isRollingRef = useRef<boolean>(false);
 
-  const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
+  const [players, setPlayers] = useState<Player[]>(initialPlayers);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [colorIndex, setColorIndex] = useState(0);
   const [playerLastRolls, setPlayerLastRolls] = useState<number[]>([1, 1]);
@@ -75,7 +84,80 @@ export default function GameScreen({
     const bgInterval = setInterval(() => {
       setBgIndex(prev => (prev + 1) % BACKGROUND_IMAGES.length);
     }, 30000);
-    return () => clearInterval(bgInterval);
+
+    // Fetch player profiles (avatars and batiks)
+    const fetchProfiles = async () => {
+      try {
+        const updatedPlayers = await Promise.all(
+          initialPlayers.map(async (p) => {
+            if (p.type === 'human') {
+              const userId = parseInt(p.icon, 10);
+              if (!isNaN(userId)) {
+                try {
+                  const profile = await ProfileService.fetchUserFullProfile(userId);
+                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId };
+                } catch (e) {
+                  console.warn('Failed to fetch profile for', userId, e);
+                  return p;
+                }
+              }
+            }
+            return p;
+          })
+        );
+        setPlayers(updatedPlayers);
+      } catch (err) {
+        console.warn('Error fetching player profiles:', err);
+      }
+    };
+    fetchProfiles();
+
+    // Register socket listener for gameplay events
+    const handleNetworkEvent = (event: NetworkEvent) => {
+      if (event.type === 'relay_sync') {
+        const payload = event.payload;
+        // payload: { t: turn, d: dice, p1: pos1, p2: pos2 }
+        if (payload.d !== undefined) {
+          setDiceValue(payload.d);
+        }
+        if (payload.t !== undefined) {
+          setCurrentPlayerIndex(payload.t);
+        }
+        if (payload.p1 !== undefined || payload.p2 !== undefined) {
+          setPlayers(prev => prev.map((p, idx) => {
+            if (idx === 0 && payload.p1 !== undefined) return { ...p, position: payload.p1 };
+            if (idx === 1 && payload.p2 !== undefined) return { ...p, position: payload.p2 };
+            return p;
+          }));
+        }
+      } else if (event.type === 'relay_sc') {
+        const payload = event.payload;
+        // payload: { p: playerIndex, v: valueId (1 for +1, 2 for +3, 3 for +8) }
+        const pointsToAdd = payload.v === 1 ? 1 : payload.v === 2 ? 3 : payload.v === 3 ? 8 : 0;
+        setPlayers(prev => prev.map((p, idx) => {
+          if (idx === payload.p) {
+            return { ...p, score: Math.min((p.score || 0) + pointsToAdd, 100) };
+          }
+          return p;
+        }));
+      } else if (event.type === 'relay_tu') {
+        const payload = event.payload;
+        // payload: { t: nextTurn, q1: count1, q2: count2 }
+        if (payload.t !== undefined) setCurrentPlayerIndex(payload.t);
+        setPlayers(prev => prev.map((p, idx) => {
+          if (idx === 0 && payload.q1 !== undefined) return { ...p, soalTerjawabCount: payload.q1 };
+          if (idx === 1 && payload.q2 !== undefined) return { ...p, soalTerjawabCount: payload.q2 };
+          return p;
+        }));
+      }
+    };
+
+    GameNetwork.registerListener(handleNetworkEvent);
+
+    return () => {
+      clearInterval(bgInterval);
+      GameNetwork.unregisterListener(handleNetworkEvent);
+    };
   }, []);
 
   const handleBackPress = () => {
@@ -146,11 +228,28 @@ export default function GameScreen({
 
     setCurrentPlayerIndex(nextTurn);
     setColorIndex(prev => prev + 1);
+
+    // Broadcast turn update (tu)
+    GameNetwork.sendRelay('tu', {
+      t: nextTurn,
+      q1: currentList[0].soalTerjawabCount || 0,
+      q2: currentList[1].soalTerjawabCount || 0
+    });
   };
 
   const handleAnswerSubmit = (userInput: string, question: Soal, isComputer: boolean = false) => {
     const isCorrect = checkAnswerCorrectness(userInput, question.kunciJawaban, question.minimal_jawab_benar);
     let triggeredSpectatorNotice = false;
+
+    if (isCorrect && question.bobot > 0) {
+      const v = question.bobot === 1 ? 1 : question.bobot === 3 ? 2 : question.bobot === 8 ? 3 : 0;
+      if (v > 0) {
+        GameNetwork.sendRelay('sc', {
+          p: currentPlayerIndex,
+          v: v
+        });
+      }
+    }
 
     setPlayers(prev => {
       const newPlayers = prev.map((p, idx) => {
@@ -282,19 +381,15 @@ export default function GameScreen({
       return;
     }
 
-    if (currentPlayer.type === 'human') {
+    // For multiplayer: if it's the local player's turn, show dadu card. Else, show enemy rolling popup.
+    if (currentPlayerIndex === localPlayerIndex) {
       setShowDaduCard(true);
       setShowEnemyRollPopup(false);
     } else {
       setShowDaduCard(false);
       setShowEnemyRollPopup(true);
-      // Auto-roll for computer
-      const timer = setTimeout(() => {
-        handleRollDice();
-      }, 1500);
-      return () => clearTimeout(timer);
     }
-  }, [currentPlayerIndex, gameFinished, startCountdown, colorIndex]);
+  }, [currentPlayerIndex, gameFinished, startCountdown, colorIndex, localPlayerIndex]);
 
   const handleRollDice = async () => {
     if (isRollingRef.current) return;
@@ -313,6 +408,11 @@ export default function GameScreen({
         setDiceValue(finalValue);
         isRollingRef.current = false;
         setIsRolling(false);
+        // Broadcast final dice roll
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          d: finalValue
+        });
         handleDiceRollEnd(finalValue);
       }
     }, 100);
@@ -343,6 +443,11 @@ export default function GameScreen({
       // Move cell by cell to the target
       for (let i = current + 1; i <= finalTarget; i++) {
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: i } : p));
+        // Broadcast position sync
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          ...(currentPlayerIndex === 0 ? { p1: i } : { p2: i })
+        });
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.STEP_DELAY_MS));
       }
 
@@ -357,6 +462,10 @@ export default function GameScreen({
           }
           return p;
         }));
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          ...(currentPlayerIndex === 0 ? { p1: 1 } : { p2: 1 })
+        });
         finalTarget = 1;
         await new Promise(resolve => setTimeout(resolve, 400));
       }
@@ -375,6 +484,10 @@ export default function GameScreen({
       if (hasSnakeOrLadder) {
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS));
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: finalPos } : p));
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          ...(currentPlayerIndex === 0 ? { p1: finalPos } : { p2: finalPos })
+        });
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS + 100));
       }
 
@@ -441,6 +554,13 @@ export default function GameScreen({
       {/* DEBUG TEST BUTTONS - JANGAN LUPA DIHAPUS SAAT PRODUCTION */}
       <View style={{ position: 'absolute', top: 60, right: 10, zIndex: 9999, elevation: 10, gap: 10 }}>
         <TouchableOpacity 
+          style={{ backgroundColor: '#EF4444', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
+          onPress={() => onBack()}
+        >
+          <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Back-Force Debug</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
           style={{ backgroundColor: '#E25C3D', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
           onPress={() => {
             setPlayers(prev => prev.map((p, idx) => idx === 0 ? { ...p, soalTerjawabCount: 25, status: 'spectator' } : p));
@@ -492,21 +612,21 @@ export default function GameScreen({
             {/* Main content body */}
             <View style={styles.contentBody}>
               <View style={styles.boardWrapper}>
-                {/* Top Player Score (Wafi - Index 1 = Lawan) */}
+                {/* Top Player Score (Lawan / Remote) */}
                 <View style={styles.topScoreContainer}>
                   <Score
-                    playerName={players[1].name}
-                    score={players[1].score || 0}
-                    avatarSource={require('../../assets/profile-pic/2.webp')}
+                    playerName={players[remotePlayerIndex].name}
+                    score={players[remotePlayerIndex].score || 0}
+                    avatarSource={getAvatarSource(players[remotePlayerIndex].avatarId)}
                     isTopPlayer={true}
-                    soalTerjawabCount={players[1].soalTerjawabCount || 0}
-                    status={players[1].status}
+                    soalTerjawabCount={players[remotePlayerIndex].soalTerjawabCount || 0}
+                    status={players[remotePlayerIndex].status}
                   />
                 </View>
 
-                {/* Top Player Dice = Lawan (Index 1) */}
+                {/* Top Player Dice = Lawan / Remote */}
                 <View style={styles.topDiceContainer}>
-                  <Image source={getDiceImage(playerLastRolls[1])} style={styles.diceImage} resizeMode="contain" />
+                  <Image source={getDiceImage(playerLastRolls[remotePlayerIndex])} style={styles.diceImage} resizeMode="contain" />
                 </View>
 
                 {/* Board Component */}
@@ -514,20 +634,20 @@ export default function GameScreen({
 
 
 
-                {/* Bottom Player Dice = Device Player (Index 0) */}
+                {/* Bottom Player Dice = Device Player / Local */}
                 <View style={styles.bottomDiceContainer}>
-                  <Image source={getDiceImage(playerLastRolls[0])} style={styles.diceImage} resizeMode="contain" />
+                  <Image source={getDiceImage(playerLastRolls[localPlayerIndex])} style={styles.diceImage} resizeMode="contain" />
                 </View>
 
-                {/* Bottom Player Score (Sabitul - Index 0 = Device Player) */}
+                {/* Bottom Player Score (Device Player / Local) */}
                 <View style={styles.bottomScoreContainer}>
                   <Score
-                    playerName={players[0].name}
-                    score={players[0].score || 0}
-                    avatarSource={require('../../assets/profile-pic/1.webp')}
+                    playerName={players[localPlayerIndex].name}
+                    score={players[localPlayerIndex].score || 0}
+                    avatarSource={getAvatarSource(players[localPlayerIndex].avatarId)}
                     isTopPlayer={false}
-                    soalTerjawabCount={players[0].soalTerjawabCount || 0}
-                    status={players[0].status}
+                    soalTerjawabCount={players[localPlayerIndex].soalTerjawabCount || 0}
+                    status={players[localPlayerIndex].status}
                   />
                 </View>
               </View>
@@ -558,6 +678,7 @@ export default function GameScreen({
         setIsAnswerCorrect={setIsAnswerCorrect}
         questionTimeLeft={questionTimeLeft}
         currentPlayer={players[currentPlayerIndex]}
+        isLocalTurn={currentPlayerIndex === localPlayerIndex}
         handleAnswerSubmit={handleAnswerSubmit}
         showSpectatorPopup={showSpectatorPopup}
         setShowSpectatorPopup={setShowSpectatorPopup}
@@ -605,6 +726,8 @@ export default function GameScreen({
               onRoll={handleRollDice}
               disabled={isRolling || (players[currentPlayerIndex]?.type as string) === 'computer'}
               colorIndex={colorIndex}
+              avatarId={players[currentPlayerIndex].avatarId}
+              batikId={players[currentPlayerIndex].batikId}
             />
           </Animated.View>
         </View>
@@ -671,35 +794,64 @@ export default function GameScreen({
         </View>
       )}
 
-      {/* Enemy Rolling Popup */}
-      {showEnemyRollPopup && startCountdown === null && !gameFinished && (
-        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0, 0, 0, 0.75)', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
-          <View style={{
-            width: '85%',
-            backgroundColor: '#FFECC0',
-            borderRadius: 20,
-            padding: 24,
-            borderWidth: 4,
-            borderColor: '#784B23',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 5 },
-            shadowOpacity: 0.5,
-            shadowRadius: 10,
-            elevation: 10,
-            alignItems: 'center',
-          }}>
-            <Text style={{
-              fontSize: 20,
-              fontWeight: 'bold',
-              color: '#784B23',
-              fontFamily: 'Poppins-Bold',
-              textAlign: 'center'
-            }}>
-              Nengga mungsuh ngocak dadu
-            </Text>
-          </View>
+      {/* Vertical Turn Indicator on the Right Side */}
+      {startCountdown === null && !gameFinished && (
+        <View style={{
+          position: 'absolute',
+          right: -60,
+          top: '45%',
+          width: 160,
+          transform: [{ rotate: '-90deg' }],
+          backgroundColor: currentPlayerIndex === localPlayerIndex ? '#00BFFF' : '#FF4500',
+          paddingVertical: 8,
+          alignItems: 'center',
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          borderWidth: 2,
+          borderColor: '#FFF',
+          borderBottomWidth: 0,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.3,
+          shadowRadius: 4,
+          elevation: 5,
+          zIndex: 50,
+        }}>
+          <Text style={{ 
+            color: 'white', 
+            fontFamily: 'Poppins-Bold', 
+            fontSize: 14,
+            letterSpacing: 1
+          }} numberOfLines={1}>
+            {currentPlayerIndex === localPlayerIndex ? 'Giliran Kamu' : `Giliran ${players[currentPlayerIndex]?.name || 'Lawan'}`}
+          </Text>
         </View>
       )}
+
+      {/* Force Back Button for Debugging */}
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          top: 40,
+          left: 20,
+          zIndex: 10000,
+          backgroundColor: '#FF3366',
+          paddingVertical: 10,
+          paddingHorizontal: 15,
+          borderRadius: 8,
+          borderWidth: 2,
+          borderColor: 'white',
+          elevation: 5,
+        }}
+        onPress={() => {
+          console.log('[DEBUG] Force Back button pressed');
+          onBack();
+        }}
+      >
+        <Text style={{ color: 'white', fontFamily: 'Poppins-Bold', fontSize: 14 }}>
+          BACK-FORCE
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

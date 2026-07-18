@@ -6,6 +6,7 @@ export interface Soal {
   pertanyaan: string;
   kunciJawaban: string; // supports alternatives separated by '/'
   bobot: number;
+  minimal_jawab_benar: number; // minimum matching words to be considered correct
 }
 
 export interface Player {
@@ -22,6 +23,8 @@ export interface Player {
   answeredQuestionIds?: string[];
   activeQuestionId?: string | null;
   status?: 'playing' | 'spectator';
+  avatarId?: string;
+  batikId?: string;
 }
 
 export type GameStatus = 'lobby' | 'playing' | 'victory';

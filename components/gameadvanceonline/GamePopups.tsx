@@ -21,6 +21,7 @@ interface GamePopupsProps {
   setIsAnswerCorrect: (correct: boolean | null) => void;
   questionTimeLeft: number;
   currentPlayer: Player;
+  isLocalTurn: boolean;
   handleAnswerSubmit: (answer: string, question: Soal) => void;
 
   // Spectator Notice
@@ -52,6 +53,7 @@ export default function GamePopups({
   setIsAnswerCorrect,
   questionTimeLeft,
   currentPlayer,
+  isLocalTurn,
   handleAnswerSubmit,
   showSpectatorPopup,
   setShowSpectatorPopup,
@@ -147,7 +149,7 @@ export default function GamePopups({
                 </View>
 
                 {/* 1-Minute Countdown Timer for Human Players */}
-                {currentPlayer.type === 'human' && (
+                {isLocalTurn && (
                   <View style={styles.popupTimerContainer}>
                     <Text style={styles.popupTimerText}>
                       ⏳ {String(Math.floor(questionTimeLeft / 60)).padStart(2, '0')}:{String(questionTimeLeft % 60).padStart(2, '0')}
@@ -157,7 +159,7 @@ export default function GamePopups({
 
                 {/* Info turn banner */}
                 <Text style={{ color: '#fbff00ff', fontSize: 13, fontFamily: 'Poppins-Bold', marginBottom: 5 }}>
-                  {currentPlayer.type === 'computer'
+                  {!isLocalTurn
                     ? `Giliran ${currentPlayer.name} Mangsuli`
                     : `Wayahmu Mangsuli`}
                 </Text>
@@ -171,16 +173,16 @@ export default function GamePopups({
                     style={styles.textInput}
                     value={typedAnswer}
                     onChangeText={setTypedAnswer}
-                    placeholder={currentPlayer.type === 'computer' ? "Komputer lagi ngetik..." : "Tulis wangsulanmu..."}
+                    placeholder={!isLocalTurn ? `${currentPlayer.name} lagi ngetik...` : "Tulis wangsulanmu..."}
                     placeholderTextColor="#999999"
-                    editable={currentPlayer.type === 'human'}
+                    editable={isLocalTurn}
                     autoCapitalize="none"
                     autoCorrect={false}
                   />
                 </View>
 
                 {/* Kirim Jawaban Button overlay for Humans (invisible, matches the pre-drawn asset button) */}
-                {currentPlayer.type === 'human' && (
+                {isLocalTurn && (
                   <TouchableOpacity
                     style={styles.invisibleSubmitButton}
                     onPress={() => {

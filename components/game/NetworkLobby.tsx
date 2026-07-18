@@ -43,12 +43,11 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
   const [netPlayers, setNetPlayers] = useState<Player[]>([]);
   const [localClientId, setLocalClientId] = useState<number>(0);
 
-  // Clean socket listener on unmount
+  // Clean socket listener on unmount — tidak hapus koneksi karena masih dipakai saat gameplay
+  // Tidak perlu apa-apa di sini karena listener di-handle per effect di bawah
   useEffect(() => {
     return () => {
-      // Do NOT close the socket connection here because we need it during gameplay.
-      // Just clear the lobby listener callback to prevent memory leaks or warnings.
-      GameNetwork.registerListener(() => {});
+      // Nothing to do here — listener cleanup handled per useEffect below
     };
   }, []);
 
@@ -56,7 +55,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
   useEffect(() => {
     if (lobbyMode !== 'network') return;
 
-    GameNetwork.registerListener((event: NetworkEvent) => {
+    const handler = (event: NetworkEvent) => {
       switch (event.type) {
         case 'room_created':
           if (networkRole === 'host') {
@@ -112,7 +111,6 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
 
               // Broadcast updated player list to all clients
               const updatedPlayers = [...currentPlayers, newPlayer];
-              // Simulate small delay to let clients authenticate
               setTimeout(() => {
                 GameNetwork.broadcastState({
                   players: updatedPlayers,
@@ -134,13 +132,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
           if (networkRole === 'host') {
             setNetPlayers((currentPlayers) => {
               const updated = currentPlayers.filter(p => p.id !== event.playerId);
-              // Re-index remaining players
-              const reindexed = updated.map((p, idx) => ({
-                ...p,
-                id: idx + 1
-              }));
-              
-              // Broadcast update
+              const reindexed = updated.map((p, idx) => ({ ...p, id: idx + 1 }));
               GameNetwork.broadcastState({
                 players: reindexed,
                 currentPlayerIndex: 0,
@@ -150,7 +142,6 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
                 logs: [],
                 winner: null
               });
-
               return reindexed;
             });
           }
@@ -173,19 +164,23 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
           break;
 
         case 'state_synced':
-          // Synced from host. If it's a 'lobby' update, update client player list
           if (networkRole === 'client') {
             setNetPlayers(event.state.players);
-            
-            // If Host starts the game, transition client screen to gameplay!
             if (event.state.status === 'playing') {
               onStartNetworkGame(event.state.players, 'client', localClientId);
             }
           }
           break;
       }
-    });
+    };
+
+    GameNetwork.registerListener(handler);
+
+    return () => {
+      GameNetwork.unregisterListener(handler);
+    };
   }, [lobbyMode, networkRole, localClientId]);
+
 
   // Host: Create Room on central server
   const handleHostStartRoom = () => {

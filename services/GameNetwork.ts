@@ -8,15 +8,31 @@ export type NetworkEvent =
   | { type: 'action_requested'; action: 'roll' | 'reset' | 'back' | 'ready'; playerId: number }
   | { type: 'join_result'; success: boolean; playerId?: number; error?: string }
   | { type: 'connection_status'; status: 'connected' | 'disconnected' | 'error'; error?: string }
-  | { type: 'room_created'; roomCode: string };
+  | { type: 'room_created'; roomCode: string }
+  // Minified payload events for gameadvanceonline
+  | { type: 'relay_pj'; payload: any }
+  | { type: 'relay_sync'; payload: any }
+  | { type: 'relay_sc'; payload: any }
+  | { type: 'relay_tu'; payload: any };
 
 class GameNetworkManager {
   private socket: any = null;
   private roomCode: string = '';
-  private onEventCallback: (event: NetworkEvent) => void = () => {};
+  // Array of listeners - supports multiple components listening simultaneously
+  private listeners: ((event: NetworkEvent) => void)[] = [];
 
   registerListener(callback: (event: NetworkEvent) => void) {
-    this.onEventCallback = callback;
+    if (!this.listeners.includes(callback)) {
+      this.listeners.push(callback);
+    }
+  }
+
+  unregisterListener(callback: (event: NetworkEvent) => void) {
+    this.listeners = this.listeners.filter(cb => cb !== callback);
+  }
+
+  private emit(event: NetworkEvent) {
+    this.listeners.forEach(cb => cb(event));
   }
 
   // HOST: Register Room on Server
@@ -38,82 +54,53 @@ class GameNetworkManager {
       this.socket.on('roomCreated', ({ roomCode }: { roomCode: string }) => {
         this.roomCode = roomCode;
         console.log('Host: Room created successfully with code:', roomCode);
-        this.onEventCallback({
-          type: 'room_created',
-          roomCode
-        });
+        this.emit({ type: 'room_created', roomCode });
       });
 
       this.socket.on('clientJoinRequest', ({ socketId, name, color, icon }: any) => {
-        this.onEventCallback({
-          type: 'client_join_request',
-          socket: socketId,
-          payload: { name, color, icon }
-        });
+        this.emit({ type: 'client_join_request', socket: socketId, payload: { name, color, icon } });
       });
 
       this.socket.on('actionRequested', ({ action, playerId }: any) => {
-        console.log(`[Socket] Host received actionRequested event from Server: "${action}" for Player ${playerId}`);
-        this.onEventCallback({
-          type: 'action_requested',
-          action,
-          playerId
-        });
+        console.log(`[Socket] Host received actionRequested: "${action}" for Player ${playerId}`);
+        this.emit({ type: 'action_requested', action, playerId });
       });
 
       this.socket.on('clientDisconnected', ({ socketId, playerId }: any) => {
-        this.onEventCallback({
-          type: 'client_disconnected',
-          socket: socketId,
-          playerId
-        });
+        this.emit({ type: 'client_disconnected', socket: socketId, playerId });
       });
+
+      // Listen for Minified Relays
+      this.socket.on('pj', (payload: any) => this.emit({ type: 'relay_pj', payload }));
+      this.socket.on('sync', (payload: any) => this.emit({ type: 'relay_sync', payload }));
+      this.socket.on('sc', (payload: any) => this.emit({ type: 'relay_sc', payload }));
+      this.socket.on('tu', (payload: any) => this.emit({ type: 'relay_tu', payload }));
 
       this.socket.on('connect_error', (err: any) => {
         console.error('Host: Socket connection error:', err);
-        this.onEventCallback({
-          type: 'connection_status',
-          status: 'error',
-          error: `Gagal menyambung ke server: ${err.message}`
-        });
+        this.emit({ type: 'connection_status', status: 'error', error: `Gagal menyambung ke server: ${err.message}` });
       });
 
       this.socket.on('disconnect', () => {
         console.log('Host: Disconnected from central server');
-        this.onEventCallback({
-          type: 'connection_status',
-          status: 'disconnected'
-        });
+        this.emit({ type: 'connection_status', status: 'disconnected' });
       });
     } catch (e: any) {
-      this.onEventCallback({
-        type: 'connection_status',
-        status: 'error',
-        error: `Gagal: ${e?.message || e || 'Kesalahan tidak diketahui'}`
-      });
+      this.emit({ type: 'connection_status', status: 'error', error: `Gagal: ${e?.message || e || 'Kesalahan tidak diketahui'}` });
     }
   }
 
   // HOST: Accept client and assign ID
   confirmClientJoin(socketId: string, playerId: number, success: boolean, error?: string) {
     if (this.socket && this.roomCode) {
-      this.socket.emit('confirmJoin', {
-        roomCode: this.roomCode,
-        socketId,
-        playerId,
-        success,
-        error
-      });
+      this.socket.emit('confirmJoin', { roomCode: this.roomCode, socketId, playerId, success, error });
     }
   }
 
   // HOST: Send game state update to all clients
   broadcastState(state: GameState) {
     if (this.socket && this.roomCode) {
-      this.socket.emit('updateState', {
-        roomCode: this.roomCode,
-        state
-      });
+      this.socket.emit('updateState', { roomCode: this.roomCode, state });
     }
   }
 
@@ -141,53 +128,36 @@ class GameNetworkManager {
       });
 
       this.socket.on('joinResponse', ({ success, playerId, error }: any) => {
-        this.onEventCallback({
-          type: 'join_result',
-          success,
-          playerId,
-          error
-        });
+        this.emit({ type: 'join_result', success, playerId, error });
       });
 
       this.socket.on('stateSynced', ({ state }: any) => {
-        this.onEventCallback({
-          type: 'state_synced',
-          state
-        });
+        this.emit({ type: 'state_synced', state });
       });
 
       this.socket.on('connectionStatus', ({ status, message }: any) => {
         if (status === 'disconnected') {
-          this.onEventCallback({
-            type: 'connection_status',
-            status: 'disconnected',
-            error: message
-          });
+          this.emit({ type: 'connection_status', status: 'disconnected', error: message });
         }
       });
 
+      // Listen for Minified Relays
+      this.socket.on('pj', (payload: any) => this.emit({ type: 'relay_pj', payload }));
+      this.socket.on('sync', (payload: any) => this.emit({ type: 'relay_sync', payload }));
+      this.socket.on('sc', (payload: any) => this.emit({ type: 'relay_sc', payload }));
+      this.socket.on('tu', (payload: any) => this.emit({ type: 'relay_tu', payload }));
+
       this.socket.on('connect_error', (err: any) => {
         console.error('Client: Socket connection error:', err);
-        this.onEventCallback({
-          type: 'connection_status',
-          status: 'error',
-          error: `Gagal menyambung ke server: ${err.message}`
-        });
+        this.emit({ type: 'connection_status', status: 'error', error: `Gagal menyambung ke server: ${err.message}` });
       });
 
       this.socket.on('disconnect', () => {
         console.log('Client: Disconnected from central server');
-        this.onEventCallback({
-          type: 'connection_status',
-          status: 'disconnected'
-        });
+        this.emit({ type: 'connection_status', status: 'disconnected' });
       });
     } catch (err: any) {
-      this.onEventCallback({
-        type: 'connection_status',
-        status: 'error',
-        error: `Gagal menyambung: ${err.message}`
-      });
+      this.emit({ type: 'connection_status', status: 'error', error: `Gagal menyambung: ${err.message}` });
     }
   }
 
@@ -195,21 +165,25 @@ class GameNetworkManager {
   requestAction(action: 'roll' | 'reset' | 'back' | 'ready', playerId: number) {
     if (this.socket && this.roomCode) {
       console.log(`[Socket] Client emitting requestAction: "${action}" for Player ${playerId}`);
-      this.socket.emit('requestAction', {
-        roomCode: this.roomCode,
-        action,
-        playerId
-      });
+      this.socket.emit('requestAction', { roomCode: this.roomCode, action, playerId });
     }
   }
 
-  // Close socket
+  // Send minified relay event to server (will be broadcast to other player in room)
+  sendRelay(event: 'pj' | 'sync' | 'sc' | 'tu', payload: any) {
+    if (this.socket) {
+      this.socket.emit(event, payload);
+    }
+  }
+
+  // Close socket and clear all listeners
   closeAll() {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
     }
     this.roomCode = '';
+    this.listeners = [];
   }
 }
 

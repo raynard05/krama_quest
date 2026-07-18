@@ -42,6 +42,7 @@ import MateriScreen from './components/materi/MateriScreen';
 import CpTpScreen from './components/cptp/CpTpScreen';
 import DolananScreen from './components/dolanan/DolananScreen';
 import GameScreen from './components/gameadvance/GameScreen';
+import GameScreenOnline from './components/gameadvanceonline/GameScreen';
 import { SoundManager } from './utils/SoundManager';
 
 
@@ -85,20 +86,6 @@ export default function App() {
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
   const [showGameScreen, setShowGameScreen] = useState<boolean>(false);
   
-
-  const handleUpdateAvatar = async (avatarId: string) => {
-    if (currentUser) {
-      setCurrentUser(prev => prev ? { ...prev, avatarId } : null);
-      await ProfileService.updateUserAvatar(currentUser.id, avatarId);
-    }
-  };
-
-  const handleUpdateAvatarBg = async (avatarBgId: string) => {
-    if (currentUser) {
-      setCurrentUser(prev => prev ? { ...prev, avatarBgId } : null);
-      await ProfileService.updateUserAvatarBg(currentUser.id, avatarBgId);
-    }
-  };
 
   const handleLoginSuccess = (user: UserAccount) => {
     // Transition screen state immediately to prevent lockups
@@ -508,7 +495,7 @@ export default function App() {
   useEffect(() => {
     if (networkRole === 'local' || status !== 'playing') return;
 
-    GameNetwork.registerListener((event: NetworkEvent) => {
+    const handler = (event: NetworkEvent) => {
       switch (event.type) {
         case 'action_requested':
           console.log(`[Multiplayer] Host received action request: "${event.action}" from Player ${event.playerId}`);
@@ -551,7 +538,6 @@ export default function App() {
 
         case 'client_disconnected':
           if (networkRole === 'host') {
-            // If client disconnects mid-game, convert their player to AI
             setPlayers((currentPlayers) => {
               const disconnected = currentPlayers.find(p => p.id === event.playerId);
               if (disconnected) {
@@ -573,15 +559,16 @@ export default function App() {
 
         case 'connection_status':
           if (event.status === 'disconnected' || event.status === 'error') {
-            // Return to lobby if connection cuts out
             handleBackToLobby();
           }
           break;
       }
-    });
+    };
+
+    GameNetwork.registerListener(handler);
 
     return () => {
-      GameNetwork.registerListener(() => {});
+      GameNetwork.unregisterListener(handler);
     };
   }, [networkRole, status, players, currentPlayerIndex]);
 
@@ -751,8 +738,14 @@ export default function App() {
               setShowProfile(false);
               setShowDashboard(true);
             }}
-            onUpdateAvatar={handleUpdateAvatar}
-            onUpdateAvatarBg={handleUpdateAvatarBg}
+            onUpdateBoth={async (avatarId, avatarBgId) => {
+              if (currentUser) {
+                const success = await ProfileService.updateAvatarAndBg(currentUser.id, avatarId, avatarBgId);
+                if (success) {
+                  setCurrentUser({ ...currentUser, avatarId, avatarBgId });
+                }
+              }
+            }}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />
@@ -909,7 +902,23 @@ export default function App() {
       );
     }
 
-    // Render gameplay and victory screens
+    // Render GameScreenOnline for multiplayer matches
+    if (status === 'playing' && networkRole !== 'local') {
+      return (
+        <>
+          <GameScreenOnline
+            currentUser={currentUser}
+            isHost={networkRole === 'host'}
+            initialPlayers={players}
+            onBack={handleBackToLobby}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
+    // Render original gameplay and victory screens for local mode
     return (
       <SafeAreaView style={styles.safeArea}>
         {/* Glow Aurora Blobs */}

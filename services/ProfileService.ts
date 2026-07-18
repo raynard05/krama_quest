@@ -43,17 +43,20 @@ export const ProfileService = {
     }
   },
 
-  /**
-   * Updates the user's selected profile picture number directly in Supabase.
-   * Updates the local client-side memory cache immediately.
-   */
   async updateUserAvatar(userId: number, avatarId: string): Promise<boolean> {
     try {
       // 1. Update cache immediately
       avatarCache[userId] = avatarId;
 
-      // Get background from cache or default to 1
-      const bgId = avatarBgCache[userId] || '1';
+      // Fetch current profile pic record to avoid overwriting existing bg/gaco values
+      const { data } = await supabase
+        .from('profile_pic')
+        .select('bg_num, gaco_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      const bgNum = data?.bg_num ?? 1;
+      const gacoNum = data?.gaco_num ?? 1;
 
       // 2. Persist in Supabase directly
       const { error } = await supabase
@@ -61,7 +64,8 @@ export const ProfileService = {
         .upsert({
           user_account_id: userId,
           profile_pic_num: parseInt(avatarId, 10),
-          bg_num: parseInt(bgId, 10),
+          bg_num: bgNum,
+          gaco_num: gacoNum,
           created_at: new Date()
         }, { onConflict: 'user_account_id' });
 
@@ -107,16 +111,24 @@ export const ProfileService = {
       // 1. Update cache immediately
       avatarBgCache[userId] = avatarBgId;
 
-      // Get avatar from cache or default to 1
-      const avatarId = avatarCache[userId] || '1';
+      // Fetch current profile pic record to avoid overwriting existing avatar/gaco values
+      const { data } = await supabase
+        .from('profile_pic')
+        .select('profile_pic_num, gaco_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      const profilePicNum = data?.profile_pic_num ?? 1;
+      const gacoNum = data?.gaco_num ?? 1;
 
       // 2. Persist in Supabase directly
       const { error } = await supabase
         .from('profile_pic')
         .upsert({
           user_account_id: userId,
-          profile_pic_num: parseInt(avatarId, 10),
+          profile_pic_num: profilePicNum,
           bg_num: parseInt(avatarBgId, 10),
+          gaco_num: gacoNum,
           created_at: new Date()
         }, { onConflict: 'user_account_id' });
 
@@ -124,6 +136,37 @@ export const ProfileService = {
       return true;
     } catch (err) {
       console.warn('[ProfileService] Direct Supabase upsert BG failed:', err);
+      return false;
+    }
+  },
+
+  async updateAvatarAndBg(userId: number, avatarId: string, avatarBgId: string): Promise<boolean> {
+    try {
+      avatarCache[userId] = avatarId;
+      avatarBgCache[userId] = avatarBgId;
+
+      const { data } = await supabase
+        .from('profile_pic')
+        .select('gaco_num')
+        .eq('user_account_id', userId)
+        .maybeSingle();
+
+      const gacoNum = data?.gaco_num ?? 1;
+
+      const { error } = await supabase
+        .from('profile_pic')
+        .upsert({
+          user_account_id: userId,
+          profile_pic_num: parseInt(avatarId, 10),
+          bg_num: parseInt(avatarBgId, 10),
+          gaco_num: gacoNum,
+          created_at: new Date()
+        }, { onConflict: 'user_account_id' });
+
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.warn('[ProfileService] Direct Supabase upsert both failed:', err);
       return false;
     }
   },

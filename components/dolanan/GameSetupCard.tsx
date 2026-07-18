@@ -59,6 +59,9 @@ export default function GameSetupCard({
   currentUserAvatarId,
   availablePlayers = []
 }: GameSetupCardProps) {
+  const currentUserProfile = availablePlayers.find(p => p.id === currentUserId);
+  const currentUserName = currentUserProfile?.nama_lengkap || currentUserProfile?.username || 'Anda';
+  
   const [activeMode, setActiveMode] = useState<ModeType>('lokal');
   const [activePlayer, setActivePlayer] = useState<PlayerType>('player1');
   const [opponentType, setOpponentType] = useState<OpponentType>('pemain');
@@ -158,7 +161,7 @@ export default function GameSetupCard({
         setIsJoinRoomActive(true);
 
         const clientInfo = {
-          name: 'Anda',
+          name: currentUserName,
           color: '#2976BF',
           icon: String(currentUserId) // send current user's DB ID in the icon slot!
         };
@@ -182,7 +185,7 @@ export default function GameSetupCard({
     // Broadcast play status to all connected clients
     GameNetwork.broadcastState({
       players: [
-        { id: 1, name: 'Anda', color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
+        { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
         { 
           id: 2, 
           name: opponentName, 
@@ -219,7 +222,7 @@ export default function GameSetupCard({
         networkRole: 'host',
         localPlayerId: 1,
         playersList: [
-          { id: 1, name: 'Anda', color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
+          { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
           { id: 2, name: opponentName, color: opponentColor, icon: String(opponentUserId), position: 0, type: 'human', isWinner: false }
         ]
       });
@@ -261,7 +264,7 @@ export default function GameSetupCard({
   useEffect(() => {
     if (!isWaitingRoomActive && !isJoinRoomActive) return;
 
-    GameNetwork.registerListener((event: NetworkEvent) => {
+    const handler = (event: NetworkEvent) => {
       // Host side events
       if (isWaitingRoomActive) {
         switch (event.type) {
@@ -290,7 +293,7 @@ export default function GameSetupCard({
               setTimeout(() => {
                 GameNetwork.broadcastState({
                   players: [
-                    { id: 1, name: 'Anda', color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
+                    { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
                     { id: 2, name: opponentInfo.name, color: opponentInfo.color, icon: String(clientUserId), position: 0, type: 'human', isWinner: false }
                   ],
                   currentPlayerIndex: 0,
@@ -405,10 +408,12 @@ export default function GameSetupCard({
             break;
         }
       }
-    });
+    };
+
+    GameNetwork.registerListener(handler);
 
     return () => {
-      GameNetwork.registerListener(() => {});
+      GameNetwork.unregisterListener(handler);
     };
   }, [isWaitingRoomActive, isJoinRoomActive, currentUserAvatarId, joinedPlayer, joinedHostPlayer, assignedPlayerId, isClientReady]);
 
@@ -596,6 +601,7 @@ export default function GameSetupCard({
         <WaitingRoomCard
           roomCode={activeRoomCode}
           currentUserAvatarId={currentUserAvatarId}
+          currentUserName={currentUserName}
           player2Name={joinedPlayer?.name}
           player2AvatarId={joinedPlayer?.avatarId}
           isPlayer2Ready={isClientReady}

@@ -7,6 +7,7 @@ import { getAvatarSource } from '../profile/ProfileAvatars';
 interface WaitingRoomCardProps {
   roomCode: string;
   currentUserAvatarId: string | undefined;
+  currentUserName?: string;
   player2Name?: string;
   player2AvatarId?: string;
   isPlayer2Ready?: boolean;
@@ -17,6 +18,7 @@ interface WaitingRoomCardProps {
 export default function WaitingRoomCard({
   roomCode,
   currentUserAvatarId,
+  currentUserName,
   player2Name,
   player2AvatarId,
   isPlayer2Ready = false,
@@ -75,7 +77,7 @@ export default function WaitingRoomCard({
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.avatarLabel}>Anda</Text>
+          <Text style={styles.avatarLabel}>{currentUserName || 'Anda'}</Text>
           <Text style={{ fontSize: 12, fontWeight: '700', marginTop: 4, color: '#34D399', fontFamily: 'Poppins-Bold' }}>✓ Siap</Text>
         </View>
 

@@ -151,6 +151,7 @@ export default function DolananScreen({
                 // Show GameSetupCard (Lokal/Online, Player setup)   
                 <GameSetupCard
                   currentUserId={currentUserId}
+                  currentUserName={currentUser?.nama_lengkap || currentUser?.username}
                   currentUserAvatarId={currentUser?.avatarId}
                   availablePlayers={availablePlayers}
                   onStartGame={handleStartGame}
