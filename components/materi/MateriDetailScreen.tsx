@@ -14,6 +14,7 @@ import {
 import styles from '../../styles/materi/MateriStyles';
 import { rs, scaleFont, vw, vh } from '../../utils/responsive';
 import BackButton from '../BackButton';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface MateriDetailScreenProps {
   nodeId: number;

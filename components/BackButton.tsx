@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import { SoundTouchableOpacity } from './SoundTouchableOpacity';
 
 interface BackButtonProps {
   onPress: () => void;
@@ -8,13 +9,13 @@ interface BackButtonProps {
 
 export default function BackButton({ onPress, style }: BackButtonProps) {
   return (
-    <TouchableOpacity style={[styles.container, style]} onPress={onPress} activeOpacity={0.7}>
+    <SoundTouchableOpacity style={[styles.container, style]} onPress={onPress} activeOpacity={0.7}>
       <Image
         source={require('../assets/dashboard_assets/back.png')}
         style={styles.image}
         resizeMode="contain"
       />
-    </TouchableOpacity>
+    </SoundTouchableOpacity>
   );
 }
 

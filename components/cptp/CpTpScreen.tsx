@@ -13,6 +13,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import styles from '../../styles/cptp/CpTpStyles';
 import { rs, scaleFont } from '../../utils/responsive';
 import BackButton from '../BackButton';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface CpTpScreenProps {
   onBack: () => void;
@@ -75,7 +76,7 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
 
             {/* Segmented Control Tabs */}
             <View style={styles.tabsContainer}>
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[styles.tabButton, activeTab === 'cp' && styles.tabButtonActive]}
                 onPress={() => setActiveTab('cp')}
                 activeOpacity={0.8}
@@ -83,9 +84,9 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
                 <Text style={[styles.tabText, activeTab === 'cp' && styles.tabTextActive]}>
                   Capaian{"\n"}Pembelajaran
                 </Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
 
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[styles.tabButton, activeTab === 'tp' && styles.tabButtonActive]}
                 onPress={() => setActiveTab('tp')}
                 activeOpacity={0.8}
@@ -93,7 +94,7 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
                 <Text style={[styles.tabText, activeTab === 'tp' && styles.tabTextActive]}>
                   Alur Tujuan{"\n"}(TP)
                 </Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
 
 
@@ -104,7 +105,7 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
 
               return (
                 <View key={element.id} style={styles.card}>
-                  <TouchableOpacity
+                  <SoundTouchableOpacity
                     style={[styles.cardHeader, isExpanded && styles.cardHeaderActive]}
                     onPress={() => toggleExpand(element.id)}
                     activeOpacity={0.7}
@@ -115,7 +116,7 @@ export default function CpTpScreen({ onBack }: CpTpScreenProps) {
                     ) : (
                       <ChevronDown color="#64748B" size={22} />
                     )}
-                  </TouchableOpacity>
+                  </SoundTouchableOpacity>
 
                   {isExpanded && (
                     <View style={styles.cardContent}>

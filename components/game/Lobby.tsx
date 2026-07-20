@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Player, PlayerType } from '../../types';
 import { MODERN_COLORS, AVATAR_ICONS } from '../../constants';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface LobbyProps {
   onStartGame: (players: Player[]) => void;
@@ -102,7 +103,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
           <Text style={styles.cardLabel}>Jumlah Pemain</Text>
           <View style={styles.buttonGroup}>
             {([2, 3, 4] as const).map((count) => (
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 key={count}
                 style={[
                   styles.countButton,
@@ -123,7 +124,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
                 >
                   {count} Pemain
                 </Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             ))}
           </View>
         </View>
@@ -131,7 +132,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
         {/* Player configuration tab selector */}
         <View style={styles.tabContainer}>
           {Array.from({ length: playerCount }).map((_, idx) => (
-            <TouchableOpacity
+            <SoundTouchableOpacity
               key={idx}
               style={[
                 styles.tabButton,
@@ -143,7 +144,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
               <Text style={[styles.tabText, activeTab === idx && styles.tabTextActive]}>
                 {icons[idx]} P{idx + 1}
               </Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           ))}
         </View>
 
@@ -156,7 +157,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
 
             {/* Player Type toggle */}
             <View style={styles.typeToggle}>
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[
                   styles.toggleButton,
                   types[activeTab] === 'human' && styles.toggleButtonActive,
@@ -164,8 +165,8 @@ export default function Lobby({ onStartGame }: LobbyProps) {
                 onPress={() => handleTypeChange('human', activeTab)}
               >
                 <Text style={styles.toggleText}>Pemain</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </SoundTouchableOpacity>
+              <SoundTouchableOpacity
                 style={[
                   styles.toggleButton,
                   types[activeTab] === 'computer' && styles.toggleButtonActive,
@@ -173,7 +174,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
                 onPress={() => handleTypeChange('computer', activeTab)}
               >
                 <Text style={styles.toggleText}>Komputer</Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
           </View>
 
@@ -194,7 +195,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
               const isSelected = colors[activeTab] === c.value;
               const isUsedByOther = colors.slice(0, playerCount).some((usedCol, idx) => usedCol === c.value && idx !== activeTab);
               return (
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   key={c.value}
                   style={[
                     styles.colorCircle,
@@ -206,7 +207,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
                   disabled={isUsedByOther}
                 >
                   {isUsedByOther && <Text style={styles.usedIndicator}>×</Text>}
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               );
             })}
           </View>
@@ -218,7 +219,7 @@ export default function Lobby({ onStartGame }: LobbyProps) {
               const isSelected = icons[activeTab] === icon;
               const isUsedByOther = icons.slice(0, playerCount).some((usedIcon, idx) => usedIcon === icon && idx !== activeTab);
               return (
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   key={icon}
                   style={[
                     styles.avatarItem,
@@ -231,20 +232,20 @@ export default function Lobby({ onStartGame }: LobbyProps) {
                   <Text style={[styles.avatarIconText, isUsedByOther && styles.avatarUsedText]}>
                     {icon}
                   </Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               );
             })}
           </ScrollView>
         </View>
 
         {/* Start Game Action */}
-        <TouchableOpacity
+        <SoundTouchableOpacity
           style={[styles.startButton, { shadowColor: colors[0] }]}
           onPress={handleStart}
           activeOpacity={0.8}
         >
           <Text style={styles.startButtonText}>MULAI GAME</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -12,6 +12,7 @@ import { Volume2, VolumeX } from 'lucide-react-native';
 import { ProfileStyles as styles } from '../../styles/profile/ProfileStyles';
 import BackButton from '../BackButton';
 import { SoundManager } from '../../utils/SoundManager';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface BacksoundSettingsScreenProps {
   onBack: () => void;
@@ -58,7 +59,7 @@ export default function BacksoundSettingsScreen({ onBack }: BacksoundSettingsScr
               
               <View style={localStyles.toggleContainer}>
                 {/* Active Muni (Sound On) Option */}
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={[
                     localStyles.toggleButton,
                     soundEnabled ? localStyles.activeButton : localStyles.inactiveButton
@@ -71,10 +72,10 @@ export default function BacksoundSettingsScreen({ onBack }: BacksoundSettingsScr
                     localStyles.buttonText,
                     { color: soundEnabled ? '#0A0A12' : '#FFFFFF' }
                   ]}>Muni</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
 
                 {/* Active Mati (Sound Off) Option */}
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={[
                     localStyles.toggleButton,
                     !soundEnabled ? localStyles.activeButtonMuted : localStyles.inactiveButton
@@ -87,7 +88,7 @@ export default function BacksoundSettingsScreen({ onBack }: BacksoundSettingsScr
                     localStyles.buttonText,
                     { color: '#FFFFFF' }
                   ]}>Mati</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </View>
             </View>
           </ImageBackground>

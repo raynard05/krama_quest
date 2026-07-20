@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Lightbulb, Gamepad2 } from 'lucide-react-native';
 import { styles } from "./DolananCardStyles";
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground);
 
@@ -208,7 +209,7 @@ export default function DolananCard({
               },
             ]}
           >
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={[
                 styles.tabButton,
                 styles.tabButtonLeft,
@@ -227,7 +228,7 @@ export default function DolananCard({
                   Pemantik
                 </Text>
               </ImageBackground>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </Animated.View>
 
           <Animated.View
@@ -242,7 +243,7 @@ export default function DolananCard({
               },
             ]}
           >
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={[
                 styles.tabButton,
                 styles.tabButtonRight,
@@ -261,7 +262,7 @@ export default function DolananCard({
                   Dolanan
                 </Text>
               </ImageBackground>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </Animated.View>
         </View>
 
@@ -314,13 +315,13 @@ export default function DolananCard({
           </Text>
 
           {/* Start Button */}
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={styles.startButton}
             onPress={currentTab.onPress}
             activeOpacity={0.8}
           >
             <Text style={styles.startButtonText}>{currentTab.buttonText}</Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         </AnimatedImageBackground>
       </View>
     </View>

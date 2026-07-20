@@ -46,6 +46,7 @@ import GameScreenOnline from './components/gameadvanceonline/GameScreen';
 import { SoundManager } from './utils/SoundManager';
 import RankingScreen from './components/ranking/RankingScreen';
 import { RankingService } from './services/RankingService';
+import { SoundTouchableOpacity } from './components/SoundTouchableOpacity';
 
 
 type AuthScreen = 'login' | 'register';
@@ -1017,16 +1018,16 @@ export default function App() {
             {status === 'victory' && winner ? (
               <View style={styles.victoryPanel}>
                 {networkRole !== 'client' && (
-                  <TouchableOpacity
+                  <SoundTouchableOpacity
                     style={[styles.victoryBtn, { backgroundColor: winner.color }]}
                     onPress={handleResetGame}
                     activeOpacity={0.8}
                   >
                     <Text style={styles.victoryBtnText}>Main Lagi (Ulangi)</Text>
-                  </TouchableOpacity>
+                  </SoundTouchableOpacity>
                 )}
                 
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={styles.lobbyBtn}
                   onPress={handleBackToLobby}
                   activeOpacity={0.8}
@@ -1034,7 +1035,7 @@ export default function App() {
                   <Text style={styles.lobbyBtnText}>
                     {networkRole === 'client' ? 'Keluar Lobi' : 'Kembali Ke Lobby'}
                   </Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </View>
             ) : (
               <Die

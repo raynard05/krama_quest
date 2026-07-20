@@ -17,6 +17,7 @@ import WaitingRoomCard from './WaitingRoomCard';
 import JoinRoomCard from './JoinRoomCard';
 import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
 import { ProfileService } from '../../services/ProfileService';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 export type ModeType = 'lokal' | 'online';
 export type PlayerType = 'player1' | 'player2';
@@ -641,7 +642,7 @@ export default function GameSetupCard({
                 },
               ]}
             >
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[
                   styles.tabButton,
                   styles.tabButtonLeft,
@@ -658,7 +659,7 @@ export default function GameSetupCard({
                 >
                   <Text style={styles.tabTextLokal}>Offline</Text>
                 </ImageBackground>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </Animated.View>
 
             <Animated.View
@@ -673,7 +674,7 @@ export default function GameSetupCard({
                 },
               ]}
             >
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[
                   styles.tabButton,
                   styles.tabButtonRight,
@@ -690,7 +691,7 @@ export default function GameSetupCard({
                 >
                   <Text style={styles.tabTextOnline}>Online</Text>
                 </ImageBackground>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </Animated.View>
           </View>
 
@@ -706,7 +707,7 @@ export default function GameSetupCard({
           {activeMode === 'lokal' && (
             <View style={styles.playerTabContainer}>
               <Animated.View style={{ transform: [{ scale: player1Scale }] }}>
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={[
                     styles.playerTab,
                     activePlayer === 'player1' && styles.playerTabActive,
@@ -720,11 +721,11 @@ export default function GameSetupCard({
                   ]}>
                     Player 1
                   </Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </Animated.View>
 
               <Animated.View style={{ transform: [{ scale: player2Scale }] }}>
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={[
                     styles.playerTab,
                     activePlayer === 'player2' && styles.playerTabActive,
@@ -738,7 +739,7 @@ export default function GameSetupCard({
                   ]}>
                     Player 2
                   </Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </Animated.View>
             </View>
           )}
@@ -816,7 +817,7 @@ export default function GameSetupCard({
                 {/* Confirm/Cancel Buttons */}
                 <View style={styles.gacoButtonContainer}>
                   {!isPlayer1GacoConfirmed ? (
-                    <TouchableOpacity
+                    <SoundTouchableOpacity
                       style={[
                         styles.confirmButton,
                         isGacoTaken(selectedPlayer1Gaco, 1) && styles.confirmButtonDisabled
@@ -828,19 +829,19 @@ export default function GameSetupCard({
                       <Text style={styles.confirmButtonText}>
                         Pilih
                       </Text>
-                    </TouchableOpacity>
+                    </SoundTouchableOpacity>
                   ) : (
                     <View style={styles.gacoButtonRow}>
                       <View style={styles.confirmedButton}>
                         <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
                       </View>
-                      <TouchableOpacity
+                      <SoundTouchableOpacity
                         style={styles.cancelButton}
                         onPress={() => handleCancelGaco(1)}
                         activeOpacity={0.8}
                       >
                         <Text style={styles.cancelButtonText}>Ganti</Text>
-                      </TouchableOpacity>
+                      </SoundTouchableOpacity>
                     </View>
                   )}
                 </View>
@@ -852,7 +853,7 @@ export default function GameSetupCard({
               <View style={styles.playerContent}>
                 {/* Opponent Type Selector */}
                 <View style={styles.opponentTypeContainer}>
-                  <TouchableOpacity
+                  <SoundTouchableOpacity
                     style={[
                       styles.opponentTypeButton,
                       opponentType === 'pemain' && styles.opponentTypeButtonActive
@@ -867,9 +868,9 @@ export default function GameSetupCard({
                     ]}>
                       Pemain
                     </Text>
-                  </TouchableOpacity>
+                  </SoundTouchableOpacity>
 
-                  <TouchableOpacity
+                  <SoundTouchableOpacity
                     style={[
                       styles.opponentTypeButton,
                       opponentType === 'komputer' && styles.opponentTypeButtonActive
@@ -884,7 +885,7 @@ export default function GameSetupCard({
                     ]}>
                       Komputer
                     </Text>
-                  </TouchableOpacity>
+                  </SoundTouchableOpacity>
                 </View>
 
                 {/* Player Selection for "Pemain" */}
@@ -892,7 +893,7 @@ export default function GameSetupCard({
                   <View style={styles.playerSelectionSection}>
                     <Text style={styles.sectionTitle}>Pilih Pemain Lawan</Text>
 
-                    <TouchableOpacity
+                    <SoundTouchableOpacity
                       style={styles.combobox}
                       onPress={() => setShowPlayerDropdown(!showPlayerDropdown)}
                       activeOpacity={0.7}
@@ -904,7 +905,7 @@ export default function GameSetupCard({
                         }
                       </Text>
 
-                    </TouchableOpacity>
+                    </SoundTouchableOpacity>
 
                     {showPlayerDropdown && (
                       <View style={styles.dropdown}>
@@ -912,7 +913,7 @@ export default function GameSetupCard({
                           {availablePlayers
                             .filter(p => p.id !== currentUserId)
                             .map(player => (
-                              <TouchableOpacity
+                              <SoundTouchableOpacity
                                 key={player.id}
                                 style={styles.dropdownItem}
                                 onPress={() => {
@@ -923,7 +924,7 @@ export default function GameSetupCard({
                               >
                                 <Text style={styles.dropdownItemText}>{player.username}</Text>
                                 <Text style={styles.dropdownItemSubtext}>{player.nama_lengkap}</Text>
-                              </TouchableOpacity>
+                              </SoundTouchableOpacity>
                             ))
                           }
                         </ScrollView>
@@ -1001,7 +1002,7 @@ export default function GameSetupCard({
                   {/* Confirm/Cancel Buttons */}
                   <View style={styles.gacoButtonContainer}>
                     {!isPlayer2GacoConfirmed ? (
-                      <TouchableOpacity
+                      <SoundTouchableOpacity
                         style={[
                           styles.confirmButton,
                           isGacoTaken(selectedPlayer2Gaco, 2) && styles.confirmButtonDisabled
@@ -1011,19 +1012,19 @@ export default function GameSetupCard({
                         activeOpacity={0.8}
                       >
                         <Text style={styles.confirmButtonText}>Pilih</Text>
-                      </TouchableOpacity>
+                      </SoundTouchableOpacity>
                     ) : (
                       <View style={styles.gacoButtonRow}>
                         <View style={styles.confirmedButton}>
                           <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
                         </View>
-                        <TouchableOpacity
+                        <SoundTouchableOpacity
                           style={styles.cancelButton}
                           onPress={() => handleCancelGaco(2)}
                           activeOpacity={0.8}
                         >
                           <Text style={styles.cancelButtonText}>Ganti</Text>
-                        </TouchableOpacity>
+                        </SoundTouchableOpacity>
                       </View>
                     )}
                   </View>
@@ -1037,7 +1038,7 @@ export default function GameSetupCard({
                 {/* Room Type Selector: Buat Room / Gabung Room */}
                 <View style={styles.onlineRoomSection}>
                   <View style={styles.opponentTypeContainer}>
-                    <TouchableOpacity
+                    <SoundTouchableOpacity
                       style={[
                         styles.opponentTypeButton,
                         styles.onlineRoomButton,
@@ -1053,9 +1054,9 @@ export default function GameSetupCard({
                       ]}>
                         Buat Room
                       </Text>
-                    </TouchableOpacity>
+                    </SoundTouchableOpacity>
 
-                    <TouchableOpacity
+                    <SoundTouchableOpacity
                       style={[
                         styles.opponentTypeButton,
                         styles.onlineRoomButton,
@@ -1071,7 +1072,7 @@ export default function GameSetupCard({
                       ]}>
                         Gabung Room
                       </Text>
-                    </TouchableOpacity>
+                    </SoundTouchableOpacity>
                   </View>
 
                   {/* Buat Room Form */}
@@ -1139,7 +1140,7 @@ export default function GameSetupCard({
                         {/* Confirm/Cancel Buttons */}
                         <View style={styles.gacoButtonContainer}>
                           {!isPlayer1GacoConfirmed ? (
-                            <TouchableOpacity
+                            <SoundTouchableOpacity
                               style={[styles.confirmButton, styles.confirmButtonOnline]}
                               onPress={() => handleConfirmGaco(1)}
                               activeOpacity={0.8}
@@ -1147,19 +1148,19 @@ export default function GameSetupCard({
                               <Text style={[styles.confirmButtonText, styles.confirmButtonTextOnline]}>
                                 Pilih
                               </Text>
-                            </TouchableOpacity>
+                            </SoundTouchableOpacity>
                           ) : (
                             <View style={styles.gacoButtonRow}>
                               <View style={styles.confirmedButton}>
                                 <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
                               </View>
-                              <TouchableOpacity
+                              <SoundTouchableOpacity
                                 style={styles.cancelButton}
                                 onPress={() => handleCancelGaco(1)}
                                 activeOpacity={0.8}
                               >
                                 <Text style={styles.cancelButtonText}>Ganti</Text>
-                              </TouchableOpacity>
+                              </SoundTouchableOpacity>
                             </View>
                           )}
                         </View>
@@ -1234,7 +1235,7 @@ export default function GameSetupCard({
             )}
 
             {/* Start Button */}
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={styles.startButton}
               onPress={handleStartButtonPress}
               activeOpacity={0.8}
@@ -1245,7 +1246,7 @@ export default function GameSetupCard({
                   : 'Mulai Game'
                 }
               </Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
         </ImageBackground>
       </View>

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, Clipboard, ActivityIndicator } fro
 import { Copy, Check } from 'lucide-react-native';
 import { styles } from './WaitingRoomCardStyles';
 import { getAvatarSource } from '../profile/ProfileAvatars';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface WaitingRoomCardProps {
   roomCode: string;
@@ -47,7 +48,7 @@ export default function WaitingRoomCard({
       <View style={styles.codeRow}>
         <Text style={styles.roomCodeText}>{roomCode}</Text>
         {roomCode !== 'Menghubungkan...' && (
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={styles.copyButton}
             onPress={handleCopy}
             activeOpacity={0.7}
@@ -57,7 +58,7 @@ export default function WaitingRoomCard({
             ) : (
               <Copy color="#FFFFFF" size={20} />
             )}
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         )}
       </View>
 
@@ -111,22 +112,22 @@ export default function WaitingRoomCard({
         </View>
       </View>
 
-      <TouchableOpacity
+      <SoundTouchableOpacity
         style={[styles.startButton, !isStartButtonEnabled && { opacity: 0.5 }]}
         onPress={onStartGame}
         disabled={!isStartButtonEnabled}
         activeOpacity={0.8}
       >
         <Text style={styles.startButtonText}>Mulai Game</Text>
-      </TouchableOpacity>
+      </SoundTouchableOpacity>
 
-      <TouchableOpacity
+      <SoundTouchableOpacity
         style={styles.cancelButton}
         onPress={onCancel}
         activeOpacity={0.7}
       >
         <Text style={styles.cancelButtonText}>Batalkan Room</Text>
-      </TouchableOpacity>
+      </SoundTouchableOpacity>
     </View>
   );
 }

@@ -99,8 +99,9 @@ export const RankingService = {
   /**
    * Mengambil hasil skor terbaru dari user yang baru saja bermain.
    */
-  async getLatestUserRank(userId: number): Promise<RankEntry | null> {
+  async getLatestUserRank(userId: number): Promise<(RankEntry & { playCount?: number }) | null> {
     try {
+      // Get the latest row
       const { data, error } = await supabase
         .from('rank')
         .select('*')
@@ -111,6 +112,12 @@ export const RankingService = {
       
       if (error || !data) return null;
 
+      // Get the total play count
+      const { count } = await supabase
+        .from('rank')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_account_id', userId);
+
       const { data: profile } = await supabase
         .from('profile_pic')
         .select('profile_pic_num')
@@ -119,7 +126,8 @@ export const RankingService = {
 
       return {
         ...data,
-        avatarId: String(profile?.profile_pic_num || 1)
+        avatarId: String(profile?.profile_pic_num || 1),
+        playCount: count || 1
       };
     } catch (err) {
       console.warn('[RankingService] Failed to get latest rank:', err);

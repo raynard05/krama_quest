@@ -9,6 +9,7 @@ import {
 import { LogOut, X } from 'lucide-react-native';
 import type { UserAccount } from '../../services/AuthService';
 import styles from '../../styles/dashboard/DashboardProfileStyles';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface DashboardProfileModalProps {
   visible: boolean;
@@ -34,9 +35,9 @@ export default function DashboardProfileModal({
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalHeaderText}>Profil Panjenengan</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <SoundTouchableOpacity onPress={onClose} style={styles.closeButton}>
               <X color="#1C1C1E" size={24} />
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
 
           <View style={styles.profileDetailsCard}>
@@ -59,7 +60,7 @@ export default function DashboardProfileModal({
             </View>
           </View>
 
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={styles.logoutButton}
             onPress={() => {
               onClose();
@@ -68,7 +69,7 @@ export default function DashboardProfileModal({
           >
             <LogOut color="#FFF" size={20} style={{ marginRight: 8 }} />
             <Text style={styles.logoutText}>Metu saka Akun</Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         </View>
       </View>
     </Modal>

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import styles from '../../styles/materi/MateriRoadmapStyles';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -120,7 +121,7 @@ export default function MateriRoadmap({ visitedNodeIds, onNodePress }: MateriRoa
             {isLeft ? (
               <>
                 {/* Left Side: Circle Node */}
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={styles.circleColumn}
                   activeOpacity={0.85}
                   onPress={() => onNodePress(node.id)}
@@ -134,7 +135,7 @@ export default function MateriRoadmap({ visitedNodeIds, onNodePress }: MateriRoa
                   <View style={styles.titleBadge}>
                     <Text style={styles.titleBadgeText}>{node.title}</Text>
                   </View>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
 
                 {/* Right Side: Description */}
                 <View style={[styles.textColumn, { alignItems: 'flex-start' }]}>
@@ -149,7 +150,7 @@ export default function MateriRoadmap({ visitedNodeIds, onNodePress }: MateriRoa
                 </View>
 
                 {/* Right Side: Circle Node */}
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={styles.circleColumn}
                   activeOpacity={0.85}
                   onPress={() => onNodePress(node.id)}
@@ -163,7 +164,7 @@ export default function MateriRoadmap({ visitedNodeIds, onNodePress }: MateriRoa
                   <View style={styles.titleBadge}>
                     <Text style={styles.titleBadgeText}>{node.title}</Text>
                   </View>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </>
             )}
           </View>

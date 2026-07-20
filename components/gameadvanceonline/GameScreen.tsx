@@ -24,6 +24,7 @@ import { SNAKES, LADDERS, ANIMATION_SPEED, isKotakSoal, SOAL_BANK, checkAnswerCo
 import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
 import { ProfileService } from '../../services/ProfileService';
 import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const INITIAL_PLAYERS: Player[] = [
   { id: 1, name: 'Sabitul', color: '#E25C3D', icon: '1', position: 0, type: 'human', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' },
@@ -225,8 +226,7 @@ export default function GameScreen({
 
   const handleBackPress = () => {
     if (gameFinished) {
-      onBack();
-      return true;
+      return true; // block hardware back when game is finished
     }
     setShowExitConfirm(true);
     return true;
@@ -912,7 +912,7 @@ export default function GameScreen({
       )}
 
       {/* Force Back Button for Debugging */}
-      <TouchableOpacity
+      <SoundTouchableOpacity
         disabled={true}
         style={{
           position: 'absolute',
@@ -936,7 +936,7 @@ export default function GameScreen({
         <Text style={{ color: 'white', fontFamily: 'Poppins-Bold', fontSize: 14 }}>
           BACK-FORCE
         </Text>
-      </TouchableOpacity>
+      </SoundTouchableOpacity>
     </View>
   );
 }

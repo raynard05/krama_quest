@@ -14,6 +14,7 @@ import MateriRoadmap from './MateriRoadmap';
 import MateriDetailScreen from './MateriDetailScreen';
 import BackButton from '../BackButton';
 import { ProgressService } from '../../services/ProgressService';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface MateriScreenProps {
   onBack: () => void;

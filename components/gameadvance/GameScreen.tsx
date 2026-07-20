@@ -21,6 +21,7 @@ import Timeout from './Timeout';
 import GamePopups from './GamePopups';
 import { Player, Soal } from '../../types';
 import { SNAKES, LADDERS, ANIMATION_SPEED, isKotakSoal, SOAL_BANK, checkAnswerCorrectness } from '../../constants';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const INITIAL_PLAYERS: Player[] = [
   { id: 1, name: 'Sabitul', color: '#E25C3D', icon: '1', position: 0, type: 'human', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' },
@@ -442,7 +443,7 @@ export default function GameScreen({
     <View style={styles.container}>
       {/* DEBUG TEST BUTTONS - JANGAN LUPA DIHAPUS SAAT PRODUCTION */}
       <View style={{ position: 'absolute', top: 60, right: 10, zIndex: 9999, elevation: 10, gap: 10 }}>
-        <TouchableOpacity 
+        <SoundTouchableOpacity 
           style={{ backgroundColor: '#E25C3D', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
           onPress={() => {
             setPlayers(prev => prev.map((p, idx) => idx === 0 ? { ...p, soalTerjawabCount: 25, status: 'spectator' } : p));
@@ -451,9 +452,9 @@ export default function GameScreen({
           }}
         >
           <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Test User Penonton</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
 
-        <TouchableOpacity 
+        <SoundTouchableOpacity 
           style={{ backgroundColor: '#784B23', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
           onPress={() => {
             setPlayers(prev => prev.map((p, idx) => idx === 1 ? { ...p, soalTerjawabCount: 25, status: 'spectator' } : p));
@@ -462,7 +463,7 @@ export default function GameScreen({
           }}
         >
           <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Test Lawan Penonton</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </View>
 
       <ImageBackground

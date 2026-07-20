@@ -4,6 +4,7 @@ import { Copy, Check } from 'lucide-react-native';
 import { styles } from './JoinRoomCardStyles';
 import { getAvatarSource } from '../profile/ProfileAvatars';
 import { GACOS } from './GameSetupCard';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface JoinRoomCardProps {
   roomCode: string;
@@ -97,7 +98,7 @@ export default function JoinRoomCard({
       <View style={styles.codeRow}>
         <Text style={styles.roomCodeText}>{roomCode}</Text>
         {roomCode && roomCode !== 'Menghubungkan...' && (
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={styles.copyButton}
             onPress={handleCopy}
             activeOpacity={0.7}
@@ -107,7 +108,7 @@ export default function JoinRoomCard({
             ) : (
               <Copy color="#FFFFFF" size={20} />
             )}
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         )}
       </View>
 
@@ -183,7 +184,7 @@ export default function JoinRoomCard({
                 </View>
               </View>
 
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[styles.confirmButton, (isCurrentGacoTaken || isSavingGaco) && { opacity: 0.5 }]}
                 onPress={handleConfirmGacoSelection}
                 disabled={isCurrentGacoTaken || isSavingGaco}
@@ -196,7 +197,7 @@ export default function JoinRoomCard({
                     {isCurrentGacoTaken ? 'Sudah Dipakai Host' : 'Konfirmasi Gaco'}
                   </Text>
                 )}
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
           ) : (
             <View style={styles.confirmedGacoContainer}>
@@ -205,13 +206,13 @@ export default function JoinRoomCard({
               </Text>
               
               {!isReady ? (
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={styles.readyButton}
                   onPress={handleReadyClick}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.readyButtonText}>Siap Bermain</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               ) : (
                 <View style={styles.readyBadge}>
                   <Text style={styles.readyBadgeText}>✓ Anda Siap</Text>
@@ -229,13 +230,13 @@ export default function JoinRoomCard({
         </View>
       )}
 
-      <TouchableOpacity
+      <SoundTouchableOpacity
         style={styles.cancelButton}
         onPress={onCancel}
         activeOpacity={0.7}
       >
         <Text style={styles.cancelButtonText}>Keluar Room</Text>
-      </TouchableOpacity>
+      </SoundTouchableOpacity>
     </View>
   );
 }

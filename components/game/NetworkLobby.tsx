@@ -14,6 +14,7 @@ import { MODERN_COLORS, AVATAR_ICONS } from '../../constants';
 import { ChevronLeft } from 'lucide-react-native';
 import Lobby from './Lobby';
 import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface NetworkLobbyProps {
   onStartLocalGame: (players: Player[]) => void;
@@ -285,26 +286,26 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
     return (
       <View style={styles.flexContainer}>
         {onBack && (
-          <TouchableOpacity onPress={onBack} style={[styles.backBtn, { paddingHorizontal: 20 }]} activeOpacity={0.7}>
+          <SoundTouchableOpacity onPress={onBack} style={[styles.backBtn, { paddingHorizontal: 20 }]} activeOpacity={0.7}>
             <ChevronLeft color="#00F2FE" size={24} />
             <Text style={styles.backBtnText}>Kembali ke Menu</Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         )}
 
         {/* Modern Tab Selector at top */}
         <View style={[styles.topTabBar, onBack ? { marginTop: 10 } : { marginTop: 25 }]}>
-          <TouchableOpacity 
+          <SoundTouchableOpacity 
             style={[styles.tabSelector, styles.tabActive]}
             onPress={() => setLobbyMode('local')}
           >
             <Text style={[styles.tabSelectorText, styles.tabTextActive]}>Main Lokal</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
+          </SoundTouchableOpacity>
+          <SoundTouchableOpacity 
             style={styles.tabSelector}
             onPress={() => setLobbyMode('network')}
           >
             <Text style={styles.tabSelectorText}>Multiplayer Hotspot</Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         </View>
 
         <Lobby onStartGame={onStartLocalGame} />
@@ -316,15 +317,15 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {onBack && (
-        <TouchableOpacity onPress={onBack} style={[styles.backBtn, { marginBottom: 15 }]} activeOpacity={0.7}>
+        <SoundTouchableOpacity onPress={onBack} style={[styles.backBtn, { marginBottom: 15 }]} activeOpacity={0.7}>
           <ChevronLeft color="#00F2FE" size={24} />
           <Text style={styles.backBtnText}>Kembali ke Menu</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       )}
 
       {/* Tab Selector */}
       <View style={[styles.topTabBar, onBack && { marginTop: 10 }]}>
-        <TouchableOpacity 
+        <SoundTouchableOpacity 
           style={styles.tabSelector}
           onPress={() => {
             handleDisconnect();
@@ -332,13 +333,13 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
           }}
         >
           <Text style={styles.tabSelectorText}>Main Lokal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
+        </SoundTouchableOpacity>
+        <SoundTouchableOpacity 
           style={[styles.tabSelector, styles.tabActive]}
           onPress={() => setLobbyMode('network')}
         >
           <Text style={[styles.tabSelectorText, styles.tabTextActive]}>Multiplayer Hotspot</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </View>
 
       <Text style={styles.mainTitle}>LOBI MULTIPLAYER</Text>
@@ -347,22 +348,22 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
         <>
           {/* Role select */}
           <View style={styles.roleToggleGroup}>
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={[styles.roleBtn, networkRole === 'host' && styles.roleBtnActive]}
               onPress={() => setNetworkRole('host')}
             >
               <Text style={[styles.roleBtnText, networkRole === 'host' && styles.roleBtnTextActive]}>
                 Buat Room (Host)
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </SoundTouchableOpacity>
+            <SoundTouchableOpacity
               style={[styles.roleBtn, networkRole === 'client' && styles.roleBtnActive]}
               onPress={() => setNetworkRole('client')}
             >
               <Text style={[styles.roleBtnText, networkRole === 'client' && styles.roleBtnTextActive]}>
                 Gabung Room (Client)
               </Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
 
           {/* Setup Profile Card */}
@@ -382,7 +383,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
             <Text style={styles.inputLabel}>Warna Bidak</Text>
             <View style={styles.colorRow}>
               {MODERN_COLORS.map((c) => (
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   key={c.value}
                   style={[
                     styles.colorCircle,
@@ -397,7 +398,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
             <Text style={styles.inputLabel}>Pilih Avatar</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll}>
               {AVATAR_ICONS.map((icon) => (
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   key={icon}
                   style={[
                     styles.avatarItem,
@@ -406,7 +407,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
                   onPress={() => setMyIcon(icon)}
                 >
                   <Text style={styles.avatarIconText}>{icon}</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               ))}
             </ScrollView>
           </View>
@@ -465,14 +466,14 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
           {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
 
           {/* Connect Action Button */}
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={[styles.actionBtn, { shadowColor: myColor }]}
             onPress={networkRole === 'host' ? handleHostStartRoom : handleClientConnect}
           >
             <Text style={styles.actionBtnText}>
               {networkRole === 'host' ? 'AKTIFKAN LOBI' : 'SAMBUNG SEKARANG'}
             </Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         </>
       ) : (
         /* Waiting / Connection active screen */
@@ -529,7 +530,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
 
               {/* Host Start Game button */}
               {networkRole === 'host' && (
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={[
                     styles.launchBtn, 
                     netPlayers.length < 2 && styles.launchBtnDisabled
@@ -538,7 +539,7 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
                   disabled={netPlayers.length < 2}
                 >
                   <Text style={styles.launchBtnText}>MULAI PERMAINAN</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               )}
 
               {/* Client Waiting Info */}
@@ -550,12 +551,12 @@ export default function NetworkLobby({ onStartLocalGame, onStartNetworkGame, onB
               )}
 
               {/* Disconnect button */}
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={styles.cancelBtn}
                 onPress={handleDisconnect}
               >
                 <Text style={styles.cancelBtnText}>BATALKAN / KELUAR</Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </>
           )}
         </View>

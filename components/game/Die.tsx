@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface DieProps {
   value: number;
@@ -134,7 +135,7 @@ export default function Die({ value, isRolling, onRoll, disabled, color = '#FF00
           },
         ]}
       >
-        <TouchableOpacity
+        <SoundTouchableOpacity
           onPress={onRoll}
           disabled={disabled || isRolling}
           activeOpacity={0.8}
@@ -150,7 +151,7 @@ export default function Die({ value, isRolling, onRoll, disabled, color = '#FF00
               ]}
             />
           ))}
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </Animated.View>
       <Text style={[styles.rollText, { color: color }]}>
         {isRolling ? 'Kocok...' : 'Sentuh Dadu'}

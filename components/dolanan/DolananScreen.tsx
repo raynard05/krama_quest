@@ -16,6 +16,7 @@ import { supabase } from '../../services/AuthService';
 
 import { ProfileService } from '../../services/ProfileService';
 import BackButton from '../BackButton';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface DolananScreenProps {
   currentUser: any;

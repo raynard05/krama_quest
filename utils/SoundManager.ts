@@ -3,6 +3,9 @@ import { createAudioPlayer, setAudioModeAsync, AudioPlayer } from 'expo-audio';
 
 const STORAGE_KEY = '@backsound_enabled';
 let soundInstance: AudioPlayer | null = null;
+let buttonClickInstance: AudioPlayer | null = null;
+let victoryInstance: AudioPlayer | null = null;
+let diceInstance: AudioPlayer | null = null;
 let isEnabled = true;
 
 export const SoundManager = {
@@ -15,6 +18,16 @@ export const SoundManager = {
         playsInSilentMode: true,
         shouldPlayInBackground: false,
       });
+
+      // Preload sound effects
+      buttonClickInstance = createAudioPlayer(require('../assets/audio/button_click.mp3'));
+      buttonClickInstance.volume = 1.0;
+      
+      victoryInstance = createAudioPlayer(require('../assets/audio/victory.mp3'));
+      victoryInstance.volume = 1.0;
+
+      diceInstance = createAudioPlayer(require('../assets/audio/dice.mp3'));
+      diceInstance.volume = 1.0;
     } catch (_) {}
   },
 
@@ -35,6 +48,30 @@ export const SoundManager = {
       } else {
         await this.stopBackgroundMusic();
       }
+    } catch (_) {}
+  },
+
+  playButtonClick() {
+    if (!isEnabled || !buttonClickInstance) return;
+    try {
+      buttonClickInstance.seekTo(0);
+      buttonClickInstance.play();
+    } catch (_) {}
+  },
+
+  playVictorySound() {
+    if (!isEnabled || !victoryInstance) return;
+    try {
+      victoryInstance.seekTo(0);
+      victoryInstance.play();
+    } catch (_) {}
+  },
+
+  playDiceSound() {
+    if (!isEnabled || !diceInstance) return;
+    try {
+      diceInstance.seekTo(0);
+      diceInstance.play();
     } catch (_) {}
   },
 

@@ -14,6 +14,7 @@ import { ProfileStyles as styles } from '../../styles/profile/ProfileStyles';
 import { getAvatarSource } from './ProfileAvatars';
 import BackButton from '../BackButton';
 import { ProgressService } from '../../services/ProgressService';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface ProfileScreenProps {
   currentUser: (UserAccount & { avatarId?: string }) | null;
@@ -66,7 +67,7 @@ export default function ProfileScreen({
 
           {/* Profile Details */}
           <View style={styles.profileInfoSection}>
-            <TouchableOpacity style={styles.avatarContainer} onPress={onEditAvatar} activeOpacity={0.85}>
+            <SoundTouchableOpacity style={styles.avatarContainer} onPress={onEditAvatar} activeOpacity={0.85}>
               <View style={styles.avatarRing}>
                 <Image
                   source={getAvatarSource(currentUser?.avatarId)}
@@ -77,7 +78,7 @@ export default function ProfileScreen({
               <View style={styles.editBadge}>
                 <Edit2 color="#1E6FE3" size={14} />
               </View>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
 
             <Text style={styles.userNameText}>{displayName}</Text>
             <Text style={styles.userSubtitleText}>{schoolClass}</Text>
@@ -136,7 +137,7 @@ export default function ProfileScreen({
             resizeMode="cover"
           >
             {/* Option 1: Riwayat Sinau */}
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={styles.optionRow}
               onPress={onNavigateToHistory}
               activeOpacity={0.7}
@@ -148,12 +149,12 @@ export default function ProfileScreen({
                 <Text style={styles.optionRowText}>Riwayat Sinau</Text>
               </View>
               <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
 
             <View style={styles.optionDivider} />
 
             {/* Option 2: Pengaturan */}
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={styles.optionRow}
               onPress={onNavigateToSettings}
               activeOpacity={0.7}
@@ -165,12 +166,12 @@ export default function ProfileScreen({
                 <Text style={styles.optionRowText}>Pengaturan</Text>
               </View>
               <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
 
             <View style={styles.optionDivider} />
 
             {/* Option 3: Bab Aplikasi */}
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={styles.optionRow}
               onPress={() => handleInfoPress('Bab Aplikasi', 'Krama Quest v1.0.0\n\nAplikasi pasinaon Basa Jawi Krama kangge tingkat SD/MI.')}
               activeOpacity={0.7}
@@ -182,7 +183,7 @@ export default function ProfileScreen({
                 <Text style={styles.optionRowText}>Bab Aplikasi</Text>
               </View>
               <ChevronRight color="rgba(255, 255, 255, 0.6)" size={20} />
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </ImageBackground>
         </ScrollView>
       </ImageBackground>

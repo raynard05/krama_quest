@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, FlatList, Dimensions, TouchableOpacity, Image } from 'react-native';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const { width: windowWidth } = Dimensions.get('window');
 // container has paddingHorizontal: 20 -> 40 total padding.
@@ -61,13 +62,13 @@ export default function DashboardCarousel({ onSelectDolanan, onOpenProfile, onSe
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           renderItem={({ item, index }) => (
-            <TouchableOpacity activeOpacity={0.9} onPress={() => handlePress(index)}>
+            <SoundTouchableOpacity activeOpacity={0.9} onPress={() => handlePress(index)}>
               <Image
                 source={item.source}
                 style={[styles.image, { width: ITEM_WIDTH }]}
                 resizeMode="cover"
               />
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           )}
         />
       </View>

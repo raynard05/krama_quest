@@ -9,11 +9,14 @@ import {
   Animated,
   Easing,
   Dimensions,
-  ActivityIndicator
+  ActivityIndicator,
+  BackHandler
 } from 'react-native';
 import { UserAccount } from '../../services/AuthService';
 import { RankingService, RankEntry } from '../../services/RankingService';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
+import { SoundManager } from '../../utils/SoundManager';
 
 const { width, height } = Dimensions.get('window');
 
@@ -56,6 +59,18 @@ export default function RankingScreen({ currentUser, onBackToHome }: RankingScre
 
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Play victory sound on mount
+    SoundManager.playVictorySound();
+
+    // Disable hardware back button
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      return true; // Return true prevents default behavior
+    });
+
+    return () => backHandler.remove();
+  }, []);
 
   useEffect(() => {
     // Start Trophy Animation
@@ -111,7 +126,7 @@ export default function RankingScreen({ currentUser, onBackToHome }: RankingScre
     currentUserRankIndex = rankedUsers.findIndex(r => r.user_account_id === currentUser.id);
   }
 
-  const renderRankItem = (entry: RankEntry, rankNumber: number | string, isCurrentUser: boolean = false, isSmall: boolean = false) => {
+  const renderRankItem = (entry: RankEntry, rankNumber: number | string, isCurrentUser: boolean = false, isSmall: boolean = false, playCount?: number) => {
     return (
       <View key={entry.user_account_id + (isSmall ? '_small' : '')} style={[styles.rankItem, isCurrentUser && styles.currentUserItem, isSmall && styles.smallRankItem]}>
         <View style={styles.rankLeft}>
@@ -121,7 +136,9 @@ export default function RankingScreen({ currentUser, onBackToHome }: RankingScre
           />
           <View style={styles.userInfo}>
             <Text style={[styles.userName, isSmall && styles.smallUserName]} numberOfLines={1}>{entry.nama_user}</Text>
-            <Text style={[styles.userScore, isSmall && styles.smallUserScore]}>Skor: {entry.poin}</Text>
+            <Text style={[styles.userScore, isSmall && styles.smallUserScore]}>
+              Skor: {entry.poin} {playCount ? `(Dolan kaping ${playCount})` : ''}
+            </Text>
           </View>
         </View>
         <Text style={[styles.rankNumber, isSmall && styles.smallRankNumber, { color: rankNumber === 1 ? '#FFD700' : rankNumber === 2 ? '#C0C0C0' : rankNumber === 3 ? '#CD7F32' : '#999' }]}>
@@ -168,20 +185,32 @@ export default function RankingScreen({ currentUser, onBackToHome }: RankingScre
             <>
               {top3.map((entry, index) => renderRankItem(entry, index + 1, entry.user_account_id === currentUser?.id))}
 
-              {/* Tampilkan baris baru (skor terbaru) user sendiri jika tidak masuk top 3, dan agak kecilkan */}
-              {latestUserRank && currentUserRankIndex > 2 && (
+              {/* Selalu tampilkan baris baru (skor sesi terbaru) user di bagian bawah */}
+              {latestUserRank && (
                 <>
                   <View style={styles.divider} />
-                  {renderRankItem(latestUserRank, currentUserRankIndex + 1, true, true)}
+                  {renderRankItem(
+                    latestUserRank,
+                    (() => {
+                      let higher = 0;
+                      rankedUsers.forEach(r => {
+                        if (r.poin > latestUserRank.poin) higher++;
+                      });
+                      return higher + 1;
+                    })(),
+                    true,
+                    true,
+                    (latestUserRank as any).playCount
+                  )}
                 </>
               )}
             </>
           )}
         </View>
 
-        <TouchableOpacity style={styles.backBtn} onPress={onBackToHome}>
+        <SoundTouchableOpacity style={styles.backBtn} onPress={onBackToHome}>
           <Text style={styles.backBtnText}>Kembali ke Beranda</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </SafeAreaView>
 
       {/* Bottom City Asset */}
@@ -212,10 +241,10 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   raysRotator: {
-    width: 600,
-    height: 600,
+    width: 780,
+    height: 900,
     position: 'absolute',
-    top: -70, // Diubah agar lebih ke bawah (mendekati 0)
+    top: -130, // Diubah agar lebih ke bawah (mendekati 0)
     justifyContent: 'center',
     alignItems: 'center',
   },

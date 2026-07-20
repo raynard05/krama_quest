@@ -6,6 +6,8 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 import { getAvatarSource } from '../profile/ProfileAvatars';
 import { getBatikSource } from '../profile/ProfileAvatars';
 import { vw, rs, scaleFont, vh } from '../../utils/responsive';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
+import { SoundManager } from '../../utils/SoundManager';
 
 interface DaduProps {
   value: number;
@@ -65,6 +67,7 @@ export default function Dadu({ value, onRoll, disabled = false, avatarId, userNa
   const handleRollAction = () => {
     if (isLockedRef.current || disabled) return;
     isLockedRef.current = true;
+    SoundManager.playDiceSound();
     onRoll();
   };
 

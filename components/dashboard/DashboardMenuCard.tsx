@@ -6,6 +6,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import styles from '../../styles/dashboard/DashboardMenuCardStyles';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface MenuCardProps {
   title: string;
@@ -79,7 +80,7 @@ export default function DashboardMenuCard({ title, imageSource, onPress, type }:
 
   return (
     <Animated.View style={[styles.cardWrapper, { transform: [{ scale }] }]}>
-      <TouchableOpacity
+      <SoundTouchableOpacity
         onPress={handlePress}
         activeOpacity={0.9}
         style={{ flex: 1 }}
@@ -97,7 +98,7 @@ export default function DashboardMenuCard({ title, imageSource, onPress, type }:
           />
           <Text style={titleStyle}>{title}</Text>
         </ImageBackground>
-      </TouchableOpacity>
+      </SoundTouchableOpacity>
     </Animated.View>
   );
 }

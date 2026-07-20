@@ -18,6 +18,7 @@ import DashboardProfileModal from './DashboardProfileModal';
 import DashboardCarousel from './DashboardCarousel';
 import DashboardEnsiklopediaCard from './DashboardEnsiklopediaCard';
 import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface DashboardMenuProps {
   currentUser: (UserAccount & { avatarId?: string; avatarBgId?: string }) | null;
@@ -165,7 +166,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                 <Text style={styles.userNameText}>{displayName}!</Text>
               </View>
 
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={styles.avatarButton}
                 onPress={handleAvatarPress}
                 activeOpacity={0.8}
@@ -226,7 +227,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                     <Text style={styles.badgeText}>{ICONS[iconIndex]}</Text>
                   </Animated.View>
                 </View>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
 
 

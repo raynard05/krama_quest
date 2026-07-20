@@ -23,6 +23,7 @@ import type { UserAccount } from '../../services/AuthService';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles, { EYE_SIZE } from '../../styles/auth/RegisterStyles';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 interface RegisterScreenProps {
@@ -210,16 +211,16 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
                 onFocus={() => setFocusedField('password')}
                 onBlur={() => setFocusedField(null)}
               />
-              <TouchableOpacity onPress={() => setPasswordVisible(v => !v)} style={styles.eyeBtn} activeOpacity={0.7}>
+              <SoundTouchableOpacity onPress={() => setPasswordVisible(v => !v)} style={styles.eyeBtn} activeOpacity={0.7}>
                 {passwordVisible
                   ? <EyeOff size={EYE_SIZE} color="#888899" strokeWidth={1.8} />
                   : <Eye size={EYE_SIZE} color="#888899" strokeWidth={1.8} />}
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
 
             {/* Tombol Ndhaftar */}
             <Animated.View style={{ transform: [{ scale: btnScale }] }}>
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={styles.primaryBtn}
                 onPress={handleRegister}
                 activeOpacity={0.88}
@@ -228,7 +229,7 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
                 disabled={loading}
               >
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Dhaftar</Text>}
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </Animated.View>
 
           </View>
@@ -236,9 +237,9 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
           {/* Link Row (terpisah secara JSX/CSS agar posisinya independen) */}
           <View style={styles.linkRow}>
             <Text style={styles.linkText}>Wis nduweni akun? </Text>
-            <TouchableOpacity onPress={onNavigateToLogin} activeOpacity={0.75}>
+            <SoundTouchableOpacity onPress={onNavigateToLogin} activeOpacity={0.75}>
               <Text style={styles.linkAccent}>Mlebu</Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
 
           {/* Bottom Section: Hanya berisi ilustrasi kota di belakang */}

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Gamepad2, X, Info, HelpCircle } from 'lucide-react-native';
 import BackButton from '../BackButton';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const { width } = Dimensions.get('window');
 
@@ -42,7 +43,7 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
 
         {/* Tab Switch Selector */}
         <View style={styles.switchWrapper}>
-          <TouchableOpacity
+          <SoundTouchableOpacity
             activeOpacity={0.8}
             style={[
               styles.switchTab,
@@ -54,9 +55,9 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
             <Text style={[styles.switchLabel, activeTab === 'pemantik' && styles.switchLabelActive]}>
               Pemantik
             </Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
 
-          <TouchableOpacity
+          <SoundTouchableOpacity
             activeOpacity={0.8}
             style={[
               styles.switchTab,
@@ -68,7 +69,7 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
             <Text style={[styles.switchLabel, activeTab === 'dolanan' && styles.switchLabelActive]}>
               Dolanan
             </Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         </View>
 
         {/* Unified Responsive Main Card */}
@@ -89,13 +90,13 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
                   </Text>
                 </View>
 
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={styles.cardCTA}
                   onPress={() => setPemantikVisible(true)}
                   activeOpacity={0.88}
                 >
                   <Text style={[styles.cardCTAText, { color: '#FF5E7E' }]}>Buka Pitakonan Pemantik</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </View>
             ) : (
               <View style={styles.cardContent}>
@@ -109,13 +110,13 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
                   </Text>
                 </View>
 
-                <TouchableOpacity
+                <SoundTouchableOpacity
                   style={styles.cardCTA}
                   onPress={onSelectGame}
                   activeOpacity={0.88}
                 >
                   <Text style={[styles.cardCTAText, { color: '#007AFF' }]}>Mulai Main Ular Tangga</Text>
-                </TouchableOpacity>
+                </SoundTouchableOpacity>
               </View>
             )}
           </View>
@@ -136,9 +137,9 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
                 <HelpCircle color="#FF5E7E" size={24} style={styles.modalIcon} />
                 <Text style={styles.modalHeaderText}>Pitakonan Pemantik</Text>
               </View>
-              <TouchableOpacity onPress={() => setPemantikVisible(false)} style={styles.closeButton}>
+              <SoundTouchableOpacity onPress={() => setPemantikVisible(false)} style={styles.closeButton}>
                 <X color="#1C1C1E" size={24} />
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScroll}>
@@ -170,7 +171,7 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
                 </View>
               </View>
 
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={styles.startGameCTA}
                 onPress={() => {
                   setPemantikVisible(false);
@@ -180,7 +181,7 @@ export default function DolananOptions({ onBack, onSelectGame }: DolananOptionsP
               >
                 <Gamepad2 color="#FFFFFF" size={20} style={styles.ctaIconOffset} />
                 <Text style={styles.startGameCTAText}>Mulai Dolanan Ular Tangga</Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </ScrollView>
           </View>
         </View>

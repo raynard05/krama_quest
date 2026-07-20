@@ -10,6 +10,7 @@ import { RotateCcw } from 'lucide-react-native';
 import { Player } from '../../types';
 import { getGacoImageSource } from './Board';
 import BackButton from '../BackButton';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface GameHeaderProps {
   players: Player[];
@@ -51,10 +52,10 @@ export default function GameHeader({
       <View style={styles.topBar}>
         <BackButton onPress={onBackToLobby} />
 
-        <TouchableOpacity style={styles.iconButton} onPress={onResetGame} activeOpacity={0.7}>
+        <SoundTouchableOpacity style={styles.iconButton} onPress={onResetGame} activeOpacity={0.7}>
           <RotateCcw color="#FFFFFF" size={16} />
           <Text style={styles.backText}>Reset</Text>
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </View>
 
       {/* Turn Indicator */}

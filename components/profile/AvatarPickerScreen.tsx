@@ -16,6 +16,7 @@ import { AvatarPickerStyles as styles } from '../../styles/profile/AvatarPickerS
 import { vw, vh, rs, scaleFont } from '../../utils/responsive';
 import { PROFILE_AVATARS, getAvatarSource, AvatarItem, PROFILE_BATIKS, getBatikSource } from './ProfileAvatars';
 import BackButton from '../BackButton';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface AvatarPickerScreenProps {
   initialAvatarId: string | undefined;
@@ -83,7 +84,7 @@ const AvatarGridItem = React.memo(({
   });
 
   return (
-    <TouchableOpacity
+    <SoundTouchableOpacity
       style={styles.gridItemWrapper}
       onPress={() => onPress(item.id)}
       activeOpacity={0.7}
@@ -134,7 +135,7 @@ const AvatarGridItem = React.memo(({
           resizeMethod="resize"
         />
       </View>
-    </TouchableOpacity>
+    </SoundTouchableOpacity>
   );
 });
 
@@ -250,20 +251,20 @@ export default function AvatarPickerScreen({
 
           {/* Segmented Control Tabs */}
           <View style={styles.tabsContainer}>
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={[styles.tabButton, activeTab === 'avatar' && styles.tabButtonActive]}
               onPress={() => setActiveTab('avatar')}
               activeOpacity={0.85}
             >
               <Text style={[styles.tabText, activeTab === 'avatar' && styles.tabTextActive]}>Karakter</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </SoundTouchableOpacity>
+            <SoundTouchableOpacity
               style={[styles.tabButton, activeTab === 'background' && styles.tabButtonActive]}
               onPress={() => setActiveTab('background')}
               activeOpacity={0.85}
             >
               <Text style={[styles.tabText, activeTab === 'background' && styles.tabTextActive]}>Background</Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
 
           {/* Grid Selector */}
@@ -292,7 +293,7 @@ export default function AvatarPickerScreen({
 
         {/* Bottom Selesai Button */}
         <View style={styles.bottomButtonContainer}>
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={styles.selesaiButton}
             onPress={() => {
               onSaveBoth(selectedId, selectedBgId);
@@ -300,7 +301,7 @@ export default function AvatarPickerScreen({
             activeOpacity={0.8}
           >
             <Text style={styles.selesaiButtonText}>Selesai</Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         </View>
       </ImageBackground>
     </View>

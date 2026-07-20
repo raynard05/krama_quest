@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, Image, StyleSheet } from 'react-native';
 import { rs, scaleFont } from '../../utils/responsive';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface Props {
   onPress?: () => void;
@@ -25,7 +26,7 @@ export default function DashboardEnsiklopediaCard({ onPress }: Props) {
 
   return (
     <Animated.View style={[styles.container, { transform: [{ scale }] }]}>
-      <TouchableOpacity
+      <SoundTouchableOpacity
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -40,7 +41,7 @@ export default function DashboardEnsiklopediaCard({ onPress }: Props) {
           />
         </View>
         <Text style={styles.title}>Ensiklopedia</Text>
-      </TouchableOpacity>
+      </SoundTouchableOpacity>
     </Animated.View>
   );
 }

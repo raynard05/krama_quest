@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { styles } from './GacoSelectorStyles'
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface Gaco {
   id: number;
@@ -76,7 +77,7 @@ export default function GacoSelector({
       </Text>
       
       <View style={styles.gacoSelector}>
-        <TouchableOpacity 
+        <SoundTouchableOpacity 
           style={[
             styles.gacoArrow,
             isOnlineMode && styles.gacoArrowOnline,
@@ -86,7 +87,7 @@ export default function GacoSelector({
           disabled={isConfirmed}
         >
           <ChevronLeft color={arrowColor} size={32} />
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
 
         <View style={styles.gacoCarousel} {...panResponder.panHandlers}>
           {/* Previous Gaco (Left) */}
@@ -139,7 +140,7 @@ export default function GacoSelector({
           </Animated.View>
         </View>
 
-        <TouchableOpacity 
+        <SoundTouchableOpacity 
           style={[
             styles.gacoArrow,
             isOnlineMode && styles.gacoArrowOnline,
@@ -149,13 +150,13 @@ export default function GacoSelector({
           disabled={isConfirmed}
         >
           <ChevronRight color={arrowColor} size={32} />
-        </TouchableOpacity>
+        </SoundTouchableOpacity>
       </View>
 
       {/* Confirm/Cancel Buttons */}
       <View style={styles.gacoButtonContainer}>
         {!isConfirmed ? (
-          <TouchableOpacity
+          <SoundTouchableOpacity
             style={[
               styles.confirmButton,
               isOnlineMode && styles.confirmButtonOnline,
@@ -171,19 +172,19 @@ export default function GacoSelector({
             ]}>
               Pilih
             </Text>
-          </TouchableOpacity>
+          </SoundTouchableOpacity>
         ) : (
           <View style={styles.gacoButtonRow}>
             <View style={styles.confirmedButton}>
               <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
             </View>
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={styles.cancelButton}
               onPress={onCancel}
               activeOpacity={0.8}
             >
               <Text style={styles.cancelButtonText}>Ganti</Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
         )}
       </View>

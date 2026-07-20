@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, ImageBackground, Animated, Ima
 import { Player, Soal } from '../../types';
 import styles from './GamePopupsStyle';
 import { checkAnswerCorrectness } from '../../constants';
+import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 const QUESTION_POPUP_IMG = require('../../assets/pop_up/question_popup1.png');
 const CORRECT_POPUP_IMG = require('../../assets/pop_up/correct_popup.png');
@@ -187,7 +188,7 @@ export default function GamePopups({
 
                 {/* Kirim Jawaban Button overlay for Humans (invisible, matches the pre-drawn asset button) */}
                 {currentPlayer.type === 'human' && (
-                  <TouchableOpacity
+                  <SoundTouchableOpacity
                     style={styles.invisibleSubmitButton}
                     onPress={() => {
                       const isCorrect = checkAnswerCorrectness(typedAnswer, activeQuestion.kunciJawaban, activeQuestion.minimal_jawab_benar);
@@ -220,7 +221,7 @@ export default function GamePopups({
                 ? 'Jatah pitakonmu wis entek! Kowe dadi penonton saiki.'
                 : `${spectatorPlayerName} wis entek jatahe lan dadi penonton saiki.`}
             </Text>
-            <TouchableOpacity
+            <SoundTouchableOpacity
               style={[styles.exitConfirmBtn, styles.exitConfirmBtnConfirm, { width: '100%', marginTop: 10, flex: undefined }]}
               onPress={() => {
                 setShowSpectatorPopup(false);
@@ -230,7 +231,7 @@ export default function GamePopups({
               }}
             >
               <Text style={styles.exitConfirmBtnConfirmText}>Ngerti / Lanjut</Text>
-            </TouchableOpacity>
+            </SoundTouchableOpacity>
           </View>
         </View>
       )}
@@ -307,18 +308,18 @@ export default function GamePopups({
               Punapa panjenengan yakin badhe medal saking game? Sesi game badhe dipungkasi.
             </Text>
             <View style={styles.exitConfirmButtonRow}>
-              <TouchableOpacity
+              <SoundTouchableOpacity
                 style={[styles.exitConfirmBtn, styles.exitConfirmBtnCancel]}
                 onPress={() => setShowExitConfirm(false)}
               >
                 <Text style={styles.exitConfirmBtnCancelText}>Batal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </SoundTouchableOpacity>
+              <SoundTouchableOpacity
                 style={[styles.exitConfirmBtn, styles.exitConfirmBtnConfirm]}
                 onPress={onConfirmExit}
               >
                 <Text style={styles.exitConfirmBtnConfirmText}>Inggih</Text>
-              </TouchableOpacity>
+              </SoundTouchableOpacity>
             </View>
           </View>
         </View>
