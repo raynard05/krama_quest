@@ -37,8 +37,8 @@ function getPlayerOffsetPosition(cell: number, playerId: number, players: Player
   const playersAtCell = players.filter(p => p.position === cell);
   const index = playersAtCell.findIndex(p => p.id === playerId);
   if (index <= 0 || playersAtCell.length <= 1) return basePos;
-  
-  const offsetDistanceX = 2.2; 
+
+  const offsetDistanceX = 2.2;
   const offsetDistanceY = 4.5;
   if (playersAtCell.length === 2) {
     return {
@@ -71,7 +71,7 @@ function Token({ player, players, profiles }: { player: Player; players: Player[
     ).start();
   }, []);
 
-  let gacoId = player.icon;
+  let gacoId = (player as any).gacoId || player.icon;
   if (profiles && profiles[player.id]) {
     gacoId = profiles[player.id].gacoId;
   }
@@ -122,11 +122,11 @@ export default function Board({ players = [], profiles }: BoardProps) {
   return (
     <View style={styles.boardContainer}>
       <Image
-        source={require('../../assets/dolanan_assets/board_fix.png')}
+        source={require('../../assets/dolanan_assets/board_fix2.png')}
         style={styles.boardImage}
         resizeMode="stretch"
       />
-      
+
       {/* SIMULATOR OVERLAY */}
       <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, pointerEvents: 'none', zIndex: 3, opacity: 0 }}>
         {Array.from({ length: 50 }).map((_, i) => {

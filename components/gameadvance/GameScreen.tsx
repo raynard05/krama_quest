@@ -36,11 +36,13 @@ const BACKGROUND_IMAGES = [
 interface GameScreenProps {
   currentUser: any;
   onBack: () => void;
+  onFinishGame?: (players: Player[]) => void;
 }
 
 export default function GameScreen({
   currentUser,
   onBack,
+  onFinishGame,
 }: GameScreenProps) {
   const [diceValue, setDiceValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState<boolean>(false);
@@ -567,6 +569,7 @@ export default function GameScreen({
         endReason={endReason}
         players={players}
         onBack={onBack}
+        onFinishGame={onFinishGame}
         showExitConfirm={showExitConfirm}
         setShowExitConfirm={setShowExitConfirm}
         onConfirmExit={onBack}

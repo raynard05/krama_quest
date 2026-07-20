@@ -55,6 +55,8 @@ export default function LoginScreen({ onNavigateToRegister, onLoginSuccess }: Lo
       return;
     }
     setLoading(true);
+    // Beri waktu sejenak agar UI sempat merender indikator loading
+    await new Promise(resolve => setTimeout(resolve, 50));
     try {
       const result = await loginUser(username.trim(), password);
       if (result.success && result.user) {

@@ -6,6 +6,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import * as Crypto from 'expo-crypto';
 
 const SUPABASE_URL = 'https://jkszjoviywizcvdhwejz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_On_v0Dk0iH8532lOdoF2MQ_pe4BK9RO';
@@ -52,8 +53,16 @@ export async function loginUser(username: string, kata_sandi: string): Promise<A
       return { success: false, message: 'Asma pangguna boten kapanggih.' };
     }
 
-    // Compare hashed password using bcryptjs client-side
-    const isMatch = bcrypt.compareSync(kata_sandi, user.kata_sandi);
+    // Compare hashed password (supports both fast SHA256 and legacy bcrypt)
+    let isMatch = false;
+    if (user.kata_sandi.startsWith('$2a$') || user.kata_sandi.startsWith('$2b$') || user.kata_sandi.startsWith('$2y$')) {
+      isMatch = await bcrypt.compare(kata_sandi, user.kata_sandi);
+    } else {
+      const salt = 'krama_quest_salt_';
+      const hash = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, salt + kata_sandi);
+      isMatch = (hash === user.kata_sandi);
+    }
+
     if (!isMatch) {
       return { success: false, message: 'Tembung sandi boten leres.' };
     }
@@ -110,9 +119,12 @@ export async function registerUser(payload: {
       return { success: false, message: 'Asma pangguna sampun dipunginakaken.' };
     }
 
-    // Hash the password using bcryptjs client-side
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(kata_sandi, salt);
+    // Hash the password natively using expo-crypto (Blazing fast!)
+    const salt = 'krama_quest_salt_';
+    const hashedPassword = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      salt + kata_sandi
+    );
 
     // Insert new user profile
     const { data: newUser, error: insertError } = await supabase

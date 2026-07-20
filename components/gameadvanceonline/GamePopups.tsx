@@ -34,7 +34,9 @@ interface GamePopupsProps {
   gameFinished: boolean;
   endReason: 'normal' | 'timeout';
   players: Player[];
+  localPlayerIndex: number;
   onBack: () => void;
+  onFinishGame?: (players: Player[]) => void;
 
   // Exit Confirm
   showExitConfirm: boolean;
@@ -62,30 +64,36 @@ export default function GamePopups({
   gameFinished,
   endReason,
   players,
+  localPlayerIndex,
   onBack,
+  onFinishGame,
   showExitConfirm,
   setShowExitConfirm,
   onConfirmExit,
 }: GamePopupsProps) {
   // Slide-in animation for result popup (correct/wrong/timeout)
   const slideAnim = useRef(new Animated.Value(-500)).current;
-  const [redirectCountdown, setRedirectCountdown] = useState<number>(3600);
+  const [redirectCountdown, setRedirectCountdown] = useState<number>(10);
 
   useEffect(() => {
     if (gameFinished) {
+      setRedirectCountdown(10);
       const timer = setInterval(() => {
-        setRedirectCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            onBack();
-            return 0;
-          }
-          return prev - 1;
-        });
+        setRedirectCountdown(prev => prev > 0 ? prev - 1 : 0);
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [gameFinished, onBack]);
+  }, [gameFinished]);
+
+  useEffect(() => {
+    if (gameFinished && redirectCountdown === 0) {
+      if (onFinishGame) {
+        onFinishGame(players);
+      } else {
+        onBack();
+      }
+    }
+  }, [gameFinished, redirectCountdown, onFinishGame, onBack, players]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -280,9 +288,9 @@ export default function GamePopups({
 
             {/* Winner text banner in Javanese */}
             <Text style={{ color: '#E25C3D', fontSize: 18, fontWeight: 'bold', fontFamily: 'Poppins-Bold', marginBottom: 15, textAlign: 'center' }}>
-              {players[0].score === players[1].score
+              {(players[0].score || 0) === (players[1].score || 0)
                 ? '🤝 Asile Seri!'
-                : (players[0].score! > players[1].score! ? '🎉 Kowe Menang!' : '😢 Kowe Kalah!')}
+                : ((players[localPlayerIndex].score || 0) > (players[localPlayerIndex === 0 ? 1 : 0].score || 0) ? '🎉 Kowe Menang!' : '😢 Kowe Kalah!')}
             </Text>
 
             <View style={[styles.nextButton, { backgroundColor: '#784B23', width: '100%' }]}>

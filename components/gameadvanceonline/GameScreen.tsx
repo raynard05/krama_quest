@@ -41,6 +41,8 @@ interface GameScreenProps {
   isHost?: boolean;
   initialPlayers: Player[];
   onBack: () => void;
+  onFinishGame?: (players: Player[]) => void;
+  onGameEndInitiated?: () => void;
 }
 
 export default function GameScreen({
@@ -48,6 +50,8 @@ export default function GameScreen({
   isHost = true,
   initialPlayers,
   onBack,
+  onFinishGame,
+  onGameEndInitiated,
 }: GameScreenProps) {
   const localPlayerIndex = isHost ? 0 : 1;
   const remotePlayerIndex = isHost ? 1 : 0;
@@ -68,14 +72,45 @@ export default function GameScreen({
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState<boolean>(false);
   const [showQuestionModal, setShowQuestionModal] = useState<boolean>(false);
   const [gameFinished, setGameFinished] = useState<boolean>(false);
+  const [globalTimeLeft, setGlobalTimeLeft] = useState(30 * 3);
+
+  // 5-second countdown at the start of the game
+  const [startCountdown, setStartCountdown] = useState<number | null>(5);
+
+  // Global game timer (30 mins)
+  useEffect(() => {
+    if (gameFinished || startCountdown !== null) return;
+
+    // Hanya Host (Player 1) yang menghitung mundur untuk memastikan 100% tersinkron tanpa jeda ms clock device
+    if (localPlayerIndex !== 0) return;
+
+    const timer = setInterval(() => {
+      setGlobalTimeLeft(prev => {
+        const nextTime = prev - 1;
+        if (nextTime <= 0) {
+          clearInterval(timer);
+          setEndReason('timeout');
+          setGameFinished(true);
+          GameNetwork.sendRelay('sync', { tm: 0 }); // Beri tahu client waktu habis
+          return 0;
+        }
+        
+        // Host memancarkan waktu setiap detik (1:1 sync)
+        GameNetwork.sendRelay('sync', { tm: nextTime });
+        
+        return nextTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameFinished, startCountdown, localPlayerIndex]);
+
   const [questionTimeLeft, setQuestionTimeLeft] = useState<number>(60);
 
   const [showSpectatorPopup, setShowSpectatorPopup] = useState<boolean>(false);
   const [spectatorPlayerName, setSpectatorPlayerName] = useState<string>('');
   const [endReason, setEndReason] = useState<'normal' | 'timeout'>('normal');
 
-  // 5-second countdown at the start of the game
-  const [startCountdown, setStartCountdown] = useState<number | null>(5);
   const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
   const [showEnemyRollPopup, setShowEnemyRollPopup] = useState<boolean>(false);
   const [bgIndex, setBgIndex] = useState<number>(0);
@@ -95,7 +130,7 @@ export default function GameScreen({
               if (!isNaN(userId)) {
                 try {
                   const profile = await ProfileService.fetchUserFullProfile(userId);
-                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId };
+                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId, gacoId: profile.gacoId };
                 } catch (e) {
                   console.warn('Failed to fetch profile for', userId, e);
                   return p;
@@ -116,9 +151,24 @@ export default function GameScreen({
     const handleNetworkEvent = (event: NetworkEvent) => {
       if (event.type === 'relay_sync') {
         const payload = event.payload;
-        // payload: { t: turn, d: dice, p1: pos1, p2: pos2 }
+        // payload: { t: turn, d: dice, p1: pos1, p2: pos2, tm: timeLeft }
+        if (payload.tm !== undefined && (isHost ? 1 : 0) === 0) {
+          // If we are not the host, sync time from host exactly
+          setGlobalTimeLeft(payload.tm);
+          if (payload.tm <= 0) {
+             setEndReason('timeout');
+             setGameFinished(true);
+          }
+        }
         if (payload.d !== undefined) {
           setDiceValue(payload.d);
+          if (payload.t !== undefined) {
+            setPlayerLastRolls(prev => {
+              const next = [...prev];
+              next[payload.t] = payload.d;
+              return next;
+            });
+          }
         }
         if (payload.t !== undefined) {
           setCurrentPlayerIndex(payload.t);
@@ -142,12 +192,19 @@ export default function GameScreen({
         }));
       } else if (event.type === 'relay_tu') {
         const payload = event.payload;
-        // payload: { t: nextTurn, q1: count1, q2: count2 }
+        // payload: { t: nextTurn, q1: count1, q2: count2, s1: status1, s2: status2 }
         if (payload.t !== undefined) setCurrentPlayerIndex(payload.t);
         setPlayers(prev => prev.map((p, idx) => {
-          if (idx === 0 && payload.q1 !== undefined) return { ...p, soalTerjawabCount: payload.q1 };
-          if (idx === 1 && payload.q2 !== undefined) return { ...p, soalTerjawabCount: payload.q2 };
-          return p;
+          let np = { ...p };
+          if (idx === 0) {
+            if (payload.q1 !== undefined) np.soalTerjawabCount = payload.q1;
+            if (payload.s1 !== undefined) np.status = payload.s1;
+          }
+          if (idx === 1) {
+            if (payload.q2 !== undefined) np.soalTerjawabCount = payload.q2;
+            if (payload.s2 !== undefined) np.status = payload.s2;
+          }
+          return np;
         }));
       }
     };
@@ -159,6 +216,12 @@ export default function GameScreen({
       GameNetwork.unregisterListener(handleNetworkEvent);
     };
   }, []);
+
+  useEffect(() => {
+    if (gameFinished && onGameEndInitiated) {
+      onGameEndInitiated();
+    }
+  }, [gameFinished, onGameEndInitiated]);
 
   const handleBackPress = () => {
     if (gameFinished) {
@@ -214,6 +277,13 @@ export default function GameScreen({
     // Check if game end conditions met
     const allFinished = currentList.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
     if (allFinished) {
+      GameNetwork.sendRelay('tu', {
+        t: currentPlayerIndex,
+        q1: currentList[0].soalTerjawabCount || 0,
+        q2: currentList[1].soalTerjawabCount || 0,
+        s1: currentList[0].status,
+        s2: currentList[1].status
+      });
       setGameFinished(true);
       setShowDaduCard(false);
       return;
@@ -233,7 +303,9 @@ export default function GameScreen({
     GameNetwork.sendRelay('tu', {
       t: nextTurn,
       q1: currentList[0].soalTerjawabCount || 0,
-      q2: currentList[1].soalTerjawabCount || 0
+      q2: currentList[1].soalTerjawabCount || 0,
+      s1: currentList[0].status,
+      s2: currentList[1].status
     });
   };
 
@@ -264,13 +336,23 @@ export default function GameScreen({
             setSpectatorPlayerName(p.name);
           }
 
+          let finalPos = p.position;
+          if (newStatus === 'spectator') {
+            finalPos = 50;
+            GameNetwork.sendRelay('sync', {
+              t: currentPlayerIndex,
+              ...(currentPlayerIndex === 0 ? { p1: 50 } : { p2: 50 })
+            });
+          }
+
           return {
             ...p,
             score: newScore,
             soalTerjawabCount: newCount,
             answeredQuestionIds: newAnswered,
             activeQuestionId: null,
-            status: newStatus
+            status: newStatus,
+            position: finalPos
           };
         }
         return p;
@@ -283,7 +365,14 @@ export default function GameScreen({
       setHasCheckedAnswer(false);
       setShowQuestionModal(false);
 
-      if (triggeredSpectatorNotice) {
+      const allFinished = newPlayers.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
+
+      if (allFinished) {
+        // Jika semua pemain sudah habis jatahnya, langsung akhiri game tanpa popup penonton
+        setTimeout(() => {
+          transitionTurn(newPlayers);
+        }, 2500);
+      } else if (triggeredSpectatorNotice) {
         setShowSpectatorPopup(true);
       } else {
         setTimeout(() => {
@@ -297,6 +386,17 @@ export default function GameScreen({
 
   const daduAnimY = useRef(new Animated.Value(800)).current;
   const textAnimX = useRef(new Animated.Value(-400)).current;
+
+  // Listen for opponent turning into spectator
+  const prevOpponentStatus = useRef<string>('playing');
+  useEffect(() => {
+    const opp = players[remotePlayerIndex];
+    if (opp && opp.status === 'spectator' && prevOpponentStatus.current !== 'spectator') {
+      prevOpponentStatus.current = 'spectator';
+      setSpectatorPlayerName(opp.name);
+      setShowSpectatorPopup(true);
+    }
+  }, [players, remotePlayerIndex]);
 
   // 1-minute question countdown timer
   useEffect(() => {
@@ -359,6 +459,16 @@ export default function GameScreen({
       default: return require('../../assets/dolanan_assets/dadu1.png');
     }
   };
+
+  // Watch for game end explicitly when player state changes (from websocket)
+  useEffect(() => {
+    if (gameFinished || startCountdown !== null) return;
+    const allFinished = players.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
+    if (allFinished) {
+      setGameFinished(true);
+      setShowDaduCard(false);
+    }
+  }, [players, gameFinished, startCountdown]);
 
   // Turn logic
   useEffect(() => {
@@ -466,6 +576,7 @@ export default function GameScreen({
           t: currentPlayerIndex,
           ...(currentPlayerIndex === 0 ? { p1: 1 } : { p2: 1 })
         });
+        GameNetwork.sendRelay('sc', { p: currentPlayerIndex, v: 1 });
         finalTarget = 1;
         await new Promise(resolve => setTimeout(resolve, 400));
       }
@@ -551,37 +662,7 @@ export default function GameScreen({
 
   return (
     <View style={styles.container}>
-      {/* DEBUG TEST BUTTONS - JANGAN LUPA DIHAPUS SAAT PRODUCTION */}
-      <View style={{ position: 'absolute', top: 60, right: 10, zIndex: 9999, elevation: 10, gap: 10 }}>
-        <TouchableOpacity 
-          style={{ backgroundColor: '#EF4444', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
-          onPress={() => onBack()}
-        >
-          <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Back-Force Debug</Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={{ backgroundColor: '#E25C3D', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
-          onPress={() => {
-            setPlayers(prev => prev.map((p, idx) => idx === 0 ? { ...p, soalTerjawabCount: 25, status: 'spectator' } : p));
-            setSpectatorPlayerName(players[0].name);
-            setShowSpectatorPopup(true);
-          }}
-        >
-          <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Test User Penonton</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={{ backgroundColor: '#784B23', padding: 8, borderRadius: 8, borderWidth: 2, borderColor: '#FFF' }}
-          onPress={() => {
-            setPlayers(prev => prev.map((p, idx) => idx === 1 ? { ...p, soalTerjawabCount: 25, status: 'spectator' } : p));
-            setSpectatorPlayerName(players[1].name);
-            setShowSpectatorPopup(true);
-          }}
-        >
-          <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>Test Lawan Penonton</Text>
-        </TouchableOpacity>
-      </View>
 
       <ImageBackground
         source={require('../../assets/splash_screen/bg_splashs.webp')}
@@ -601,7 +682,7 @@ export default function GameScreen({
                 <View style={{ width: 140, height: 45, justifyContent: 'center' }}>
                   <Image source={require('../../assets/title_board/dolanan.png')} style={{ width: 140, height: 45 }} resizeMode="contain" />
                   <View style={{ position: 'absolute', left: 150 }}>
-                    <Timeout isEnabled={!gameFinished} onTimeUp={() => { setEndReason('timeout'); setGameFinished(true); }} />
+                    <Timeout isEnabled={!gameFinished} timeLeft={globalTimeLeft} />
                   </View>
                 </View>
               </View>
@@ -687,7 +768,9 @@ export default function GameScreen({
         gameFinished={gameFinished}
         endReason={endReason}
         players={players}
+        localPlayerIndex={localPlayerIndex}
         onBack={onBack}
+        onFinishGame={onFinishGame}
         showExitConfirm={showExitConfirm}
         setShowExitConfirm={setShowExitConfirm}
         onConfirmExit={onBack}
@@ -830,6 +913,7 @@ export default function GameScreen({
 
       {/* Force Back Button for Debugging */}
       <TouchableOpacity
+        disabled={true}
         style={{
           position: 'absolute',
           top: 40,
@@ -842,6 +926,7 @@ export default function GameScreen({
           borderWidth: 2,
           borderColor: 'white',
           elevation: 5,
+          opacity: 0,
         }}
         onPress={() => {
           console.log('[DEBUG] Force Back button pressed');

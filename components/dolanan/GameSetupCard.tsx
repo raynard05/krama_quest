@@ -115,9 +115,13 @@ export default function GameSetupCard({
   const cleanServerUrl = (url: string) => {
     let cleaned = url.trim();
     if (!cleaned) return '';
-    // Prepend https:// if no protocol is specified
+    // Prepend http:// for local IPs, otherwise https://
     if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
-      cleaned = 'https://' + cleaned;
+      const isLocal = cleaned.startsWith('localhost') || 
+                      cleaned.startsWith('192.168.') || 
+                      cleaned.startsWith('10.') || 
+                      cleaned.startsWith('172.');
+      cleaned = (isLocal ? 'http://' : 'https://') + cleaned;
     }
     // Remove trailing slash if present
     if (cleaned.endsWith('/')) {

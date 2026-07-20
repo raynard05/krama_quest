@@ -34,6 +34,7 @@ interface GamePopupsProps {
   endReason: 'normal' | 'timeout';
   players: Player[];
   onBack: () => void;
+  onFinishGame?: (players: Player[]) => void;
 
   // Exit Confirm
   showExitConfirm: boolean;
@@ -61,29 +62,34 @@ export default function GamePopups({
   endReason,
   players,
   onBack,
+  onFinishGame,
   showExitConfirm,
   setShowExitConfirm,
   onConfirmExit,
 }: GamePopupsProps) {
   // Slide-in animation for result popup (correct/wrong/timeout)
   const slideAnim = useRef(new Animated.Value(-500)).current;
-  const [redirectCountdown, setRedirectCountdown] = useState<number>(3600);
+  const [redirectCountdown, setRedirectCountdown] = useState<number>(10);
 
   useEffect(() => {
     if (gameFinished) {
+      setRedirectCountdown(10);
       const timer = setInterval(() => {
-        setRedirectCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            onBack();
-            return 0;
-          }
-          return prev - 1;
-        });
+        setRedirectCountdown(prev => prev > 0 ? prev - 1 : 0);
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [gameFinished, onBack]);
+  }, [gameFinished]);
+
+  useEffect(() => {
+    if (gameFinished && redirectCountdown === 0) {
+      if (onFinishGame) {
+        onFinishGame(players);
+      } else {
+        onBack();
+      }
+    }
+  }, [gameFinished, redirectCountdown, onFinishGame, onBack, players]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

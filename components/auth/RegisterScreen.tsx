@@ -68,6 +68,8 @@ export default function RegisterScreen({ onNavigateToLogin, onRegisterSuccess }:
       return;
     }
     setLoading(true);
+    // Beri waktu sejenak agar UI sempat merender indikator loading
+    await new Promise(resolve => setTimeout(resolve, 50));
     try {
       const result = await registerUser({
         nama_lengkap: fullName.trim(),

@@ -44,6 +44,8 @@ import DolananScreen from './components/dolanan/DolananScreen';
 import GameScreen from './components/gameadvance/GameScreen';
 import GameScreenOnline from './components/gameadvanceonline/GameScreen';
 import { SoundManager } from './utils/SoundManager';
+import RankingScreen from './components/ranking/RankingScreen';
+import { RankingService } from './services/RankingService';
 
 
 type AuthScreen = 'login' | 'register';
@@ -85,6 +87,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
   const [showGameScreen, setShowGameScreen] = useState<boolean>(false);
+  const [showRanking, setShowRanking] = useState<boolean>(false);
+  const [isSavingRank, setIsSavingRank] = useState<boolean>(false);
   
 
   const handleLoginSuccess = (user: UserAccount) => {
@@ -143,6 +147,7 @@ export default function App() {
     setShowMateri(false);
     setShowCpTp(false);
     setShowDolanan(false);
+    setShowRanking(false);
     setAuthScreen('login');
     setIsLoadingScreen(false);
   };
@@ -304,6 +309,38 @@ export default function App() {
     setLogs([]);
     isMovingRef.current = false;
     setIsMoving(false);
+  };
+
+  const handleFinishGame = async (gamePlayers: Player[]) => {
+    // Show loading screen immediately for DB save
+    setIsSavingRank(true);
+    
+    // Attempt to determine local player from the list
+    let myPlayer = gamePlayers.find(p => p.id === localPlayerId);
+    if (!myPlayer && gamePlayers.length > 0) {
+      myPlayer = gamePlayers[0]; // fallback
+    }
+
+    if (currentUser && myPlayer) {
+      await RankingService.saveRank(
+        currentUser.id,
+        currentUser.nama_lengkap,
+        currentUser.kelas,
+        myPlayer.score || 0
+      );
+    }
+    
+    // Close connections since game is fully over
+    GameNetwork.closeAll();
+    setNetworkRole('local');
+    setLocalPlayerId(0);
+    setStatus('lobby');
+    setPlayers([]);
+    setWinner(null);
+    setLogs([]);
+    
+    setIsSavingRank(false);
+    setShowRanking(true);
   };
 
   // Calculate cell-by-cell path including bounce back if roll exceeds cell 50
@@ -491,6 +528,8 @@ export default function App() {
     }
   }, [players, currentPlayerIndex, status, dieValue, isRolling, isMoving, logs, winner, networkRole]);
 
+  const isNetworkGameFinishedRef = useRef(false);
+
   // Network event listener during active gameplay
   useEffect(() => {
     if (networkRole === 'local' || status !== 'playing') return;
@@ -559,7 +598,12 @@ export default function App() {
 
         case 'connection_status':
           if (event.status === 'disconnected' || event.status === 'error') {
-            handleBackToLobby();
+            // Prevent booting to lobby if the game is already in the finishing sequence
+            if (!isNetworkGameFinishedRef.current) {
+              handleBackToLobby();
+            } else {
+              console.log('[Multiplayer] Connection dropped during game finish sequence. Waiting for local finish.');
+            }
           }
           break;
       }
@@ -601,8 +645,8 @@ export default function App() {
       }
 
       // Handle back button based on current screen state
-      if (isLoadingScreen) {
-        return true; // Prevent back during loading
+      if (isLoadingScreen || isSavingRank) {
+        return true; // Prevent back during loading or saving
       }
 
       if (!isAuthenticated) {
@@ -615,6 +659,12 @@ export default function App() {
       }
 
       // Authenticated screens
+      if (showRanking) {
+        setShowRanking(false);
+        setShowDashboard(true);
+        return true;
+      }
+
       if (showProfile) {
         setShowProfile(false);
         setShowDashboard(true);
@@ -681,7 +731,9 @@ export default function App() {
     showCpTp,
     showDolananOptions,
     showDashboard,
-    status
+    status,
+    showRanking,
+    isSavingRank
   ]);
 
   // Return loader if fonts aren't loaded yet and splash screen is gone
@@ -696,14 +748,32 @@ export default function App() {
 
   // Helper to render content with proper safe area and navigation bar styles
   const renderContent = () => {
-    if (isLoadingScreen) {
+    if (isLoadingScreen || isSavingRank) {
       return (
         <CustomLoadingScreen
           onFinish={() => {
-            setIsLoadingScreen(false);
-            setShowDashboard(true);
+            if (isLoadingScreen) {
+              setIsLoadingScreen(false);
+              setShowDashboard(true);
+            }
           }}
         />
+      );
+    }
+
+    if (showRanking) {
+      return (
+        <>
+          <RankingScreen 
+            currentUser={currentUser} 
+            onBackToHome={() => {
+              setShowRanking(false);
+              setShowDashboard(true);
+            }} 
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
       );
     }
 
@@ -808,6 +878,7 @@ export default function App() {
               setShowGameScreen(false);
               setShowDolanan(true);
             }}
+            onFinishGame={handleFinishGame}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />
@@ -911,6 +982,10 @@ export default function App() {
             isHost={networkRole === 'host'}
             initialPlayers={players}
             onBack={handleBackToLobby}
+            onFinishGame={handleFinishGame}
+            onGameEndInitiated={() => {
+              isNetworkGameFinishedRef.current = true;
+            }}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />

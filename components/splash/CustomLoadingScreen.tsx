@@ -38,7 +38,7 @@ export default function CustomLoadingScreen({ onFinish }: CustomLoadingScreenPro
       })
     ).start();
 
-    // 3. Keep loading for 2.5 seconds, then transition
+    // 3. Keep loading for 0.5 seconds, then transition
     const timer = setTimeout(() => {
       // Fade out
       Animated.timing(fadeAnim, {

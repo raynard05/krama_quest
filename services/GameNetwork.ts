@@ -35,15 +35,29 @@ class GameNetworkManager {
     this.listeners.forEach(cb => cb(event));
   }
 
-  // HOST: Register Room on Server
   startServer(serverUrl: string, password?: string) {
     this.closeAll();
+    
+    let cleanedUrl = serverUrl.trim();
+    if (!cleanedUrl.startsWith('http://') && !cleanedUrl.startsWith('https://')) {
+      const isLocal = cleanedUrl.startsWith('localhost') || 
+                      cleanedUrl.startsWith('192.168.') || 
+                      cleanedUrl.startsWith('10.') || 
+                      cleanedUrl.startsWith('172.');
+      cleanedUrl = (isLocal ? 'http://' : 'https://') + cleanedUrl;
+    }
+    if (cleanedUrl.endsWith('/')) {
+      cleanedUrl = cleanedUrl.slice(0, -1);
+    }
 
     try {
-      this.socket = io(serverUrl, {
-        transports: ['websocket'],
+      this.socket = io(cleanedUrl, {
+        transports: ['polling', 'websocket'],
         forceNew: true,
-        timeout: 10000
+        timeout: 10000,
+        extraHeaders: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
       });
 
       this.socket.on('connect', () => {
@@ -109,11 +123,26 @@ class GameNetworkManager {
     this.closeAll();
     this.roomCode = roomCode.toUpperCase().trim();
 
+    let cleanedUrl = serverUrl.trim();
+    if (!cleanedUrl.startsWith('http://') && !cleanedUrl.startsWith('https://')) {
+      const isLocal = cleanedUrl.startsWith('localhost') || 
+                      cleanedUrl.startsWith('192.168.') || 
+                      cleanedUrl.startsWith('10.') || 
+                      cleanedUrl.startsWith('172.');
+      cleanedUrl = (isLocal ? 'http://' : 'https://') + cleanedUrl;
+    }
+    if (cleanedUrl.endsWith('/')) {
+      cleanedUrl = cleanedUrl.slice(0, -1);
+    }
+
     try {
-      this.socket = io(serverUrl, {
-        transports: ['websocket'],
+      this.socket = io(cleanedUrl, {
+        transports: ['polling', 'websocket'],
         forceNew: true,
-        timeout: 10000
+        timeout: 10000,
+        extraHeaders: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
       });
 
       this.socket.on('connect', () => {
