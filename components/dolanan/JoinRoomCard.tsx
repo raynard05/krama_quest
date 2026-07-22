@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, Clipboard, ActivityIndicator, PanR
 import { Copy, Check } from 'lucide-react-native';
 import { styles } from './JoinRoomCardStyles';
 import { getAvatarSource } from '../profile/ProfileAvatars';
-import { GACOS } from './GameSetupCard';
+import { GACOS } from './GameConstants';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 
 interface JoinRoomCardProps {

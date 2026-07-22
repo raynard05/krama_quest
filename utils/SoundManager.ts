@@ -6,6 +6,9 @@ let soundInstance: AudioPlayer | null = null;
 let buttonClickInstance: AudioPlayer | null = null;
 let victoryInstance: AudioPlayer | null = null;
 let diceInstance: AudioPlayer | null = null;
+let correctInstance: AudioPlayer | null = null;
+let wrongInstance: AudioPlayer | null = null;
+let pawnInstance: AudioPlayer | null = null;
 let isEnabled = true;
 
 export const SoundManager = {
@@ -28,6 +31,15 @@ export const SoundManager = {
 
       diceInstance = createAudioPlayer(require('../assets/audio/dice.mp3'));
       diceInstance.volume = 1.0;
+
+      correctInstance = createAudioPlayer(require('../assets/audio/correct.mp3'));
+      correctInstance.volume = 1.0;
+
+      wrongInstance = createAudioPlayer(require('../assets/audio/wrong.mp3'));
+      wrongInstance.volume = 1.0;
+
+      pawnInstance = createAudioPlayer(require('../assets/audio/pawn.mp3'));
+      pawnInstance.volume = 1.0;
     } catch (_) {}
   },
 
@@ -72,6 +84,30 @@ export const SoundManager = {
     try {
       diceInstance.seekTo(0);
       diceInstance.play();
+    } catch (_) {}
+  },
+
+  playCorrectSound() {
+    if (!isEnabled || !correctInstance) return;
+    try {
+      correctInstance.seekTo(0);
+      correctInstance.play();
+    } catch (_) {}
+  },
+
+  playWrongSound() {
+    if (!isEnabled || !wrongInstance) return;
+    try {
+      wrongInstance.seekTo(0);
+      wrongInstance.play();
+    } catch (_) {}
+  },
+
+  playPawnMoveSound() {
+    if (!isEnabled || !pawnInstance) return;
+    try {
+      pawnInstance.seekTo(0);
+      pawnInstance.play();
     } catch (_) {}
   },
 

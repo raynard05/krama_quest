@@ -4,6 +4,7 @@ import { Player, Soal } from '../../types';
 import styles from './GamePopupsStyle';
 import { checkAnswerCorrectness } from '../../constants';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
+import { SoundManager } from '../../utils/SoundManager';
 
 const QUESTION_POPUP_IMG = require('../../assets/pop_up/question_popup1.png');
 const CORRECT_POPUP_IMG = require('../../assets/pop_up/correct_popup.png');
@@ -198,6 +199,12 @@ export default function GamePopups({
                       const isCorrect = checkAnswerCorrectness(typedAnswer, activeQuestion.kunciJawaban, activeQuestion.minimal_jawab_benar);
                       setIsAnswerCorrect(isCorrect);
                       setHasCheckedAnswer(true);
+
+                      if (isCorrect) {
+                        SoundManager.playCorrectSound();
+                      } else {
+                        SoundManager.playWrongSound();
+                      }
 
                       // Auto-advance setelah pop up hasil tampil selama 2 detik
                       setTimeout(() => {

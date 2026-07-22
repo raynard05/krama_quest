@@ -25,6 +25,7 @@ import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
 import { ProfileService } from '../../services/ProfileService';
 import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
+import { SoundManager } from '../../utils/SoundManager';
 
 const INITIAL_PLAYERS: Player[] = [
   { id: 1, name: 'Sabitul', color: '#E25C3D', icon: '1', position: 0, type: 'human', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' },
@@ -175,6 +176,7 @@ export default function GameScreen({
           setCurrentPlayerIndex(payload.t);
         }
         if (payload.p1 !== undefined || payload.p2 !== undefined) {
+          SoundManager.playPawnMoveSound();
           setPlayers(prev => prev.map((p, idx) => {
             if (idx === 0 && payload.p1 !== undefined) return { ...p, position: payload.p1 };
             if (idx === 1 && payload.p2 !== undefined) return { ...p, position: payload.p2 };
@@ -413,6 +415,7 @@ export default function GameScreen({
           setIsAnswerCorrect(false);
           setHasCheckedAnswer(true);
           setTypedAnswer("Wektune wis entek");
+          SoundManager.playWrongSound();
 
           // Auto-advance setelah pop up timeout tampil selama 2 detik
           setTimeout(() => {
@@ -552,6 +555,7 @@ export default function GameScreen({
 
       // Move cell by cell to the target
       for (let i = current + 1; i <= finalTarget; i++) {
+        SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: i } : p));
         // Broadcast position sync
         GameNetwork.sendRelay('sync', {
@@ -564,6 +568,7 @@ export default function GameScreen({
       // If we hit or exceeded 50, jump back to 1
       if (needLoopReset) {
         await new Promise(resolve => setTimeout(resolve, 600));
+        SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => {
           if (idx === currentPlayerIndex) {
             const currentScore = p.score || 0;
@@ -594,6 +599,7 @@ export default function GameScreen({
 
       if (hasSnakeOrLadder) {
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS));
+        SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: finalPos } : p));
         GameNetwork.sendRelay('sync', {
           t: currentPlayerIndex,

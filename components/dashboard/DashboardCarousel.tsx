@@ -7,9 +7,9 @@ const { width: windowWidth } = Dimensions.get('window');
 const ITEM_WIDTH = windowWidth - 40;
 
 const CAROUSEL_IMAGES = [
-  { id: '1', source: require('../../assets/dashboard_assets/carousel1.png') },
-  { id: '2', source: require('../../assets/dashboard_assets/carousel2.png') },
-  { id: '3', source: require('../../assets/dashboard_assets/carousel3.png') },
+  { id: '1', source: require('../../assets/dashboard_assets/carousel2_fix.png') },
+  { id: '2', source: require('../../assets/dashboard_assets/carousel1_fix.png') },
+  { id: '3', source: require('../../assets/dashboard_assets/carousel3_fix.png') },
 ];
 
 interface DashboardCarouselProps {
@@ -51,7 +51,7 @@ export default function DashboardCarousel({ onSelectDolanan, onOpenProfile, onSe
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
+      <View style={styles.carouselWrapper}>
         <FlatList
           ref={flatListRef}
           data={CAROUSEL_IMAGES}
@@ -62,10 +62,14 @@ export default function DashboardCarousel({ onSelectDolanan, onOpenProfile, onSe
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           renderItem={({ item, index }) => (
-            <SoundTouchableOpacity activeOpacity={0.9} onPress={() => handlePress(index)}>
+            <SoundTouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => handlePress(index)}
+              style={[styles.itemContainer, { width: ITEM_WIDTH }]}
+            >
               <Image
                 source={item.source}
-                style={[styles.image, { width: ITEM_WIDTH }]}
+                style={styles.image}
                 resizeMode="cover"
               />
             </SoundTouchableOpacity>
@@ -94,17 +98,19 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     marginVertical: 10,
-    paddingHorizontal: 20,
     width: '100%',
   },
-  imageContainer: {
+  carouselWrapper: {
     width: '100%',
+    height: 200,
+    paddingHorizontal: 20,
+  },
+  itemContainer: {
     height: 200,
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 3,
     borderColor: 'white',
-
   },
   image: {
     width: '100%',

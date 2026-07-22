@@ -84,9 +84,15 @@ export async function loginUser(username: string, kata_sandi: string): Promise<A
     };
   } catch (err: any) {
     console.error('[AuthService] Login error:', err);
+    let errorMessage = 'Gagal mlebet. Cobi malih.';
+    if (err.message === 'Network request failed' || err.message?.includes('fetch failed')) {
+      errorMessage = 'Boten wonten koneksi internet. Priksa jaringan panjenengan.';
+    } else {
+      errorMessage = `Login error: ${err.message || JSON.stringify(err)}`;
+    }
     return {
       success: false,
-      message: `Login error: ${err.message || JSON.stringify(err)}`,
+      message: errorMessage,
     };
   }
 }

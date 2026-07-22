@@ -42,6 +42,7 @@ import MateriScreen from './components/materi/MateriScreen';
 import CpTpScreen from './components/cptp/CpTpScreen';
 import DolananScreen from './components/dolanan/DolananScreen';
 import GameScreen from './components/gameadvance/GameScreen';
+import MatchGameScreen from './components/matchgame/MatchGameScreen';
 import GameScreenOnline from './components/gameadvanceonline/GameScreen';
 import { SoundManager } from './utils/SoundManager';
 import RankingScreen from './components/ranking/RankingScreen';
@@ -869,17 +870,15 @@ export default function App() {
       );
     }
 
-    // Render GameScreen (Pemantik)
+    // Render GameScreen (Pemantik) - Now pointing to MatchGameScreen
     if (showGameScreen) {
       return (
         <>
-          <GameScreen
-            currentUser={currentUser}
+          <MatchGameScreen
             onBack={() => {
               setShowGameScreen(false);
               setShowDolanan(true);
             }}
-            onFinishGame={handleFinishGame}
           />
           <StatusBar style="light" />
           <NavigationBar style="light" />

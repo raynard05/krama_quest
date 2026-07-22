@@ -22,6 +22,7 @@ import GamePopups from './GamePopups';
 import { Player, Soal } from '../../types';
 import { SNAKES, LADDERS, ANIMATION_SPEED, isKotakSoal, SOAL_BANK, checkAnswerCorrectness } from '../../constants';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
+import { SoundManager } from '../../utils/SoundManager';
 
 const INITIAL_PLAYERS: Player[] = [
   { id: 1, name: 'Sabitul', color: '#E25C3D', icon: '1', position: 0, type: 'human', score: 0, soalTerjawabCount: 0, answeredQuestionIds: [], activeQuestionId: null, status: 'playing' },
@@ -345,6 +346,7 @@ export default function GameScreen({
 
       // Move cell by cell to the target
       for (let i = current + 1; i <= finalTarget; i++) {
+        SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: i } : p));
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.STEP_DELAY_MS));
       }
@@ -352,6 +354,7 @@ export default function GameScreen({
       // If we hit or exceeded 50, jump back to 1
       if (needLoopReset) {
         await new Promise(resolve => setTimeout(resolve, 600));
+        SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => {
           if (idx === currentPlayerIndex) {
             const currentScore = p.score || 0;
@@ -377,6 +380,7 @@ export default function GameScreen({
 
       if (hasSnakeOrLadder) {
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS));
+        SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: finalPos } : p));
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS + 100));
       }
