@@ -44,6 +44,8 @@ import DolananScreen from './components/dolanan/DolananScreen';
 import GameScreen from './components/gameadvance/GameScreen';
 import MatchGameScreen from './components/matchgame/MatchGameScreen';
 import GameScreenOnline from './components/gameadvanceonline/GameScreen';
+import GameScreenLocal from './components/gameadvancemultiplayer/GameScreen';
+import GameScreenSolo from './components/gameadvancesolo/GameScreen';
 import { SoundManager } from './utils/SoundManager';
 import RankingScreen from './components/ranking/RankingScreen';
 import { RankingService } from './services/RankingService';
@@ -306,6 +308,8 @@ export default function App() {
     setLocalPlayerId(0);
     
     setStatus('lobby');
+    setShowDolanan(true); // Navigate back to the new Dolanan menu
+
     setPlayers([]);
     setWinner(null);
     setLogs([]);
@@ -985,6 +989,44 @@ export default function App() {
             onFinishGame={handleFinishGame}
             onGameEndInitiated={() => {
               isNetworkGameFinishedRef.current = true;
+            }}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
+    // Render GameScreenSolo for single player offline matches
+    if (status === 'playing' && networkRole === 'local' && players.length === 1) {
+      return (
+        <>
+          <GameScreenSolo
+            currentUser={currentUser}
+            initialPlayers={players}
+            onBack={handleBackToLobby}
+            onFinishGame={handleFinishGame}
+            onGameEndInitiated={() => {
+              // Safe fallback if called
+            }}
+          />
+          <StatusBar style="light" />
+          <NavigationBar style="light" />
+        </>
+      );
+    }
+
+    // Render GameScreenLocal for local offline pass-and-play matches (Human vs Human)
+    if (status === 'playing' && networkRole === 'local' && players.length === 2 && players.every(p => p.type === 'human')) {
+      return (
+        <>
+          <GameScreenLocal
+            currentUser={currentUser}
+            initialPlayers={players}
+            onBack={handleBackToLobby}
+            onFinishGame={handleFinishGame}
+            onGameEndInitiated={() => {
+              // Safe fallback if called
             }}
           />
           <StatusBar style="light" />

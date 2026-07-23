@@ -67,7 +67,28 @@ export default function DolananScreen({
 
   const handleStartGame = async (config: any) => {
     console.log('Starting game with config:', config);
-    if (config.mode === 'lokal') {
+    if (config.mode === 'solo') {
+      const player1GacoId = String(config.player1Gaco + 1);
+
+      try {
+        await ProfileService.updateUserGaco(currentUserId, player1GacoId);
+      } catch (err) {
+        console.warn('Failed to update host gaco on local game start:', err);
+      }
+
+      const localPlayers = [
+        {
+          id: 1,
+          name: currentUser?.username || 'Pemain 1',
+          color: '#2976BF',
+          icon: String(currentUserId),
+          position: 0,
+          type: 'human',
+          isWinner: false
+        }
+      ];
+      onStartLocalGame(localPlayers);
+    } else if (config.mode === 'lokal') {
       const player1GacoId = String(config.player1Gaco + 1);
 
       try {
@@ -80,13 +101,13 @@ export default function DolananScreen({
       const opponentName = config.opponentType === 'komputer'
         ? 'Komputer'
         : (config.opponentPlayerId
-          ? (availablePlayers.find(p => p.id === config.opponentPlayerId)?.nama_lengkap || 'Pemain 2')
+          ? (availablePlayers.find(p => p.id === config.opponentPlayerId)?.username || 'Pemain 2')
           : 'Pemain 2');
 
       const localPlayers = [
         {
           id: 1,
-          name: currentUser?.nama_lengkap || 'Pemain 1',
+          name: currentUser?.username || 'Pemain 1',
           color: '#2976BF',
           icon: String(currentUserId), // database userId
           position: 0,

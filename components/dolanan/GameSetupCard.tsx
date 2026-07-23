@@ -580,14 +580,39 @@ export default function GameSetupCard({
   };
 
   const handleStartGame = () => {
-    if (onStartGame) {
-      onStartGame({
-        mode: activeMode,
-        player1Gaco: selectedPlayer1Gaco,
-        player2Gaco: selectedPlayer2Gaco,
-        opponentType: activeMode === 'lokal' ? opponentType : 'online',
-        opponentPlayerId: selectedOpponentPlayer,
-      });
+    if (activeMode === 'lokal') {
+      if (!isPlayer1GacoConfirmed) {
+        alert('Player 1 belum mengkonfirmasi gaco!');
+        return;
+      }
+      
+      const isSolo = !isPlayer2GacoConfirmed;
+      
+      if (!isSolo && !selectedOpponentPlayer) {
+        alert('Pilih data pemain untuk Player 2 terlebih dahulu!');
+        return;
+      }
+
+      if (onStartGame) {
+        onStartGame({
+          mode: isSolo ? 'solo' : 'lokal',
+          player1Gaco: selectedPlayer1Gaco,
+          player2Gaco: selectedPlayer2Gaco,
+          opponentType: opponentType,
+          opponentPlayerId: selectedOpponentPlayer,
+        });
+      }
+    } else {
+      // online
+      if (onStartGame) {
+        onStartGame({
+          mode: 'online',
+          player1Gaco: selectedPlayer1Gaco,
+          player2Gaco: selectedPlayer2Gaco,
+          opponentType: 'online',
+          opponentPlayerId: selectedOpponentPlayer,
+        });
+      }
     }
   };
 
