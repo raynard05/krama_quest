@@ -19,8 +19,10 @@ import BackButton from '../BackButton';
 import Score from './Score';
 import Timeout from './Timeout';
 import GamePopups from './GamePopups';
+import PlayerSidebar from './PlayerSidebar';
 import { Player, Soal } from '../../types';
 import { SNAKES, LADDERS, ANIMATION_SPEED, isKotakSoal, SOAL_BANK, checkAnswerCorrectness } from '../../constants';
+import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
 import { ProfileService } from '../../services/ProfileService';
 import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
@@ -39,6 +41,7 @@ const BACKGROUND_IMAGES = [
 ];
 interface GameScreenProps {
   currentUser: any;
+  isHost?: boolean;
   initialPlayers: Player[];
   onBack: () => void;
   onFinishGame?: (players: Player[]) => void;
@@ -47,6 +50,7 @@ interface GameScreenProps {
 
 export default function GameScreen({
   currentUser,
+  isHost = true,
   initialPlayers,
   onBack,
   onFinishGame,
@@ -61,7 +65,8 @@ export default function GameScreen({
     };
   }, []);
 
-  const playerIndex = 0;
+  const localPlayerIndex = isHost ? 0 : 1;
+  const remotePlayerIndex = isHost ? 1 : 0;
   const [diceValue, setDiceValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState<boolean>(false);
   const isRollingRef = useRef<boolean>(false);
@@ -69,7 +74,7 @@ export default function GameScreen({
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [colorIndex, setColorIndex] = useState(0);
-  const [playerLastRolls, setPlayerLastRolls] = useState<number[]>([1]);
+  const [playerLastRolls, setPlayerLastRolls] = useState<number[]>([1, 1]);
   const [showDaduCard, setShowDaduCard] = useState(true);
 
   // Question Engine States
@@ -88,6 +93,9 @@ export default function GameScreen({
   useEffect(() => {
     if (gameFinished || startCountdown !== null) return;
 
+    // Hanya Host (Player 1) yang menghitung mundur untuk memastikan 100% tersinkron tanpa jeda ms clock device
+    if (localPlayerIndex !== 0) return;
+
     const timer = setInterval(() => {
       setGlobalTimeLeft(prev => {
         const nextTime = prev - 1;
@@ -95,14 +103,19 @@ export default function GameScreen({
           clearInterval(timer);
           setEndReason('timeout');
           setGameFinished(true);
+          GameNetwork.sendRelay('sync', { tm: 0 }); // Beri tahu client waktu habis
           return 0;
         }
+        
+        // Host memancarkan waktu setiap detik (1:1 sync)
+        GameNetwork.sendRelay('sync', { tm: nextTime });
+        
         return nextTime;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameFinished, startCountdown]);
+  }, [gameFinished, startCountdown, localPlayerIndex]);
 
   const [questionTimeLeft, setQuestionTimeLeft] = useState<number>(60);
 
@@ -146,8 +159,74 @@ export default function GameScreen({
     };
     fetchProfiles();
 
+    // Register socket listener for gameplay events
+    const handleNetworkEvent = (event: NetworkEvent) => {
+      if (event.type === 'relay_sync') {
+        const payload = event.payload;
+        // payload: { t: turn, d: dice, p1: pos1, p2: pos2, tm: timeLeft }
+        if (payload.tm !== undefined && (isHost ? 1 : 0) === 0) {
+          // If we are not the host, sync time from host exactly
+          setGlobalTimeLeft(payload.tm);
+          if (payload.tm <= 0) {
+             setEndReason('timeout');
+             setGameFinished(true);
+          }
+        }
+        if (payload.d !== undefined) {
+          setDiceValue(payload.d);
+          if (payload.t !== undefined) {
+            setPlayerLastRolls(prev => {
+              const next = [...prev];
+              next[payload.t] = payload.d;
+              return next;
+            });
+          }
+        }
+        if (payload.t !== undefined) {
+          setCurrentPlayerIndex(payload.t);
+        }
+        if (payload.p1 !== undefined || payload.p2 !== undefined) {
+          SoundManager.playPawnMoveSound();
+          setPlayers(prev => prev.map((p, idx) => {
+            if (idx === 0 && payload.p1 !== undefined) return { ...p, position: payload.p1 };
+            if (idx === 1 && payload.p2 !== undefined) return { ...p, position: payload.p2 };
+            return p;
+          }));
+        }
+      } else if (event.type === 'relay_sc') {
+        const payload = event.payload;
+        // payload: { p: playerIndex, v: valueId (1 for +1, 2 for +3, 3 for +8) }
+        const pointsToAdd = payload.v === 1 ? 1 : payload.v === 2 ? 3 : payload.v === 3 ? 8 : 0;
+        setPlayers(prev => prev.map((p, idx) => {
+          if (idx === payload.p) {
+            return { ...p, score: Math.min((p.score || 0) + pointsToAdd, 100) };
+          }
+          return p;
+        }));
+      } else if (event.type === 'relay_tu') {
+        const payload = event.payload;
+        // payload: { t: nextTurn, q1: count1, q2: count2, s1: status1, s2: status2 }
+        if (payload.t !== undefined) setCurrentPlayerIndex(payload.t);
+        setPlayers(prev => prev.map((p, idx) => {
+          let np = { ...p };
+          if (idx === 0) {
+            if (payload.q1 !== undefined) np.soalTerjawabCount = payload.q1;
+            if (payload.s1 !== undefined) np.status = payload.s1;
+          }
+          if (idx === 1) {
+            if (payload.q2 !== undefined) np.soalTerjawabCount = payload.q2;
+            if (payload.s2 !== undefined) np.status = payload.s2;
+          }
+          return np;
+        }));
+      }
+    };
+
+    GameNetwork.registerListener(handleNetworkEvent);
+
     return () => {
       clearInterval(bgInterval);
+      GameNetwork.unregisterListener(handleNetworkEvent);
     };
   }, []);
 
@@ -204,81 +283,136 @@ export default function GameScreen({
     return availableQuestions[randomIndex];
   };
 
+  const transitionTurn = (updatedPlayers?: Player[]) => {
+    const currentList = updatedPlayers || players;
+
+    // Check if game end conditions met
+    const allFinished = currentList.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
+    if (allFinished) {
+      GameNetwork.sendRelay('tu', {
+        t: currentPlayerIndex,
+        q1: currentList[0].soalTerjawabCount || 0,
+        q2: currentList[1].soalTerjawabCount || 0,
+        s1: currentList[0].status,
+        s2: currentList[1].status
+      });
+      setGameFinished(true);
+      setShowDaduCard(false);
+      return;
+    }
+
+    let nextTurn = (currentPlayerIndex + 1) % currentList.length;
+
+    // Skip spectators
+    if (currentList[nextTurn].status === 'spectator') {
+      nextTurn = (nextTurn + 1) % currentList.length;
+    }
+
+    setCurrentPlayerIndex(nextTurn);
+    setColorIndex(prev => prev + 1);
+
+    // Broadcast turn update (tu)
+    GameNetwork.sendRelay('tu', {
+      t: nextTurn,
+      q1: currentList[0].soalTerjawabCount || 0,
+      q2: currentList[1].soalTerjawabCount || 0,
+      s1: currentList[0].status,
+      s2: currentList[1].status
+    });
+  };
+
   const handleAnswerSubmit = (userInput: string, question: Soal, isComputer: boolean = false) => {
     const isCorrect = checkAnswerCorrectness(userInput, question.kunciJawaban, question.minimal_jawab_benar);
     let triggeredSpectatorNotice = false;
 
     if (isCorrect && question.bobot > 0) {
       const v = question.bobot === 1 ? 1 : question.bobot === 3 ? 2 : question.bobot === 8 ? 3 : 0;
+      if (v > 0) {
+        GameNetwork.sendRelay('sc', {
+          p: currentPlayerIndex,
+          v: v
+        });
+      }
     }
 
-    setPlayers(prev => {
-      const newPlayers = prev.map((p, idx) => {
-        if (idx === currentPlayerIndex) {
-          const newScore = (p.score || 0) + (isCorrect ? question.bobot : 0);
-          const newCount = (p.soalTerjawabCount || 0) + 1;
-          const newAnswered = [...(p.answeredQuestionIds || []), question.id];
-          const newStatus = newCount >= 25 ? 'spectator' : p.status;
+    let triggeredSpectatorNotice = false;
+    let updatedPlayer: Player | null = null;
 
-          if (newCount >= 25 && p.type === 'human') {
-            triggeredSpectatorNotice = true;
-            setSpectatorPlayerName(p.name);
-          }
+    const newPlayers = players.map((p, idx) => {
+      if (idx === currentPlayerIndex) {
+        const newScore = (p.score || 0) + (isCorrect ? question.bobot : 0);
+        const newCount = (p.soalTerjawabCount || 0) + 1;
+        const newAnswered = [...(p.answeredQuestionIds || []), question.id];
+        const newStatus = newCount >= 25 ? 'spectator' : p.status;
 
-          let finalPos = p.position;
-          if (newStatus === 'spectator') {
-            finalPos = 50;
-          }
-
-          return {
-            ...p,
-            score: newScore,
-            soalTerjawabCount: newCount,
-            answeredQuestionIds: newAnswered,
-            activeQuestionId: null,
-            status: newStatus,
-            position: finalPos
-          };
+        if (newCount >= 25 && p.type === 'human') {
+          triggeredSpectatorNotice = true;
+          setSpectatorPlayerName(p.name);
         }
-        return p;
-      });
 
-      // Clear question states and close modal
-      setActiveQuestion(null);
-      setTypedAnswer('');
-      setIsAnswerCorrect(null);
-      setHasCheckedAnswer(false);
-      setShowQuestionModal(false);
-
-      const allFinished = newPlayers.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
-
-      const handleNextTurn = (playersState: Player[]) => {
-        if (playersState.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25)) {
-          onFinishGame?.(playersState);
-        } else {
-          setShowDaduCard(true);
+        let finalPos = p.position;
+        if (newStatus === 'spectator') {
+          finalPos = 50;
         }
-      };
 
-      if (allFinished) {
-        // Jika semua pemain sudah habis jatahnya, langsung akhiri game tanpa popup penonton
-        setTimeout(() => {
-          handleNextTurn(newPlayers);
-        }, 2500);
-      } else if (triggeredSpectatorNotice) {
-        setShowSpectatorPopup(true);
-      } else {
-        setTimeout(() => {
-          handleNextTurn(newPlayers);
-        }, 2500);
+        updatedPlayer = {
+          ...p,
+          score: newScore,
+          soalTerjawabCount: newCount,
+          answeredQuestionIds: newAnswered,
+          activeQuestionId: null,
+          status: newStatus,
+          position: finalPos
+        };
+        return updatedPlayer;
       }
-
-      return newPlayers;
+      return p;
     });
+
+    setPlayers(newPlayers);
+
+    if (updatedPlayer && updatedPlayer.status === 'spectator') {
+      GameNetwork.sendRelay('sync', {
+        t: currentPlayerIndex,
+        ...(currentPlayerIndex === 0 ? { p1: 50 } : { p2: 50 })
+      });
+    }
+
+    // Clear question states and close modal
+    setActiveQuestion(null);
+    setTypedAnswer('');
+    setIsAnswerCorrect(null);
+    setHasCheckedAnswer(false);
+    setShowQuestionModal(false);
+
+    const allFinished = newPlayers.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
+
+    if (allFinished) {
+      setTimeout(() => {
+        transitionTurn(newPlayers);
+      }, 2500);
+    } else if (triggeredSpectatorNotice) {
+      setShowSpectatorPopup(true);
+    } else {
+      setTimeout(() => {
+        transitionTurn(newPlayers);
+      }, 2500);
+    }
   };
 
   const daduAnimY = useRef(new Animated.Value(800)).current;
   const textAnimX = useRef(new Animated.Value(-400)).current;
+
+  // Listen for opponent turning into spectator
+  const prevOpponentStatus = useRef<string>('playing');
+  useEffect(() => {
+    const opp = players[remotePlayerIndex];
+    if (opp && opp.status === 'spectator' && prevOpponentStatus.current !== 'spectator') {
+      prevOpponentStatus.current = 'spectator';
+      setSpectatorPlayerName(opp.name);
+      setShowSpectatorPopup(true);
+    }
+  }, [players, remotePlayerIndex]);
 
   // 1-minute question countdown timer
   useEffect(() => {
@@ -373,10 +507,15 @@ export default function GameScreen({
       return;
     }
 
-    // Both players are playing locally, just show dadu card
-    setShowDaduCard(true);
-    setShowEnemyRollPopup(false);
-  }, [currentPlayerIndex, gameFinished, startCountdown, colorIndex]);
+    // For multiplayer: if it's the local player's turn, show dadu card. Else, show enemy rolling popup.
+    if (currentPlayerIndex === localPlayerIndex) {
+      setShowDaduCard(true);
+      setShowEnemyRollPopup(false);
+    } else {
+      setShowDaduCard(false);
+      setShowEnemyRollPopup(true);
+    }
+  }, [currentPlayerIndex, gameFinished, startCountdown, colorIndex, localPlayerIndex]);
 
   const handleRollDice = async () => {
     if (isRollingRef.current) return;
@@ -395,6 +534,11 @@ export default function GameScreen({
         setDiceValue(finalValue);
         isRollingRef.current = false;
         setIsRolling(false);
+        // Broadcast final dice roll
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          d: finalValue
+        });
         handleDiceRollEnd(finalValue);
       }
     }, 100);
@@ -427,10 +571,13 @@ export default function GameScreen({
         if (!isMounted.current) return;
         SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: i } : p));
+        // Broadcast position sync
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          ...(currentPlayerIndex === 0 ? { p1: i } : { p2: i })
+        });
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.STEP_DELAY_MS));
       }
-
-      if (!isMounted.current) return;
 
       // If we hit or exceeded 50, jump back to 1
       if (needLoopReset) {
@@ -446,6 +593,11 @@ export default function GameScreen({
           }
           return p;
         }));
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          ...(currentPlayerIndex === 0 ? { p1: 1 } : { p2: 1 })
+        });
+        GameNetwork.sendRelay('sc', { p: currentPlayerIndex, v: 1 });
         finalTarget = 1;
         await new Promise(resolve => setTimeout(resolve, 400));
       }
@@ -467,6 +619,10 @@ export default function GameScreen({
         if (!isMounted.current) return;
         SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: finalPos } : p));
+        GameNetwork.sendRelay('sync', {
+          t: currentPlayerIndex,
+          ...(currentPlayerIndex === 0 ? { p1: finalPos } : { p2: finalPos })
+        });
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS + 100));
       }
 
@@ -509,7 +665,7 @@ export default function GameScreen({
       }
 
       // If no question, continue next turn
-      setShowDaduCard(true);
+      transitionTurn();
     };
 
     if (cp.type === 'human') {
@@ -561,25 +717,27 @@ export default function GameScreen({
             {/* Main content body */}
             <View style={styles.contentBody}>
               <View style={styles.boardWrapper}>
+                {/* Top Player Score and Dice removed as requested */}
+
                 {/* Board Component */}
                 <Board players={players} />
 
 
 
-                {/* Bottom Player Dice = Pemain 1 */}
+                {/* Bottom Player Dice = Device Player / Local */}
                 <View style={styles.bottomDiceContainer}>
-                  <Image source={getDiceImage(playerLastRolls[0])} style={styles.diceImage} resizeMode="contain" />
+                  <Image source={getDiceImage(playerLastRolls[localPlayerIndex])} style={styles.diceImage} resizeMode="contain" />
                 </View>
 
-                {/* Bottom Player Score (Pemain 1) */}
+                {/* Bottom Player Score (Device Player / Local) */}
                 <View style={styles.bottomScoreContainer}>
                   <Score
-                    playerName={players[0].name}
-                    score={players[0].score || 0}
-                    avatarSource={getAvatarSource(players[0].avatarId)}
+                    playerName={players[localPlayerIndex].name}
+                    score={players[localPlayerIndex].score || 0}
+                    avatarSource={getAvatarSource(players[localPlayerIndex].avatarId)}
                     isTopPlayer={false}
-                    soalTerjawabCount={players[0].soalTerjawabCount || 0}
-                    status={players[0].status}
+                    soalTerjawabCount={players[localPlayerIndex].soalTerjawabCount || 0}
+                    status={players[localPlayerIndex].status}
                   />
                 </View>
               </View>
@@ -598,6 +756,9 @@ export default function GameScreen({
         </ScrollView>
       </ImageBackground>
 
+      {/* Player Sidebar Overlay */}
+      <PlayerSidebar players={players} />
+
       {/* Standalone Javanese Game Popups component */}
       <GamePopups
         showQuestionModal={showQuestionModal}
@@ -610,16 +771,16 @@ export default function GameScreen({
         setIsAnswerCorrect={setIsAnswerCorrect}
         questionTimeLeft={questionTimeLeft}
         currentPlayer={players[currentPlayerIndex]}
-        isLocalTurn={true} // Selalu true karena kedua player main di device yang sama
+        isLocalTurn={currentPlayerIndex === localPlayerIndex}
         handleAnswerSubmit={handleAnswerSubmit}
         showSpectatorPopup={showSpectatorPopup}
         setShowSpectatorPopup={setShowSpectatorPopup}
         spectatorPlayerName={spectatorPlayerName}
-        transitionTurn={() => setShowDaduCard(true)}
+        transitionTurn={transitionTurn}
         gameFinished={gameFinished}
         endReason={endReason}
         players={players}
-        localPlayerIndex={0}
+        localPlayerIndex={localPlayerIndex}
         onBack={onBack}
         onFinishGame={onFinishGame}
         showExitConfirm={showExitConfirm}
@@ -728,7 +889,39 @@ export default function GameScreen({
         </View>
       )}
 
-      {/* Turn Indicator Removed for Solo Mode */}
+      {/* Vertical Turn Indicator on the Right Side */}
+      {startCountdown === null && !gameFinished && (
+        <View style={{
+          position: 'absolute',
+          right: -60,
+          top: '45%',
+          width: 160,
+          transform: [{ rotate: '-90deg' }],
+          backgroundColor: currentPlayerIndex === localPlayerIndex ? '#00BFFF' : '#FF4500',
+          paddingVertical: 8,
+          alignItems: 'center',
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          borderWidth: 2,
+          borderColor: '#FFF',
+          borderBottomWidth: 0,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.3,
+          shadowRadius: 4,
+          elevation: 5,
+          zIndex: 50,
+        }}>
+          <Text style={{ 
+            color: 'white', 
+            fontFamily: 'Poppins-Bold', 
+            fontSize: 14,
+            letterSpacing: 1
+          }} numberOfLines={1}>
+            {currentPlayerIndex === localPlayerIndex ? 'Giliran Kamu' : `Giliran ${players[currentPlayerIndex]?.name || 'Lawan'}`}
+          </Text>
+        </View>
+      )}
 
       {/* Force Back Button for Debugging */}
       <SoundTouchableOpacity

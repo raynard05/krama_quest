@@ -5,7 +5,6 @@ import styles from './GamePopupsStyle';
 import { checkAnswerCorrectness } from '../../constants';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
 import { SoundManager } from '../../utils/SoundManager';
-import { Eye, EyeOff } from 'lucide-react-native';
 
 const QUESTION_POPUP_IMG = require('../../assets/pop_up/question_popup1.png');
 const CORRECT_POPUP_IMG = require('../../assets/pop_up/correct_popup.png');
@@ -76,15 +75,6 @@ export default function GamePopups({
 }: GamePopupsProps) {
   // Slide-in animation for result popup (correct/wrong/timeout)
   const slideAnim = useRef(new Animated.Value(-500)).current;
-
-  const [isQuestionHidden, setIsQuestionHidden] = useState(true);
-
-  useEffect(() => {
-    if (activeQuestion) {
-      setIsQuestionHidden(true);
-    }
-  }, [activeQuestion]);
-
   const [redirectCountdown, setRedirectCountdown] = useState<number>(10);
 
   useEffect(() => {
@@ -179,35 +169,13 @@ export default function GamePopups({
 
                 {/* Info turn banner */}
                 <Text style={{ color: '#fbff00ff', fontSize: 13, fontFamily: 'Poppins-Bold', marginBottom: 5 }}>
-                  {`Giliran ${currentPlayer.name} Mangsuli`}
+                  {!isLocalTurn
+                    ? `Giliran ${currentPlayer.name} Mangsuli`
+                    : `Wayahmu Mangsuli`}
                 </Text>
 
                 <View style={styles.questionContainer}>
-                  <SoundTouchableOpacity 
-                    onPress={() => setIsQuestionHidden(!isQuestionHidden)} 
-                    style={{ alignSelf: 'center', marginBottom: 10, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 8, borderRadius: 10 }}
-                  >
-                    {isQuestionHidden ? (
-                      <>
-                        <Eye color="#fff" size={20} style={{ marginRight: 8 }} />
-                        <Text style={{ color: '#fff', fontSize: 14 }}>Duduhake Soal</Text>
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff color="#fff" size={20} style={{ marginRight: 8 }} />
-                        <Text style={{ color: '#fff', fontSize: 14 }}>Delikake Soal</Text>
-                      </>
-                    )}
-                  </SoundTouchableOpacity>
-                  {isQuestionHidden ? (
-                    <View style={{ height: 100, justifyContent: 'center', alignItems: 'center' }}>
-                      <Text style={[styles.questionText, { fontStyle: 'italic', color: '#ccc' }]}>
-                        *** Soal didelikake ***
-                      </Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.questionText}>{activeQuestion.pertanyaan}</Text>
-                  )}
+                  <Text style={styles.questionText}>{activeQuestion.pertanyaan}</Text>
                 </View>
 
                 <View style={{ width: '100%', marginVertical: 5 }}>
@@ -215,7 +183,7 @@ export default function GamePopups({
                     style={styles.textInput}
                     value={typedAnswer}
                     onChangeText={setTypedAnswer}
-                    placeholder={"Tulis wangsulanmu..."}
+                    placeholder={!isLocalTurn ? `${currentPlayer.name} lagi ngetik...` : "Tulis wangsulanmu..."}
                     placeholderTextColor="#999999"
                     editable={isLocalTurn}
                     autoCapitalize="none"
@@ -330,7 +298,7 @@ export default function GamePopups({
             <Text style={{ color: '#E25C3D', fontSize: 18, fontWeight: 'bold', fontFamily: 'Poppins-Bold', marginBottom: 15, textAlign: 'center' }}>
               {(players[0].score || 0) === (players[1].score || 0)
                 ? '🤝 Asile Seri!'
-                : ((players[0].score || 0) > (players[1].score || 0) ? `🎉 ${players[0].name} Menang!` : `🎉 ${players[1].name} Menang!`)}
+                : ((players[localPlayerIndex].score || 0) > (players[localPlayerIndex === 0 ? 1 : 0].score || 0) ? '🎉 Kowe Menang!' : '😢 Kowe Kalah!')}
             </Text>
 
             <View style={[styles.nextButton, { backgroundColor: '#784B23', width: '100%' }]}>

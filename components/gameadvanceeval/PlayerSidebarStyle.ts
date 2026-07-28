@@ -1,0 +1,98 @@
+import { StyleSheet } from 'react-native';
+import { vw, vh } from '../../utils/responsive';
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 90,
+    bottom: 0,
+    left: 0,
+    zIndex: 100,
+    flexDirection: 'row',
+  },
+  sidebarContent: {
+    backgroundColor: '#4A72B2',
+    width: vw(45),
+    height: '100%',
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  toggleButton: {
+    backgroundColor: '#4A72B2',
+    width: 65,
+    height: 75,
+    borderTopRightRadius: 15,
+    borderBottomRightRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  toggleIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 8,
+  },
+  pemainIcon: {
+    width: 32,
+    height: 32,
+  },
+  toggleText: {
+    color: 'white',
+    fontSize: 10,
+    fontFamily: 'Poppins-Regular',
+    marginTop: 2,
+    marginRight: 10,
+  },
+  playerCard: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    marginBottom: 12,
+  },
+  avatarContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F0F0F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 35,
+    height: 35,
+  },
+  playerInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  playerName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    fontFamily: 'Poppins-Bold',
+  },
+  playerScore: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+  },
+});
+
+export default styles;

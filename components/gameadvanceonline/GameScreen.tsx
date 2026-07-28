@@ -55,6 +55,15 @@ export default function GameScreen({
   onFinishGame,
   onGameEndInitiated,
 }: GameScreenProps) {
+  const isMounted = useRef(true);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+      SoundManager.stopAllGameSounds();
+    };
+  }, []);
+
   const localPlayerIndex = isHost ? 0 : 1;
   const remotePlayerIndex = isHost ? 1 : 0;
   const [diceValue, setDiceValue] = useState<number>(1);
@@ -74,7 +83,7 @@ export default function GameScreen({
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState<boolean>(false);
   const [showQuestionModal, setShowQuestionModal] = useState<boolean>(false);
   const [gameFinished, setGameFinished] = useState<boolean>(false);
-  const [globalTimeLeft, setGlobalTimeLeft] = useState(30 * 3);
+  const [globalTimeLeft, setGlobalTimeLeft] = useState(30 * 60);
 
   // 5-second countdown at the start of the game
   const [startCountdown, setStartCountdown] = useState<number | null>(5);
@@ -132,7 +141,7 @@ export default function GameScreen({
               if (!isNaN(userId)) {
                 try {
                   const profile = await ProfileService.fetchUserFullProfile(userId);
-                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId, gacoId: profile.gacoId };
+                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId, gacoId: parseInt(profile.gacoId, 10) || undefined };
                 } catch (e) {
                   console.warn('Failed to fetch profile for', userId, e);
                   return p;
@@ -404,8 +413,7 @@ export default function GameScreen({
   useEffect(() => {
     if (!showQuestionModal || gameFinished || hasCheckedAnswer) return;
 
-    // Diubah sementara menjadi 1 jam untuk keperluan styling
-    setQuestionTimeLeft(60 * 60);
+    setQuestionTimeLeft(60);
 
     const timer = setInterval(() => {
       setQuestionTimeLeft(prev => {
@@ -555,6 +563,7 @@ export default function GameScreen({
 
       // Move cell by cell to the target
       for (let i = current + 1; i <= finalTarget; i++) {
+        if (!isMounted.current) return;
         SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: i } : p));
         // Broadcast position sync
@@ -567,7 +576,9 @@ export default function GameScreen({
 
       // If we hit or exceeded 50, jump back to 1
       if (needLoopReset) {
+        if (!isMounted.current) return;
         await new Promise(resolve => setTimeout(resolve, 600));
+        if (!isMounted.current) return;
         SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => {
           if (idx === currentPlayerIndex) {
@@ -598,7 +609,9 @@ export default function GameScreen({
       }
 
       if (hasSnakeOrLadder) {
+        if (!isMounted.current) return;
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS));
+        if (!isMounted.current) return;
         SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: finalPos } : p));
         GameNetwork.sendRelay('sync', {

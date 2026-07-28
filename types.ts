@@ -23,6 +23,7 @@ export interface Player {
   answeredQuestionIds?: string[];
   activeQuestionId?: string | null;
   status?: 'playing' | 'spectator';
+  gacoId?: number;
   avatarId?: string;
   batikId?: string;
 }

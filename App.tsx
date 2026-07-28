@@ -41,6 +41,7 @@ import { ProfileService } from './services/ProfileService';
 import MateriScreen from './components/materi/MateriScreen';
 import CpTpScreen from './components/cptp/CpTpScreen';
 import DolananScreen from './components/dolanan/DolananScreen';
+import EvaluasiOnlineScreen from './components/evaluasionline/EvaluasiOnlineScreen';
 import GameScreen from './components/gameadvance/GameScreen';
 import MatchGameScreen from './components/matchgame/MatchGameScreen';
 import GameScreenOnline from './components/gameadvanceonline/GameScreen';
@@ -87,6 +88,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [showMateri, setShowMateri] = useState<boolean>(false);
   const [showCpTp, setShowCpTp] = useState<boolean>(false);
+  const [showEvaluasi, setShowEvaluasi] = useState<boolean>(false);
   const [showDolanan, setShowDolanan] = useState<boolean>(false);
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [isLoadingScreen, setIsLoadingScreen] = useState<boolean>(false);
@@ -139,6 +141,22 @@ export default function App() {
       });
   };
 
+  const handleOpenEvaluasi = () => {
+    SoundManager.playButtonClick();
+    setShowDashboard(false);
+    setShowEvaluasi(true);
+  };
+
+  const handleBackToDashboard = () => {
+    SoundManager.playButtonClick();
+    setShowProfile(false);
+    setShowMateri(false);
+    setShowCpTp(false);
+    setShowEvaluasi(false);
+    setShowDolanan(false);
+    setShowDashboard(true);
+  };
+
   const handleLogout = () => {
     // Stop background music on logout
     SoundManager.stopBackgroundMusic();
@@ -151,6 +169,7 @@ export default function App() {
     setShowMateri(false);
     setShowCpTp(false);
     setShowDolanan(false);
+    setShowEvaluasi(false);
     setShowRanking(false);
     setAuthScreen('login');
     setIsLoadingScreen(false);
@@ -683,6 +702,12 @@ export default function App() {
         return true;
       }
 
+      if (showEvaluasi) {
+        setShowEvaluasi(false);
+        setShowDashboard(true);
+        return true;
+      }
+
       if (showDolanan) {
         setShowDolanan(false);
         setShowDashboard(true);
@@ -732,6 +757,7 @@ export default function App() {
     authScreen,
     showProfile,
     showMateri,
+    showEvaluasi,
     showDolanan,
     showGameScreen,
     showCpTp,
@@ -801,6 +827,13 @@ export default function App() {
           <StatusBar style="dark" />
           <NavigationBar style="dark" />
         </View>
+      );
+    }
+
+    // Render Evaluasi Online screen
+    if (showEvaluasi) {
+      return (
+        <EvaluasiOnlineScreen currentUser={currentUser} onBack={handleBackToDashboard} />
       );
     }
 
@@ -929,6 +962,7 @@ export default function App() {
               setShowDashboard(false);
               setShowCpTp(true);
             }}
+            onSelectEvaluasi={handleOpenEvaluasi}
           />
           <StatusBar style="dark" />
           <NavigationBar style="dark" />

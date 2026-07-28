@@ -5,7 +5,7 @@ export type NetworkEvent =
   | { type: 'client_join_request'; socket: string; payload: { name: string; color: string; icon: string } }
   | { type: 'client_disconnected'; socket: string; playerId?: number }
   | { type: 'state_synced'; state: GameState }
-  | { type: 'action_requested'; action: 'roll' | 'reset' | 'back' | 'ready'; playerId: number }
+  | { type: 'action_requested'; action: 'roll' | 'reset' | 'back' | 'ready' | 'update_profile'; playerId: number }
   | { type: 'join_result'; success: boolean; playerId?: number; error?: string }
   | { type: 'connection_status'; status: 'connected' | 'disconnected' | 'error'; error?: string }
   | { type: 'room_created'; roomCode: string }

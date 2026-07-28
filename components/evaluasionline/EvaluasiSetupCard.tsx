@@ -12,9 +12,9 @@ import {
   ImageBackground,
 } from 'react-native';
 import { Users, Cpu } from 'lucide-react-native';
-import { styles } from './GameSetupCardStyles';
-import WaitingRoomCard from './WaitingRoomCard';
-import JoinRoomCard from './JoinRoomCard';
+import { styles } from '../dolanan/GameSetupCardStyles';
+import EvaluasiWaitingRoomCard, { JoinedPlayerInfo } from './EvaluasiWaitingRoomCard';
+import EvaluasiJoinRoomCard from './EvaluasiJoinRoomCard';
 import { GameNetwork, NetworkEvent } from '../../services/GameNetwork';
 import { ProfileService } from '../../services/ProfileService';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
@@ -35,26 +35,22 @@ interface Player {
   username: string;
   nama_lengkap: string;
 }
-
 interface GameSetupCardProps {
   onStartGame?: (config: any) => void;
-  currentUserId: number;
-  currentUserAvatarId?: string;
-  availablePlayers?: Player[];
+  currentUser?: any;
 }
 
-import { GACOS } from './GameConstants';
+import { GACOS } from '../dolanan/GameConstants';
 
-export default function GameSetupCard({
+export default function EvaluasiSetupCard({
   onStartGame,
-  currentUserId,
-  currentUserAvatarId,
-  availablePlayers = []
+  currentUser,
 }: GameSetupCardProps) {
-  const currentUserProfile = availablePlayers.find(p => p.id === currentUserId);
-  const currentUserName = currentUserProfile?.username || 'Anda';
+  const currentUserId = currentUser?.id || 0;
+  const currentUserAvatarId = currentUser?.avatarId;
+  const currentUserName = currentUser?.username || 'Anda';
   
-  const [activeMode, setActiveMode] = useState<ModeType>('lokal');
+  const [activeMode, setActiveMode] = useState<ModeType>('online');
   const [activePlayer, setActivePlayer] = useState<PlayerType>('player1');
   const [opponentType, setOpponentType] = useState<OpponentType>('pemain');
   const [onlineRoomType, setOnlineRoomType] = useState<OnlineRoomType>('buat');
@@ -76,24 +72,17 @@ export default function GameSetupCard({
   // Waiting Room states
   const [isWaitingRoomActive, setIsWaitingRoomActive] = useState(false);
   const [activeRoomCode, setActiveRoomCode] = useState('');
-  const [joinedPlayer, setJoinedPlayer] = useState<{
-    name: string;
-    color: string;
-    avatarId: string;
-    userId: number;
-  } | null>(null);
-  const [isClientReady, setIsClientReady] = useState(false);
+  const [joinedPlayers, setJoinedPlayers] = useState<JoinedPlayerInfo[]>([]);
 
   // Join Room states
   const [isJoinRoomActive, setIsJoinRoomActive] = useState(false);
   const [joinRoomStatusText, setJoinRoomStatusText] = useState('');
   const [joinRoomIsConnected, setJoinRoomIsConnected] = useState(false);
-  const [joinedHostPlayer, setJoinedHostPlayer] = useState<{
-    name: string;
-    avatarId: string;
-  } | null>(null);
-  const [assignedPlayerId, setAssignedPlayerId] = useState<number>(2);
-  const [hostGacoId, setHostGacoId] = useState<number | null>(null);
+  const [playersList, setPlayersList] = useState<any[]>([]);
+  const [takenGacoIds, setTakenGacoIds] = useState<number[]>([]);
+  
+  const [assignedPlayerId, setAssignedPlayerId] = useState<number | null>(null);
+  const assignedPlayerIdRef = useRef<number | null>(null);
 
   const generateRandomCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -174,24 +163,24 @@ export default function GameSetupCard({
   };
 
   const handleLaunchOnlineGame = () => {
-    const opponentName = joinedPlayer?.name || 'Pemain 2';
-    const opponentColor = joinedPlayer?.color || '#EF4444';
-    const opponentUserId = joinedPlayer?.userId || 0;
+    const gamePlayers: any[] = [
+      { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false }
+    ];
+    joinedPlayers.forEach(p => {
+      gamePlayers.push({
+        id: p.playerId,
+        name: p.name,
+        color: p.color,
+        icon: String(p.userId),
+        position: 0,
+        type: 'human',
+        isWinner: false
+      });
+    });
 
     // Broadcast play status to all connected clients
     GameNetwork.broadcastState({
-      players: [
-        { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
-        { 
-          id: 2, 
-          name: opponentName, 
-          color: opponentColor, 
-          icon: String(opponentUserId), 
-          position: 0, 
-          type: 'human', 
-          isWinner: false 
-        }
-      ],
+      players: gamePlayers,
       currentPlayerIndex: 0,
       status: 'playing',
       dieValue: 1,
@@ -217,10 +206,7 @@ export default function GameSetupCard({
         opponentPlayerId: selectedOpponentPlayer,
         networkRole: 'host',
         localPlayerId: 1,
-        playersList: [
-          { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
-          { id: 2, name: opponentName, color: opponentColor, icon: String(opponentUserId), position: 0, type: 'human', isWinner: false }
-        ]
+        playersList: gamePlayers
       });
     }
   };
@@ -228,26 +214,23 @@ export default function GameSetupCard({
   const handleCancelWaitingRoom = () => {
     GameNetwork.closeAll();
     setIsWaitingRoomActive(false);
-    setJoinedPlayer(null);
-    setIsClientReady(false);
+    setJoinedPlayers([]);
   };
 
   const handleCancelJoinRoom = () => {
     GameNetwork.closeAll();
     setIsJoinRoomActive(false);
-    setJoinedHostPlayer(null);
+    setPlayersList([]);
+    setTakenGacoIds([]);
     setJoinRoomIsConnected(false);
-    setHostGacoId(null);
   };
 
   const handleConfirmClientGaco = async (gacoId: number): Promise<boolean> => {
-    try {
-      const success = await ProfileService.updateUserGaco(currentUserId, String(gacoId));
-      return success;
-    } catch (err) {
-      console.warn('Failed to update client gaco in DB:', err);
-      return false;
+    if (joinRoomIsConnected) {
+      GameNetwork.sendRelay('pj', { type: 'update_gaco', playerId: assignedPlayerId, gacoId });
+      return true;
     }
+    return false;
   };
 
   const handleClientReadyChange = (isReady: boolean) => {
@@ -269,29 +252,90 @@ export default function GameSetupCard({
             break;
 
           case 'client_join_request':
-            // Accept the client as Player 2
-            GameNetwork.confirmClientJoin(event.socket, 2, true);
-            
-            const clientUserId = parseInt(event.payload.icon, 10);
-            setIsClientReady(false); // Reset ready status
-
-            // Query client profile from DB instead of using sent values directly
-            ProfileService.fetchUserFullProfile(clientUserId).then((profile) => {
-              const opponentInfo = {
-                name: event.payload.name || 'Pemain 2',
+            setJoinedPlayers(prev => {
+              if (prev.length >= 4) {
+                GameNetwork.confirmClientJoin(event.socket, -1, false, "Room penuh");
+                return prev;
+              }
+              const newPlayerId = prev.length === 0 ? 2 : Math.max(...prev.map(p => p.playerId)) + 1;
+              GameNetwork.confirmClientJoin(event.socket, newPlayerId, true);
+              
+              const clientUserId = parseInt(event.payload.icon, 10);
+              const newPlayer: JoinedPlayerInfo = {
+                name: event.payload.name || `Pemain ${newPlayerId}`,
                 color: event.payload.color || '#EF4444',
-                avatarId: profile.avatarId,
+                avatarId: '2',
                 userId: clientUserId,
+                isReady: false,
+                socketId: event.socket,
+                playerId: newPlayerId
               };
-              setJoinedPlayer(opponentInfo);
-
-              // Broadcast lobby state to client
+              
+              ProfileService.fetchUserFullProfile(clientUserId).then((profile) => {
+                setJoinedPlayers(current => 
+                  current.map(p => p.socketId === event.socket ? { ...p, avatarId: profile.avatarId } : p)
+                );
+              }).catch(err => console.warn('Lobby fetch client profile error:', err));
+              
               setTimeout(() => {
+                setJoinedPlayers(latestJoined => {
+                  const lobbyPlayers: any[] = [
+                     { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false, gacoId: selectedPlayer1Gaco + 1 },
+                     ...latestJoined.map(p => ({
+                       id: p.playerId,
+                       name: p.name,
+                       color: p.color,
+                       icon: String(p.userId),
+                       position: 0,
+                       type: 'human',
+                       isWinner: false,
+                       gacoId: p.gacoId
+                     }))
+                  ];
+                  GameNetwork.broadcastState({
+                    players: lobbyPlayers,
+                    currentPlayerIndex: 0,
+                    status: 'lobby',
+                    dieValue: 1,
+                    isRolling: false,
+                    logs: [],
+                    winner: null
+                  });
+                  return latestJoined;
+                });
+              }, 150);
+
+              return [...prev, newPlayer];
+            });
+            break;
+
+          case 'action_requested':
+            if (event.action === 'ready') {
+              setJoinedPlayers(prev => prev.map(p => p.playerId === event.playerId ? { ...p, isReady: true } : p));
+            }
+            break;
+
+          case 'relay_pj':
+            if (event.payload?.type === 'update_gaco') {
+              const { playerId, gacoId } = event.payload;
+              setJoinedPlayers(prev => {
+                const updated = prev.map(p => p.playerId === playerId ? { ...p, gacoId } : p);
+                // Re-broadcast state so all clients get the new gacoIds
+                const lobbyPlayers: any[] = [
+                   { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false, gacoId: selectedPlayer1Gaco + 1 },
+                   ...updated.map(p => ({
+                     id: p.playerId,
+                     name: p.name,
+                     color: p.color,
+                     icon: String(p.userId),
+                     position: 0,
+                     type: 'human',
+                     isWinner: false,
+                     gacoId: p.gacoId
+                   }))
+                ];
                 GameNetwork.broadcastState({
-                  players: [
-                    { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false },
-                    { id: 2, name: opponentInfo.name, color: opponentInfo.color, icon: String(clientUserId), position: 0, type: 'human', isWinner: false }
-                  ],
+                  players: lobbyPlayers,
                   currentPlayerIndex: 0,
                   status: 'lobby',
                   dieValue: 1,
@@ -299,28 +343,13 @@ export default function GameSetupCard({
                   logs: [],
                   winner: null
                 });
-              }, 150);
-            }).catch(err => {
-              console.warn('Lobby fetch client profile error:', err);
-              const opponentInfo = {
-                name: event.payload.name || 'Pemain 2',
-                color: event.payload.color || '#EF4444',
-                avatarId: '2',
-                userId: clientUserId,
-              };
-              setJoinedPlayer(opponentInfo);
-            });
-            break;
-
-          case 'action_requested':
-            if (event.action === 'ready' && event.playerId === 2) {
-              setIsClientReady(true);
+                return updated;
+              });
             }
             break;
 
           case 'client_disconnected':
-            setJoinedPlayer(null);
-            setIsClientReady(false);
+            setJoinedPlayers(prev => prev.filter(p => p.socketId !== event.socket && p.playerId !== event.playerId));
             break;
 
           case 'connection_status':
@@ -343,6 +372,7 @@ export default function GameSetupCard({
               setJoinRoomStatusText('Berhasil masuk! Pilih gaco dan klik Siap...');
               if (event.playerId) {
                 setAssignedPlayerId(event.playerId);
+                assignedPlayerIdRef.current = event.playerId;
               }
             } else {
               alert(event.error || 'Ditolak masuk ke room.');
@@ -351,30 +381,39 @@ export default function GameSetupCard({
             break;
 
           case 'state_synced':
-            // Find the Host player (id: 1)
-            const host = event.state.players.find(p => p.id === 1);
-            if (host) {
-              const hostUserId = parseInt(host.icon, 10);
-              if (!isNaN(hostUserId)) {
-                ProfileService.fetchUserFullProfile(hostUserId).then((profile) => {
-                  setJoinedHostPlayer({
-                    name: host.name,
-                    avatarId: profile.avatarId
-                  });
-                  setHostGacoId(parseInt(profile.gacoId, 10)); // Save host's selected gaco ID
-                }).catch(err => {
-                  console.warn('Lobby fetch host profile error:', err);
-                  setJoinedHostPlayer({
-                    name: host.name,
-                    avatarId: '1'
-                  });
+            if (event.state.players) {
+              const newList: any[] = [];
+              const newTakenIds: number[] = [];
+              
+              const fetchPromises = event.state.players.map(async (p) => {
+                const pUserId = parseInt(p.icon, 10);
+                let avatarId = '1';
+                
+                // Add gacoId from synced state directly (except for ourselves, so we don't block our own current selection)
+                if (p.gacoId && p.id !== assignedPlayerIdRef.current) {
+                  const parsedGacoId = parseInt(p.gacoId as any, 10);
+                  console.log(`[Join Room] Player ${p.id} has gacoId ${parsedGacoId}. Adding to takenGacoIds.`);
+                  newTakenIds.push(parsedGacoId);
+                }
+
+                if (!isNaN(pUserId)) {
+                  try {
+                    const profile = await ProfileService.fetchUserFullProfile(pUserId);
+                    avatarId = profile.avatarId;
+                  } catch (e) { }
+                }
+                
+                newList.push({
+                  id: p.id,
+                  name: p.name,
+                  avatarId: avatarId
                 });
-              } else {
-                setJoinedHostPlayer({
-                  name: host.name,
-                  avatarId: '1'
-                });
-              }
+              });
+              
+              Promise.all(fetchPromises).then(() => {
+                setPlayersList(newList.sort((a, b) => a.id - b.id));
+                setTakenGacoIds(newTakenIds);
+              });
             }
 
             // If the host starts playing, transition our screen!
@@ -411,7 +450,7 @@ export default function GameSetupCard({
     return () => {
       GameNetwork.unregisterListener(handler);
     };
-  }, [isWaitingRoomActive, isJoinRoomActive, currentUserAvatarId, joinedPlayer, joinedHostPlayer, assignedPlayerId, isClientReady]);
+  }, [isWaitingRoomActive, isJoinRoomActive, currentUserAvatarId, joinedPlayers, playersList, assignedPlayerId]);
 
   // Animation values for mode tabs
   const lokalScale = useRef(new Animated.Value(1)).current;
@@ -580,125 +619,68 @@ export default function GameSetupCard({
   };
 
   const handleStartGame = () => {
-    if (activeMode === 'lokal') {
-      if (!isPlayer1GacoConfirmed) {
-        alert('Player 1 belum mengkonfirmasi gaco!');
-        return;
-      }
-      
-      const isSolo = !isPlayer2GacoConfirmed;
-      
-      if (!isSolo && !selectedOpponentPlayer) {
-        alert('Pilih data pemain untuk Player 2 terlebih dahulu!');
-        return;
-      }
-
-      if (onStartGame) {
-        onStartGame({
-          mode: isSolo ? 'solo' : 'lokal',
-          player1Gaco: selectedPlayer1Gaco,
-          player2Gaco: selectedPlayer2Gaco,
-          opponentType: opponentType,
-          opponentPlayerId: selectedOpponentPlayer,
-        });
-      }
-    } else {
-      // online
-      if (onStartGame) {
-        onStartGame({
-          mode: 'online',
-          player1Gaco: selectedPlayer1Gaco,
-          player2Gaco: selectedPlayer2Gaco,
-          opponentType: 'online',
-          opponentPlayerId: selectedOpponentPlayer,
-        });
-      }
+    if (onStartGame) {
+      onStartGame({
+        mode: 'online',
+        player1Gaco: selectedPlayer1Gaco,
+        player2Gaco: selectedPlayer2Gaco,
+        opponentType: 'online',
+        opponentPlayerId: selectedOpponentPlayer,
+      });
     }
   };
 
   return (
     <View style={styles.cardWrapper}>
       {isWaitingRoomActive ? (
-        <WaitingRoomCard
+        <EvaluasiWaitingRoomCard
           roomCode={activeRoomCode}
           currentUserAvatarId={currentUserAvatarId}
           currentUserName={currentUserName}
-          player2Name={joinedPlayer?.name}
-          player2AvatarId={joinedPlayer?.avatarId}
-          isPlayer2Ready={isClientReady}
+          joinedPlayers={joinedPlayers}
           onStartGame={handleLaunchOnlineGame}
           onCancel={handleCancelWaitingRoom}
         />
       ) : isJoinRoomActive ? (
-        <JoinRoomCard
+        <EvaluasiJoinRoomCard
           roomCode={roomCode.toUpperCase()}
           statusText={joinRoomStatusText}
           isConnected={joinRoomIsConnected}
           currentUserAvatarId={currentUserAvatarId}
-          hostName={joinedHostPlayer?.name}
-          hostAvatarId={joinedHostPlayer?.avatarId}
-          takenGacoId={hostGacoId || undefined}
+          playersList={playersList}
+          takenGacoIds={takenGacoIds}
           onCancel={handleCancelJoinRoom}
           onConfirmGaco={handleConfirmClientGaco}
           onReadyChange={handleClientReadyChange}
         />
       ) : (
         <View style={styles.cardContainer}>
-          {/* Mode Tabs: Lokal / Online */}
-          <View style={styles.tabContainer}>
+          {/* Mode Tabs: Only Online, Centered */}
+          <View style={[styles.tabContainer, { justifyContent: 'center' }]}>
             <Animated.View
               style={[
                 styles.tabButtonWrapper,
                 {
+                  flex: 0,
+                  width: '50%',
                   transform: [
-                    { scale: lokalScale },
-                    { translateY: lokalTranslateY },
+                    { scale: 1 },
+                    { translateY: 0 },
                   ],
-                  zIndex: activeMode === 'lokal' ? 2 : 1,
+                  zIndex: 2,
                 },
               ]}
             >
-              <SoundTouchableOpacity
+              <View
                 style={[
                   styles.tabButton,
-                  styles.tabButtonLeft,
-                  activeMode !== 'lokal' && styles.tabInactiveLeft,
-                  { paddingVertical: 0, overflow: 'hidden' }
+                  { 
+                    paddingVertical: 0, 
+                    overflow: 'hidden',
+                    borderTopLeftRadius: 32,
+                    borderTopRightRadius: 32,
+                  }
                 ]}
-                onPress={() => handleModePress('lokal')}
-                activeOpacity={1}
-              >
-                <ImageBackground
-                  source={require('../../assets/texture/texture2.png')}
-                  style={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center', paddingVertical: 21 }}
-                  resizeMode="cover"
-                >
-                  <Text style={styles.tabTextLokal}>Offline</Text>
-                </ImageBackground>
-              </SoundTouchableOpacity>
-            </Animated.View>
-
-            <Animated.View
-              style={[
-                styles.tabButtonWrapper,
-                {
-                  transform: [
-                    { scale: onlineScale },
-                    { translateY: onlineTranslateY },
-                  ],
-                  zIndex: activeMode === 'online' ? 2 : 1,
-                },
-              ]}
-            >
-              <SoundTouchableOpacity
-                style={[
-                  styles.tabButton,
-                  styles.tabButtonRight,
-                  activeMode !== 'online' && styles.tabInactiveRight,
-                  { paddingVertical: 0, overflow: 'hidden' }
-                ]}
-                onPress={() => handleModePress('online')}
-                activeOpacity={1}
               >
                 <ImageBackground
                   source={require('../../assets/texture/texture1.png')}
@@ -707,314 +689,19 @@ export default function GameSetupCard({
                 >
                   <Text style={styles.tabTextOnline}>Online</Text>
                 </ImageBackground>
-              </SoundTouchableOpacity>
+              </View>
             </Animated.View>
           </View>
 
           <ImageBackground 
-            source={activeMode === 'lokal' ? require('../../assets/texture/texture2.png') : require('../../assets/texture/texture1.png')}
+            source={require('../../assets/texture/texture1.png')}
             style={[
               styles.contentSection,
-              { overflow: 'hidden' }
+              { overflow: 'hidden', borderTopLeftRadius: 24, borderTopRightRadius: 24 }
             ]}
             resizeMode="cover"
           >
-          {/* Player Tabs: Player 1 / Player 2 - Only for Lokal Mode */}
-          {activeMode === 'lokal' && (
-            <View style={styles.playerTabContainer}>
-              <Animated.View style={{ transform: [{ scale: player1Scale }] }}>
-                <SoundTouchableOpacity
-                  style={[
-                    styles.playerTab,
-                    activePlayer === 'player1' && styles.playerTabActive,
-                  ]}
-                  onPress={() => handlePlayerPress('player1')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[
-                    styles.playerTabText,
-                    activePlayer === 'player1' && styles.playerTabTextActive,
-                  ]}>
-                    Player 1
-                  </Text>
-                </SoundTouchableOpacity>
-              </Animated.View>
 
-              <Animated.View style={{ transform: [{ scale: player2Scale }] }}>
-                <SoundTouchableOpacity
-                  style={[
-                    styles.playerTab,
-                    activePlayer === 'player2' && styles.playerTabActive,
-                  ]}
-                  onPress={() => handlePlayerPress('player2')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[
-                    styles.playerTabText,
-                    activePlayer === 'player2' && styles.playerTabTextActive,
-                  ]}>
-                    Player 2
-                  </Text>
-                </SoundTouchableOpacity>
-              </Animated.View>
-            </View>
-          )}
-
-          <View>
-            {/* Player 1 Content - Lokal Mode */}
-            {activePlayer === 'player1' && activeMode === 'lokal' && (
-              <View style={styles.playerContent}>
-                <Text style={styles.sectionTitle}>
-                  Pilih Gaco Kamu
-                </Text>
-
-                <View style={styles.gacoSelector}>
-
-                  <View style={styles.gacoCarousel} {...panResponderPlayer1.panHandlers}>
-                    {/* Previous Gaco (Left) */}
-                    <Animated.View style={[
-                      styles.gacoDisplaySide,
-                      { opacity: isPlayer1GacoConfirmed ? 0.3 : 0.4 }
-                    ]}>
-                      <Image
-                        source={GACOS[(selectedPlayer1Gaco - 1 + GACOS.length) % GACOS.length].image}
-                        style={styles.gacoImageSide}
-                        resizeMode="contain"
-                      />
-                    </Animated.View>
-
-                    {/* Active Gaco (Center) */}
-                    <Animated.View style={styles.gacoDisplayCenter}>
-                      <View style={[
-                        styles.gacoImageWrapper,
-                        isGacoTaken(selectedPlayer1Gaco, 1) && styles.gacoImageWrapperTaken
-                      ]}>
-                        <Image
-                          source={GACOS[selectedPlayer1Gaco].image}
-                          style={[
-                            styles.gacoImageCenter,
-                            isGacoTaken(selectedPlayer1Gaco, 1) && styles.gacoImageTaken
-                          ]}
-                          resizeMode="contain"
-                        />
-                      </View>
-                      <Text style={styles.gacoName}>
-                        {GACOS[selectedPlayer1Gaco].name}
-                      </Text>
-                      {isGacoTaken(selectedPlayer1Gaco, 1) && (
-                        <Text style={styles.gacoTakenText}>Sudah Dipakai Player 2</Text>
-                      )}
-                    </Animated.View>
-
-                    {/* Next Gaco (Right) */}
-                    <Animated.View style={[
-                      styles.gacoDisplaySide,
-                      { opacity: isPlayer1GacoConfirmed ? 0.3 : 0.4 }
-                    ]}>
-                      <Image
-                        source={GACOS[(selectedPlayer1Gaco + 1) % GACOS.length].image}
-                        style={styles.gacoImageSide}
-                        resizeMode="contain"
-                      />
-                    </Animated.View>
-
-                    {/* Swipe GIF Indicator */}
-                    {!isPlayer1GacoConfirmed && (
-                      <Image
-                        source={require('../../assets/dolanan_assets/swipe3.gif')}
-                        style={styles.swipeGif}
-                        resizeMode="contain"
-                      />
-                    )}
-                  </View>
-
-                </View>
-
-                {/* Confirm/Cancel Buttons */}
-                <View style={styles.gacoButtonContainer}>
-                  {!isPlayer1GacoConfirmed ? (
-                    <SoundTouchableOpacity
-                      style={[
-                        styles.confirmButton,
-                        isGacoTaken(selectedPlayer1Gaco, 1) && styles.confirmButtonDisabled
-                      ]}
-                      onPress={() => handleConfirmGaco(1)}
-                      disabled={isGacoTaken(selectedPlayer1Gaco, 1)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={styles.confirmButtonText}>
-                        Pilih
-                      </Text>
-                    </SoundTouchableOpacity>
-                  ) : (
-                    <View style={styles.gacoButtonRow}>
-                      <View style={styles.confirmedButton}>
-                        <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
-                      </View>
-                      <SoundTouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={() => handleCancelGaco(1)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={styles.cancelButtonText}>Ganti</Text>
-                      </SoundTouchableOpacity>
-                    </View>
-                  )}
-                </View>
-              </View>
-            )}
-
-            {/* Player 2 Content */}
-            {activePlayer === 'player2' && activeMode === 'lokal' && (
-              <View style={styles.playerContent}>
-                {/* Opponent Type Selector */}
-             
-
-                {/* Player Selection for "Pemain" */}
-                {opponentType === 'pemain' && (
-                  <View style={styles.playerSelectionSection}>
-                    <Text style={styles.sectionTitle}>Pilih Pemain Lawan</Text>
-
-                    <SoundTouchableOpacity
-                      style={styles.combobox}
-                      onPress={() => setShowPlayerDropdown(!showPlayerDropdown)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.comboboxText}>
-                        {selectedOpponentPlayer
-                          ? availablePlayers.find(p => p.id === selectedOpponentPlayer)?.username || 'Pilih Pemain'
-                          : 'Pilih Pemain'
-                        }
-                      </Text>
-
-                    </SoundTouchableOpacity>
-
-                    {showPlayerDropdown && (
-                      <View style={styles.dropdown}>
-                        <ScrollView style={styles.dropdownScroll} nestedScrollEnabled>
-                          {availablePlayers
-                            .filter(p => p.id !== currentUserId)
-                            .map(player => (
-                              <SoundTouchableOpacity
-                                key={player.id}
-                                style={styles.dropdownItem}
-                                onPress={() => {
-                                  setSelectedOpponentPlayer(player.id);
-                                  setShowPlayerDropdown(false);
-                                }}
-                                activeOpacity={0.7}
-                              >
-                                <Text style={styles.dropdownItemText}>{player.username}</Text>
-                                <Text style={styles.dropdownItemSubtext}>{player.nama_lengkap}</Text>
-                              </SoundTouchableOpacity>
-                            ))
-                          }
-                        </ScrollView>
-                      </View>
-                    )}
-                  </View>
-                )}
-
-                {/* Gaco Selection for Player 2 */}
-                <View style={styles.gacoSection}>
-                  <Text style={styles.sectionTitle}>
-                    Pilih Gaco {opponentType === 'komputer' ? 'Komputer' : 'Player 2'}
-                  </Text>
-
-                  <View style={styles.gacoSelector}>
-
-                    <View style={styles.gacoCarousel} {...panResponderPlayer2.panHandlers}>
-                      {/* Previous Gaco (Left) */}
-                      <Animated.View style={[
-                        styles.gacoDisplaySide,
-                        { opacity: isPlayer2GacoConfirmed ? 0.3 : 0.4 }
-                      ]}>
-                        <Image
-                          source={GACOS[(selectedPlayer2Gaco - 1 + GACOS.length) % GACOS.length].image}
-                          style={styles.gacoImageSide}
-                          resizeMode="contain"
-                        />
-                      </Animated.View>
-
-                      {/* Active Gaco (Center) */}
-                      <Animated.View style={styles.gacoDisplayCenter}>
-                        <View style={[
-                          styles.gacoImageWrapper,
-                          isGacoTaken(selectedPlayer2Gaco, 2) && styles.gacoImageWrapperTaken
-                        ]}>
-                          <Image
-                            source={GACOS[selectedPlayer2Gaco].image}
-                            style={[
-                              styles.gacoImageCenter,
-                              isGacoTaken(selectedPlayer2Gaco, 2) && styles.gacoImageTaken
-                            ]}
-                            resizeMode="contain"
-                          />
-                        </View>
-                        <Text style={styles.gacoName}>{GACOS[selectedPlayer2Gaco].name}</Text>
-                        {isGacoTaken(selectedPlayer2Gaco, 2) && (
-                          <Text style={styles.gacoTakenText}>Sudah Dipakai</Text>
-                        )}
-                      </Animated.View>
-
-                      {/* Next Gaco (Right) */}
-                      <Animated.View style={[
-                        styles.gacoDisplaySide,
-                        { opacity: isPlayer2GacoConfirmed ? 0.3 : 0.4 }
-                      ]}>
-                        <Image
-                          source={GACOS[(selectedPlayer2Gaco + 1) % GACOS.length].image}
-                          style={styles.gacoImageSide}
-                          resizeMode="contain"
-                        />
-                      </Animated.View>
-
-                      {/* Swipe GIF Indicator */}
-                      {!isPlayer2GacoConfirmed && (
-                        <Image
-                          source={require('../../assets/dolanan_assets/swipe3.gif')}
-                          style={styles.swipeGif}
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                  </View>
-
-                  {/* Confirm/Cancel Buttons */}
-                  <View style={styles.gacoButtonContainer}>
-                    {!isPlayer2GacoConfirmed ? (
-                      <SoundTouchableOpacity
-                        style={[
-                          styles.confirmButton,
-                          isGacoTaken(selectedPlayer2Gaco, 2) && styles.confirmButtonDisabled
-                        ]}
-                        onPress={() => handleConfirmGaco(2)}
-                        disabled={isGacoTaken(selectedPlayer2Gaco, 2)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={styles.confirmButtonText}>Pilih</Text>
-                      </SoundTouchableOpacity>
-                    ) : (
-                      <View style={styles.gacoButtonRow}>
-                        <View style={styles.confirmedButton}>
-                          <Text style={styles.confirmedButtonText}>✓ Dipilih</Text>
-                        </View>
-                        <SoundTouchableOpacity
-                          style={styles.cancelButton}
-                          onPress={() => handleCancelGaco(2)}
-                          activeOpacity={0.8}
-                        >
-                          <Text style={styles.cancelButtonText}>Ganti</Text>
-                        </SoundTouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {/* Online Mode - Room Selection and Gaco */}
             {activeMode === 'online' && (
               <View style={styles.onlineContentWrapper}>
                 {/* Room Type Selector: Buat Room / Gabung Room */}
@@ -1223,15 +910,11 @@ export default function GameSetupCard({
               activeOpacity={0.8}
             >
               <Text style={styles.startButtonText}>
-                {activeMode === 'online'
-                  ? (onlineRoomType === 'buat' ? 'Buat Room' : 'Gabung Room')
-                  : 'Mulai Game'
-                }
+                {onlineRoomType === 'buat' ? 'Buat Room' : 'Gabung Room'}
               </Text>
             </SoundTouchableOpacity>
-          </View>
-        </ImageBackground>
-      </View>
+          </ImageBackground>
+        </View>
       )}
     </View>
   );

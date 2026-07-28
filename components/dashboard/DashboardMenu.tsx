@@ -27,11 +27,12 @@ interface DashboardMenuProps {
   onOpenProfile: () => void;
   onSelectMateri: () => void;
   onSelectCpTp: () => void;
+  onSelectEvaluasi: () => void;
 }
 
 const ICONS = ['🦐', '🏆', '🐍', '📝', '🥇', '📖'];
 
-export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri, onSelectCpTp }: DashboardMenuProps) {
+export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, onOpenProfile, onSelectMateri, onSelectCpTp, onSelectEvaluasi }: DashboardMenuProps) {
   const insets = useSafeAreaInsets();
   const [iconIndex, setIconIndex] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -262,9 +263,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
                 type="evaluasi"
                 title="Evaluasi"
                 imageSource={require('../../assets/dashboard_assets/evaluasi.png')}
-                onPress={() => {
-                  // Temporarily disabled navigation
-                }}
+                onPress={onSelectEvaluasi}
               />
             </View>
 

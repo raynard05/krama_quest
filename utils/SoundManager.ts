@@ -144,4 +144,14 @@ export const SoundManager = {
       soundInstance.pause();
     }
   },
+
+  stopAllGameSounds() {
+    try {
+      if (diceInstance) { diceInstance.pause(); diceInstance.seekTo(0); }
+      if (victoryInstance) { victoryInstance.pause(); victoryInstance.seekTo(0); }
+      if (correctInstance) { correctInstance.pause(); correctInstance.seekTo(0); }
+      if (wrongInstance) { wrongInstance.pause(); wrongInstance.seekTo(0); }
+      if (pawnInstance) { pawnInstance.pause(); pawnInstance.seekTo(0); }
+    } catch (_) {}
+  },
 };
