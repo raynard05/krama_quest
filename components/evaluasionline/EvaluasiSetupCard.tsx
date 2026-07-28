@@ -234,7 +234,7 @@ export default function EvaluasiSetupCard({
   };
 
   const handleClientReadyChange = (isReady: boolean) => {
-    if (isReady) {
+    if (isReady && assignedPlayerId !== null) {
       GameNetwork.requestAction('ready', assignedPlayerId);
     }
   };

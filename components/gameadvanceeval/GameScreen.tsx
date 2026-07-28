@@ -324,6 +324,7 @@ export default function GameScreen({
   const handleAnswerSubmit = (userInput: string, question: Soal, isComputer: boolean = false) => {
     const isCorrect = checkAnswerCorrectness(userInput, question.kunciJawaban, question.minimal_jawab_benar);
     let triggeredSpectatorNotice = false;
+    let updatedPlayer: Player | undefined = undefined;
 
     if (isCorrect && question.bobot > 0) {
       const v = question.bobot === 1 ? 1 : question.bobot === 3 ? 2 : question.bobot === 8 ? 3 : 0;
@@ -334,9 +335,6 @@ export default function GameScreen({
         });
       }
     }
-
-    let triggeredSpectatorNotice = false;
-    let updatedPlayer: Player | null = null;
 
     const newPlayers = players.map((p, idx) => {
       if (idx === currentPlayerIndex) {
@@ -371,7 +369,7 @@ export default function GameScreen({
 
     setPlayers(newPlayers);
 
-    if (updatedPlayer && updatedPlayer.status === 'spectator') {
+    if (updatedPlayer && (updatedPlayer as Player).status === 'spectator') {
       GameNetwork.sendRelay('sync', {
         t: currentPlayerIndex,
         ...(currentPlayerIndex === 0 ? { p1: 50 } : { p2: 50 })

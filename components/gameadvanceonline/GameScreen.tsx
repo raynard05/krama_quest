@@ -141,7 +141,7 @@ export default function GameScreen({
               if (!isNaN(userId)) {
                 try {
                   const profile = await ProfileService.fetchUserFullProfile(userId);
-                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId, gacoId: parseInt(profile.gacoId, 10) || undefined };
+                  return { ...p, avatarId: profile.avatarId, batikId: profile.bgId, gacoId: profile.gacoId };
                 } catch (e) {
                   console.warn('Failed to fetch profile for', userId, e);
                   return p;
