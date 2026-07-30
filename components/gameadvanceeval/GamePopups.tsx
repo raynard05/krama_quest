@@ -10,6 +10,7 @@ const QUESTION_POPUP_IMG = require('../../assets/pop_up/question_popup1.png');
 const CORRECT_POPUP_IMG = require('../../assets/pop_up/correct_popup.png');
 const WRONG_POPUP_IMG = require('../../assets/pop_up/wrong_popup.png');
 const TIMEOUT_POPUP_IMG = require('../../assets/pop_up/timeout_popup.png');
+import { getAvatarSource } from '../profile/ProfileAvatars';
 
 interface GamePopupsProps {
   // Question Modal
@@ -255,7 +256,7 @@ export default function GamePopups({
             <Text style={styles.exitConfirmText}>
               {endReason === 'timeout'
                 ? 'Wektu dolanan wis entek! (30 Menit)'
-                : 'Asil biji pungkasan siswa (1v1)'}
+                : `Asil biji pungkasan siswa (${players.length} Pemain)`}
             </Text>
 
             {/* Results block */}
@@ -274,7 +275,7 @@ export default function GamePopups({
                 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image 
-                      source={i === 0 ? require('../../assets/profile-pic/1.webp') : require('../../assets/profile-pic/2.webp')}
+                      source={getAvatarSource(p.avatarId)}
                       style={{ width: 28, height: 28, borderRadius: 14, marginRight: 8, borderWidth: 1, borderColor: '#784B23' }}
                       resizeMode="cover"
                     />
@@ -296,9 +297,16 @@ export default function GamePopups({
 
             {/* Winner text banner in Javanese */}
             <Text style={{ color: '#E25C3D', fontSize: 18, fontWeight: 'bold', fontFamily: 'Poppins-Bold', marginBottom: 15, textAlign: 'center' }}>
-              {(players[0].score || 0) === (players[1].score || 0)
-                ? '🤝 Asile Seri!'
-                : ((players[localPlayerIndex].score || 0) > (players[localPlayerIndex === 0 ? 1 : 0].score || 0) ? '🎉 Kowe Menang!' : '😢 Kowe Kalah!')}
+              {(() => {
+                const sorted = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
+                const topScore = sorted[0]?.score || 0;
+                const isTie = sorted.length > 1 && sorted[0].score === sorted[1].score && topScore > 0;
+                const myScore = players[localPlayerIndex]?.score || 0;
+                if (isTie && myScore === topScore) return '🤝 Kowe Seri ing Peringkat 1!';
+                if (isTie) return '🤝 Asile Seri!';
+                if (myScore === topScore && topScore > 0) return '🎉 Kowe Menang!';
+                return `🎉 ${sorted[0]?.name || 'Pemain'} Menang!`;
+              })()}
             </Text>
 
             <View style={[styles.nextButton, { backgroundColor: '#784B23', width: '100%' }]}>

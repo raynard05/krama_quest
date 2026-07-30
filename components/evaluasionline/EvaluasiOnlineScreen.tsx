@@ -4,6 +4,7 @@ import BackButton from '../BackButton';
 import EvaluasiSetupCard from './EvaluasiSetupCard';
 import styles from './EvaluasiOnlineScreenStyle';
 import GameScreen from '../gameadvanceeval/GameScreen';
+import { GameNetwork } from '../../services/GameNetwork';
 
 interface EvaluasiOnlineScreenProps {
   currentUser?: any;
@@ -24,8 +25,14 @@ export default function EvaluasiOnlineScreen({ currentUser, onBack }: EvaluasiOn
         currentUser={currentUser}
         isHost={gameConfig.networkRole === 'host'}
         initialPlayers={gameConfig.playersList}
-        onBack={() => setGameConfig(null)}
-        onFinishGame={() => setGameConfig(null)}
+        onBack={() => {
+          GameNetwork.closeAll();
+          setGameConfig(null);
+        }}
+        onFinishGame={() => {
+          GameNetwork.closeAll();
+          setGameConfig(null);
+        }}
       />
     );
   }

@@ -65,8 +65,9 @@ export default function GameScreen({
     };
   }, []);
 
-  const localPlayerIndex = isHost ? 0 : 1;
-  const remotePlayerIndex = isHost ? 1 : 0;
+  // Find actual index of the current user, fallback to host ? 0 : 1
+  const foundIndex = initialPlayers.findIndex(p => p.type === 'human' && String(p.icon) === String(currentUser?.id));
+  const localPlayerIndex = foundIndex !== -1 ? foundIndex : (isHost ? 0 : 1);
   const [diceValue, setDiceValue] = useState<number>(1);
   const [isRolling, setIsRolling] = useState<boolean>(false);
   const isRollingRef = useRef<boolean>(false);
@@ -164,7 +165,7 @@ export default function GameScreen({
       if (event.type === 'relay_sync') {
         const payload = event.payload;
         // payload: { t: turn, d: dice, p1: pos1, p2: pos2, tm: timeLeft }
-        if (payload.tm !== undefined && (isHost ? 1 : 0) === 0) {
+        if (payload.tm !== undefined && localPlayerIndex !== 0) {
           // If we are not the host, sync time from host exactly
           setGlobalTimeLeft(payload.tm);
           if (payload.tm <= 0) {
@@ -185,11 +186,17 @@ export default function GameScreen({
         if (payload.t !== undefined) {
           setCurrentPlayerIndex(payload.t);
         }
-        if (payload.p1 !== undefined || payload.p2 !== undefined) {
+        let hasMove = false;
+        for (let i = 1; i <= 6; i++) {
+           if (payload[`p${i}`] !== undefined) {
+              hasMove = true; break;
+           }
+        }
+        if (hasMove) {
           SoundManager.playPawnMoveSound();
           setPlayers(prev => prev.map((p, idx) => {
-            if (idx === 0 && payload.p1 !== undefined) return { ...p, position: payload.p1 };
-            if (idx === 1 && payload.p2 !== undefined) return { ...p, position: payload.p2 };
+            const pKey = `p${idx+1}`;
+            if (payload[pKey] !== undefined) return { ...p, position: payload[pKey] };
             return p;
           }));
         }
@@ -205,20 +212,23 @@ export default function GameScreen({
         }));
       } else if (event.type === 'relay_tu') {
         const payload = event.payload;
-        // payload: { t: nextTurn, q1: count1, q2: count2, s1: status1, s2: status2 }
         if (payload.t !== undefined) setCurrentPlayerIndex(payload.t);
         setPlayers(prev => prev.map((p, idx) => {
           let np = { ...p };
-          if (idx === 0) {
-            if (payload.q1 !== undefined) np.soalTerjawabCount = payload.q1;
-            if (payload.s1 !== undefined) np.status = payload.s1;
-          }
-          if (idx === 1) {
-            if (payload.q2 !== undefined) np.soalTerjawabCount = payload.q2;
-            if (payload.s2 !== undefined) np.status = payload.s2;
-          }
+          const qKey = `q${idx+1}`;
+          const sKey = `s${idx+1}`;
+          if (payload[qKey] !== undefined) np.soalTerjawabCount = payload[qKey];
+          if (payload[sKey] !== undefined) np.status = payload[sKey];
           return np;
         }));
+      } else if (event.type === 'client_disconnected') {
+        if (isMounted.current) {
+          Alert.alert("Pedhot", "Pemain mungsuh wis metu saka game.", [{ text: "Nggih", onPress: onBack }]);
+        }
+      } else if (event.type === 'connection_status' && event.status === 'disconnected') {
+        if (isMounted.current) {
+          Alert.alert("Pedhot", "Host wis nutup game.", [{ text: "Nggih", onPress: onBack }]);
+        }
       }
     };
 
@@ -289,13 +299,12 @@ export default function GameScreen({
     // Check if game end conditions met
     const allFinished = currentList.every(p => p.status === 'spectator' || (p.soalTerjawabCount || 0) >= 25);
     if (allFinished) {
-      GameNetwork.sendRelay('tu', {
-        t: currentPlayerIndex,
-        q1: currentList[0].soalTerjawabCount || 0,
-        q2: currentList[1].soalTerjawabCount || 0,
-        s1: currentList[0].status,
-        s2: currentList[1].status
+      const finishPayload: any = { t: currentPlayerIndex };
+      currentList.forEach((p, idx) => {
+          finishPayload[`q${idx+1}`] = p.soalTerjawabCount || 0;
+          finishPayload[`s${idx+1}`] = p.status;
       });
+      GameNetwork.sendRelay('tu', finishPayload);
       setGameFinished(true);
       setShowDaduCard(false);
       return;
@@ -303,22 +312,24 @@ export default function GameScreen({
 
     let nextTurn = (currentPlayerIndex + 1) % currentList.length;
 
-    // Skip spectators
-    if (currentList[nextTurn].status === 'spectator') {
+    // Skip spectators (loop until we find a non-spectator)
+    let loopCount = 0;
+    while (currentList[nextTurn].status === 'spectator' && loopCount < currentList.length) {
       nextTurn = (nextTurn + 1) % currentList.length;
+      loopCount++;
     }
+
+    const tuPayload: any = { t: nextTurn };
+    currentList.forEach((p, idx) => {
+        tuPayload[`q${idx+1}`] = p.soalTerjawabCount || 0;
+        tuPayload[`s${idx+1}`] = p.status;
+    });
 
     setCurrentPlayerIndex(nextTurn);
     setColorIndex(prev => prev + 1);
 
     // Broadcast turn update (tu)
-    GameNetwork.sendRelay('tu', {
-      t: nextTurn,
-      q1: currentList[0].soalTerjawabCount || 0,
-      q2: currentList[1].soalTerjawabCount || 0,
-      s1: currentList[0].status,
-      s2: currentList[1].status
-    });
+    GameNetwork.sendRelay('tu', tuPayload);
   };
 
   const handleAnswerSubmit = (userInput: string, question: Soal, isComputer: boolean = false) => {
@@ -372,7 +383,7 @@ export default function GameScreen({
     if (updatedPlayer && (updatedPlayer as Player).status === 'spectator') {
       GameNetwork.sendRelay('sync', {
         t: currentPlayerIndex,
-        ...(currentPlayerIndex === 0 ? { p1: 50 } : { p2: 50 })
+        [`p${currentPlayerIndex + 1}`]: 50
       });
     }
 
@@ -401,16 +412,20 @@ export default function GameScreen({
   const daduAnimY = useRef(new Animated.Value(800)).current;
   const textAnimX = useRef(new Animated.Value(-400)).current;
 
-  // Listen for opponent turning into spectator
-  const prevOpponentStatus = useRef<string>('playing');
+  // Listen for opponents turning into spectator
+  const prevOpponentStatuses = useRef<Record<number, string>>({});
   useEffect(() => {
-    const opp = players[remotePlayerIndex];
-    if (opp && opp.status === 'spectator' && prevOpponentStatus.current !== 'spectator') {
-      prevOpponentStatus.current = 'spectator';
-      setSpectatorPlayerName(opp.name);
-      setShowSpectatorPopup(true);
-    }
-  }, [players, remotePlayerIndex]);
+    players.forEach((p, idx) => {
+      if (idx === localPlayerIndex) return; // Skip local player
+      
+      const prevStatus = prevOpponentStatuses.current[idx] || 'playing';
+      if (p.status === 'spectator' && prevStatus !== 'spectator') {
+        prevOpponentStatuses.current[idx] = 'spectator';
+        setSpectatorPlayerName(p.name);
+        setShowSpectatorPopup(true);
+      }
+    });
+  }, [players, localPlayerIndex]);
 
   // 1-minute question countdown timer
   useEffect(() => {
@@ -569,10 +584,9 @@ export default function GameScreen({
         if (!isMounted.current) return;
         SoundManager.playPawnMoveSound();
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: i } : p));
-        // Broadcast position sync
         GameNetwork.sendRelay('sync', {
           t: currentPlayerIndex,
-          ...(currentPlayerIndex === 0 ? { p1: i } : { p2: i })
+          [`p${currentPlayerIndex + 1}`]: i
         });
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.STEP_DELAY_MS));
       }
@@ -593,7 +607,7 @@ export default function GameScreen({
         }));
         GameNetwork.sendRelay('sync', {
           t: currentPlayerIndex,
-          ...(currentPlayerIndex === 0 ? { p1: 1 } : { p2: 1 })
+          [`p${currentPlayerIndex + 1}`]: 1
         });
         GameNetwork.sendRelay('sc', { p: currentPlayerIndex, v: 1 });
         finalTarget = 1;
@@ -619,7 +633,7 @@ export default function GameScreen({
         setPlayers(prev => prev.map((p, idx) => idx === currentPlayerIndex ? { ...p, position: finalPos } : p));
         GameNetwork.sendRelay('sync', {
           t: currentPlayerIndex,
-          ...(currentPlayerIndex === 0 ? { p1: finalPos } : { p2: finalPos })
+          [`p${currentPlayerIndex + 1}`]: finalPos
         });
         await new Promise(resolve => setTimeout(resolve, ANIMATION_SPEED.SNAKE_LADDER_DELAY_MS + 100));
       }

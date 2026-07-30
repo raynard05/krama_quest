@@ -8,6 +8,7 @@ import {
   Animated,
   ImageBackground,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Stop, Path, Line, ClipPath, G, Image as SvgImage, Pattern } from 'react-native-svg';
@@ -19,6 +20,73 @@ import DashboardCarousel from './DashboardCarousel';
 import DashboardEnsiklopediaCard from './DashboardEnsiklopediaCard';
 import { getAvatarSource, getBatikSource } from '../profile/ProfileAvatars';
 import { SoundTouchableOpacity } from '../SoundTouchableOpacity';
+import BackButton from '../BackButton';
+
+const ENSIKLOPEDIA_PAGES = [
+  require('../../assets/ensiklopedia/1.webp'),
+  require('../../assets/ensiklopedia/2.webp'),
+  require('../../assets/ensiklopedia/3.webp'),
+  require('../../assets/ensiklopedia/4.webp'),
+  require('../../assets/ensiklopedia/5.webp'),
+  require('../../assets/ensiklopedia/6.webp'),
+  require('../../assets/ensiklopedia/7.webp'),
+  require('../../assets/ensiklopedia/8.webp'),
+  require('../../assets/ensiklopedia/9.webp'),
+  require('../../assets/ensiklopedia/10.webp'),
+];
+
+function EnsiklopediaView({ onBack }: { onBack: () => void }) {
+  const insets = useSafeAreaInsets();
+  const [page, setPage] = useState(0);
+
+  const handleNext = () => {
+    if (page < ENSIKLOPEDIA_PAGES.length - 1) {
+      setPage(prev => prev + 1);
+    } else {
+      onBack(); // Exit at the end
+    }
+  };
+
+  const currentSource = ENSIKLOPEDIA_PAGES[page];
+  const assetInfo = Image.resolveAssetSource(currentSource);
+  const screenWidth = Dimensions.get('window').width;
+  // Calculate explicit height based on the device's screen width and the image's original dimensions
+  const imgHeight = (assetInfo && assetInfo.width && assetInfo.height) 
+    ? (screenWidth * assetInfo.height) / assetInfo.width 
+    : screenWidth * (16 / 9);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#0E101D' }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} bounces={false}>
+        <TouchableOpacity 
+          activeOpacity={1} 
+          onPress={handleNext} 
+          style={{ width: screenWidth, height: imgHeight }}
+        >
+          <Image
+            source={currentSource}
+            style={{ width: screenWidth, height: imgHeight }}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+      </ScrollView>
+
+      {/* Floating Header */}
+      <View style={{ position: 'absolute', top: insets.top, left: 0, right: 0, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', marginTop: 10 }} pointerEvents="box-none">
+        <View style={{ zIndex: 10 }}>
+          <BackButton onPress={onBack} />
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', marginRight: 40 /* offset back button */ }} pointerEvents="none">
+          <Image 
+            source={require('../../assets/title_board/ensiklopedia.png')} 
+            style={{ width: 180, height: 50 }} 
+            resizeMode="contain" 
+          />
+        </View>
+      </View>
+    </View>
+  );
+}
 
 interface DashboardMenuProps {
   currentUser: (UserAccount & { avatarId?: string; avatarBgId?: string }) | null;
@@ -39,6 +107,8 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
 
   // Avatar rotation animation value (interactive hover/press)
   const avatarRotateVal = useRef(new Animated.Value(0)).current;
+
+  const [showEnsiklopedia, setShowEnsiklopedia] = useState(false);
 
   // Spin animation value for the colorful ring (auto animation)
   const spinAnim = useRef(new Animated.Value(0)).current;
@@ -94,6 +164,10 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
   // Use username for greeting and limit to 12 characters
   const rawDisplayName = currentUser?.username || 'User';
   const displayName = rawDisplayName.substring(0, 12);
+
+  if (showEnsiklopedia) {
+    return <EnsiklopediaView onBack={() => setShowEnsiklopedia(false)} />;
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0E101D' }}>
@@ -268,7 +342,7 @@ export default function DashboardMenu({ currentUser, onSelectDolanan, onLogout, 
             </View>
 
             {/* Ensiklopedia Button Below Grid */}
-            <DashboardEnsiklopediaCard onPress={() => console.log('Ensiklopedia clicked')} />
+            <DashboardEnsiklopediaCard onPress={() => setShowEnsiklopedia(true)} />
 
           </ScrollView>
         </View>

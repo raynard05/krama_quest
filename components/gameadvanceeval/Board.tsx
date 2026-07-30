@@ -9,8 +9,8 @@ interface BoardProps {
   profiles?: Record<number, { avatarId: string; bgId: string; gacoId: string }>;
 }
 
-export function getGacoImageSource(gacoId: string) {
-  switch (gacoId) {
+export function getGacoImageSource(gacoId: string | number) {
+  switch (String(gacoId)) {
     case '1': return require('../../assets/dolanan_assets/1.png');
     case '2': return require('../../assets/dolanan_assets/2.png');
     case '3': return require('../../assets/dolanan_assets/3.png');
@@ -20,6 +20,18 @@ export function getGacoImageSource(gacoId: string) {
     case '7': return require('../../assets/dolanan_assets/7.png');
     case '8': return require('../../assets/dolanan_assets/8.png');
     default: return require('../../assets/dolanan_assets/1.png');
+  }
+}
+
+export function getPlayerAuraColor(playerId: number) {
+  switch (playerId) {
+    case 1: return { shadow: '#00BFFF', bg: 'rgba(0, 191, 255, 0.6)' }; // Blue
+    case 2: return { shadow: '#FF4500', bg: 'rgba(255, 69, 0, 0.6)' }; // Red
+    case 3: return { shadow: '#32CD32', bg: 'rgba(50, 205, 50, 0.6)' }; // Green
+    case 4: return { shadow: '#9370DB', bg: 'rgba(147, 112, 219, 0.6)' }; // Purple
+    case 5: return { shadow: '#FFD700', bg: 'rgba(255, 215, 0, 0.6)' }; // Yellow
+    case 6: return { shadow: '#FF69B4', bg: 'rgba(255, 105, 180, 0.6)' }; // Pink
+    default: return { shadow: '#FFFFFF', bg: 'rgba(255, 255, 255, 0.6)' }; // White fallback
   }
 }
 
@@ -72,7 +84,7 @@ function Token({ player, players, profiles }: { player: Player; players: Player[
   }, []);
 
   let gacoId = (player as any).gacoId || player.icon;
-  if (profiles && profiles[player.id]) {
+  if (profiles && profiles[player.id] && profiles[player.id].gacoId) {
     gacoId = profiles[player.id].gacoId;
   }
   const gacoSource = getGacoImageSource(gacoId);
@@ -104,9 +116,9 @@ function Token({ player, players, profiles }: { player: Player; players: Player[
           width: 32,
           height: 12,
           borderRadius: 16,
-          backgroundColor: player.id === 1 ? 'rgba(0, 191, 255, 0.6)' : 'rgba(255, 69, 0, 0.6)',
+          backgroundColor: getPlayerAuraColor(player.id).bg,
           transform: [{ scale: animPulse }],
-          shadowColor: player.id === 1 ? '#00BFFF' : '#FF4500',
+          shadowColor: getPlayerAuraColor(player.id).shadow,
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.8,
           shadowRadius: 10,

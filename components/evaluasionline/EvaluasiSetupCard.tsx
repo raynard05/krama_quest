@@ -164,7 +164,7 @@ export default function EvaluasiSetupCard({
 
   const handleLaunchOnlineGame = () => {
     const gamePlayers: any[] = [
-      { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false }
+      { id: 1, name: currentUserName, color: '#2976BF', icon: String(currentUserId), position: 0, type: 'human', isWinner: false, gacoId: selectedPlayer1Gaco + 1 }
     ];
     joinedPlayers.forEach(p => {
       gamePlayers.push({
@@ -174,7 +174,8 @@ export default function EvaluasiSetupCard({
         icon: String(p.userId),
         position: 0,
         type: 'human',
-        isWinner: false
+        isWinner: false,
+        gacoId: p.gacoId
       });
     });
 
